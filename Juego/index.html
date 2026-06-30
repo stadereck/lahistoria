@@ -1,0 +1,1593 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>La Historia - Juego de Tablero</title>
+    <!-- Tailwind CSS para diseño responsivo -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- React y ReactDOM para la interactividad -->
+    <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+    <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+    <!-- FontAwesome para iconos clásicos -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Permanent+Marker&display=swap');
+        
+        body { 
+            font-family: 'Fredoka', sans-serif; 
+            background-color: #2c1a04; /* Fondo muy oscuro de madera */
+            background-image: radial-gradient(rgba(0, 0, 0, 0.4) 20%, transparent 20%),
+                              radial-gradient(rgba(0, 0, 0, 0.4) 20%, transparent 20%);
+            background-size: 8px 8px;
+            background-position: 0 0, 4px 4px;
+            color: #fef3c7;
+            overflow-x: hidden;
+            user-select: none;
+        }
+
+        /* Estilos de Madera del Menú al estilo de image_02a589.jpg */
+        .wood-panel {
+            background: linear-gradient(135deg, #a16207 0%, #78350f 100%);
+            border: 6px solid #451a03;
+            box-shadow: inset 0 4px 0 #d97706, 0 10px 0 #1e0b02, 0 15px 20px rgba(0,0,0,0.6);
+            border-radius: 1.5rem;
+            position: relative;
+        }
+
+        .wood-panel-inner {
+            background-color: #854d0e;
+            border: 4px solid #451a03;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);
+            border-radius: 1rem;
+        }
+
+        /* Botones Cartoon en 3D del menú image_02a589.jpg */
+        .cartoon-btn {
+            background: #fffbeb;
+            color: #451a03;
+            border: 4px solid #451a03;
+            font-weight: 800;
+            border-radius: 1rem;
+            box-shadow: 0 6px 0 #451a03;
+            transition: all 0.1s ease;
+            text-transform: uppercase;
+        }
+        .cartoon-btn:hover {
+            transform: translateY(2px);
+            box-shadow: 0 4px 0 #451a03;
+            background: #fef3c7;
+        }
+        .cartoon-btn:active {
+            transform: translateY(6px);
+            box-shadow: 0 0px 0 #451a03;
+        }
+        .cartoon-btn:disabled {
+            background: #d1d5db;
+            color: #9ca3af;
+            border-color: #6b7280;
+            box-shadow: 0 4px 0 #6b7280;
+            transform: translateY(2px);
+            cursor: not-allowed;
+        }
+
+        /* Botones de control pequeños marrón/madera */
+        .wood-control-btn {
+            background: #b45309;
+            color: #fffbeb;
+            border: 4px solid #451a03;
+            box-shadow: 0 4px 0 #451a03;
+            border-radius: 0.75rem;
+            transition: all 0.1s ease;
+        }
+        .wood-control-btn:hover {
+            background: #d97706;
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #451a03;
+        }
+        .wood-control-btn:active {
+            transform: translateY(4px);
+            box-shadow: 0 0px 0 #451a03;
+        }
+
+        /* Banner de Madera Tipo Cinta */
+        .wood-banner {
+            background: #d97706;
+            border: 4px solid #451a03;
+            box-shadow: 0 4px 0 #451a03;
+            position: relative;
+            transform: rotate(-1deg);
+        }
+
+        /* Cuadrícula de papel simulada (como tu dibujo cuadriculado) */
+        .grid-paper {
+            background-color: #fafaf9;
+            background-image: linear-gradient(#e7e5e4 1px, transparent 1px),
+                              linear-gradient(90deg, #e7e5e4 1px, transparent 1px);
+            background-size: 16px 16px;
+            color: #1c1917;
+            font-family: 'Fredoka', cursive;
+            border: 4px solid #451a03;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        /* Estilo de marcador permanente para las sumas y restas */
+        .marker-text {
+            font-family: 'Permanent Marker', cursive;
+        }
+
+        /* Animaciones para dados y fichas */
+        .token { transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        
+        @keyframes bounce-slow {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-8px); }
+        }
+        .animate-bounce-slow { animation: bounce-slow 2s infinite ease-in-out; }
+
+        @keyframes pulse-glow {
+            0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(239, 68, 68, 0.6)); }
+            50% { transform: scale(1.03); filter: drop-shadow(0 0 20px rgba(239, 68, 68, 0.9)); }
+        }
+        .boss-cell-glow { animation: pulse-glow 1.5s infinite ease-in-out; }
+
+        /* Estilización de barra de desplazamiento estilo retro */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #451a03; }
+        ::-webkit-scrollbar-thumb { background: #b45309; border-radius: 4px; border: 2px solid #451a03; }
+        ::-webkit-scrollbar-thumb:hover { background: #d97706; }
+    </style>
+</head>
+<body>
+    <div id="root"></div>
+
+    <script type="text/babel">
+        // Sintetizador básico de efectos de sonido Web Audio API para simular juegos retro
+        const playSfx = (type) => {
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.connect(gain);
+                gain.connect(ctx.destination);
+
+                const now = ctx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'triangle';
+                    osc.frequency.setValueAtTime(400, now);
+                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now);
+                    osc.stop(now + 0.1);
+                } else if (type === 'dice') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(150, now);
+                    osc.frequency.setValueAtTime(300, now + 0.05);
+                    osc.frequency.setValueAtTime(200, now + 0.1);
+                    osc.frequency.setValueAtTime(450, now + 0.15);
+                    gain.gain.setValueAtTime(0.12, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now);
+                    osc.stop(now + 0.25);
+                } else if (type === 'hit') {
+                    // Simular explosión/golpe con ruido filtrado o caída de frecuencia rápida
+                    osc.type = 'square';
+                    osc.frequency.setValueAtTime(220, now);
+                    osc.frequency.exponentialRampToValueAtTime(40, now + 0.2);
+                    gain.gain.setValueAtTime(0.2, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now);
+                    osc.stop(now + 0.2);
+                } else if (type === 'hurt') {
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(180, now);
+                    osc.frequency.linearRampToValueAtTime(60, now + 0.3);
+                    gain.gain.setValueAtTime(0.25, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'powerup') {
+                    osc.type = 'sine';
+                    osc.frequency.setValueAtTime(300, now);
+                    osc.frequency.exponentialRampToValueAtTime(800, now + 0.3);
+                    gain.gain.setValueAtTime(0.15, now);
+                    gain.gain.linearRampToValueAtTime(0.01, now + 0.3);
+                    osc.start(now);
+                    osc.stop(now + 0.3);
+                } else if (type === 'victory') {
+                    // Acorde triunfal
+                    const notes = [261.63, 329.63, 392.00, 523.25];
+                    notes.forEach((freq, idx) => {
+                        const o = ctx.createOscillator();
+                        const g = ctx.createGain();
+                        o.connect(g);
+                        g.connect(ctx.destination);
+                        o.type = 'triangle';
+                        o.frequency.setValueAtTime(freq, now + idx * 0.08);
+                        g.gain.setValueAtTime(0.1, now + idx * 0.08);
+                        g.gain.linearRampToValueAtTime(0.01, now + 0.5);
+                        o.start(now + idx * 0.08);
+                        o.stop(now + 0.5);
+                    });
+                }
+            } catch (e) {
+                console.log("AudioContext no iniciado aún por restricciones del navegador.");
+            }
+        };
+
+        const BOARD_SIZE = 30;
+        const INITIAL_HP = 40;
+        const INITIAL_ATK = 10;
+
+        // Configuración de las casillas exactamente como el tablero dibujado
+        const BOARD_DATA = {
+            1: { type: 'start', label: 'Inicio', icon: '🏁', desc: '¡Comienza tu aventura!' },
+            2: { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura en el bosque.' },
+            3: { type: 'potion', hp: 5, label: '+5 Vida', icon: '🧪', desc: 'Bebes una pócima de salud.' },
+            4: { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura en el bosque.' },
+            5: { type: 'happy', label: 'Cara Feliz', icon: '🙂', desc: 'Prueba tu suerte con el dado.' },
+            6: { type: 'trap', hp: -10, label: 'Oso -10 ♡', icon: '🪤', desc: '¡Una trampa de oso oculta!' },
+            7: { type: 'jump', target: 9, label: 'Salta al 9', icon: '🦘', desc: '¡Tomas un atajo de un salto!' },
+            8: { type: 'gift', label: 'Regalo', icon: '🎁', desc: '¿Qué contendrá esta caja de sorpresas?' },
+            9: { type: 'empty', label: 'Aterrizaje', icon: '🎯', desc: 'Fin del salto de la casilla 7.' },
+            10: { type: 'cliff', hp: -15, label: 'Barranco -15 ♡', icon: '🕳️', desc: 'Te resbalas y caes en un acantilado.' },
+            11: { type: 'potion', hp: 10, label: '+10 Vida', icon: '🧪', desc: 'Una poción roja muy refrescante.' },
+            12: { type: 'enemy', maxHp: 30, atk: 5, rewardAtk: 5, label: 'Feroz', icon: '😡', desc: 'Un duende enojado bloquea el camino.' },
+            13: { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura en el bosque.' },
+            14: { type: 'potion', hp: 10, label: '+10 Vida', icon: '🧪', desc: 'Poción de curación misteriosa.' },
+            15: { type: 'jump', target: 18, label: 'Salta al 18', icon: '🦘', desc: '¡Un portal mágico te impulsa!' },
+            16: { type: 'happy', label: 'Cara Feliz', icon: '🙂', desc: 'Prueba tu suerte con el dado.' },
+            17: { type: 'strength', label: 'Fuerza', icon: '💪', desc: 'Prueba de fuerza extrema con dados.' },
+            18: { type: 'enemy', maxHp: 50, atk: 10, rewardAtk: 10, label: 'Guardián', icon: '👹', desc: 'Un minijefe protege este paso.' },
+            19: { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura en el bosque.' },
+            20: { type: 'heart', label: 'Corazón', icon: '❤️', desc: 'El destino decide si sana o hiere tu corazón.' },
+            21: { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura en el bosque.' },
+            22: { type: 'happy', label: 'Cara Feliz', icon: '🙂', desc: 'Prueba tu suerte con el dado.' },
+            23: { type: 'trap', hp: -15, atk: -5, label: 'Oso Fuerte', icon: '🪤', desc: 'Trampa reforzada: Daña tu cuerpo y moral.' },
+            24: { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura en el bosque.' },
+            25: { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura en el bosque.' },
+            26: { type: 'maze', turns: 2, label: 'Laberinto -2T', icon: '🌀', desc: 'Te desorientas en la niebla del laberinto.' },
+            27: { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura en el bosque.' },
+            28: { type: 'dice', label: 'Dado Suerte', icon: '🎲', desc: 'El gran dado dorado del destino.' },
+            29: { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura en el bosque.' },
+            30: { type: 'boss', maxHp: 120, atk: 15, label: 'LA CALAVERA', icon: '💀', desc: '¡El soberano del calabozo final!' }
+        };
+
+        // Representación en serpiente de abajo hacia arriba del tablero 6x5
+        const VISUAL_ORDER = [
+            25, 26, 27, 28, 29, 30, // Fila 5 (Izquierda a Derecha)
+            24, 23, 22, 21, 20, 19, // Fila 4 (Derecha a Izquierda)
+            13, 14, 15, 16, 17, 18, // Fila 3 (Izquierda a Derecha)
+            12, 11, 10,  9,  8,  7, // Fila 2 (Derecha a Izquierda)
+             1,  2,  3,  4,  5,  6  // Fila 1 (Izquierda a Derecha)
+        ];
+
+        const PLAYER_PALETTES = [
+            { bg: 'bg-red-500', hex: '#ef4444', name: 'Rojo', border: 'border-red-700' },
+            { bg: 'bg-blue-500', hex: '#3b82f6', name: 'Azul', border: 'border-blue-700' },
+            { bg: 'bg-green-500', hex: '#22c55e', name: 'Verde', border: 'border-green-700' },
+            { bg: 'bg-yellow-500', hex: '#eab308', name: 'Amarillo', border: 'border-yellow-700' }
+        ];
+
+        // Componente para que cada jugador dibuje su avatar a mano
+        function DrawingBoard({ colorHex, playerName, onSave }) {
+            const canvasRef = React.useRef(null);
+            const [isDrawing, setIsDrawing] = React.useState(false);
+            const [brushColor, setBrushColor] = React.useState('#1c1917');
+            const [brushSize, setBrushSize] = React.useState(5);
+
+            React.useEffect(() => {
+                const canvas = canvasRef.current;
+                if (!canvas) return;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#fcf8f2';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                // Dibujar cuadrícula tenue para dar aspecto de cuaderno
+                ctx.strokeStyle = '#e5e7eb';
+                ctx.lineWidth = 1;
+                for (let x = 15; x < canvas.width; x += 15) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                for (let y = 15; y < canvas.height; y += 15) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+            }, []);
+
+            const getCoordinates = (e) => {
+                const canvas = canvasRef.current;
+                if (!canvas) return { x: 0, y: 0 };
+                const rect = canvas.getBoundingClientRect();
+                
+                // Soporte para mouse y touch
+                const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+                const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+                
+                // Escalar coordenadas basadas en el tamaño físico del canvas
+                const x = ((clientX - rect.left) / rect.width) * canvas.width;
+                const y = ((clientY - rect.top) / rect.height) * canvas.height;
+                return { x, y };
+            };
+
+            const startDrawing = (e) => {
+                e.preventDefault();
+                const { x, y } = getCoordinates(e);
+                const ctx = canvasRef.current.getContext('2d');
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.strokeStyle = brushColor;
+                ctx.lineWidth = brushSize;
+                ctx.lineCap = 'round';
+                ctx.lineJoin = 'round';
+                setIsDrawing(true);
+            };
+
+            const draw = (e) => {
+                if (!isDrawing) return;
+                e.preventDefault();
+                const { x, y } = getCoordinates(e);
+                const ctx = canvasRef.current.getContext('2d');
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            };
+
+            const stopDrawing = () => {
+                setIsDrawing(false);
+            };
+
+            const clearCanvas = () => {
+                playSfx('click');
+                const canvas = canvasRef.current;
+                const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#fcf8f2';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                
+                ctx.strokeStyle = '#e5e7eb';
+                ctx.lineWidth = 1;
+                for (let x = 15; x < canvas.width; x += 15) {
+                    ctx.beginPath();
+                    ctx.moveTo(x, 0);
+                    ctx.lineTo(x, canvas.height);
+                    ctx.stroke();
+                }
+                for (let y = 15; y < canvas.height; y += 15) {
+                    ctx.beginPath();
+                    ctx.moveTo(0, y);
+                    ctx.lineTo(canvas.width, y);
+                    ctx.stroke();
+                }
+            };
+
+            const saveImage = () => {
+                playSfx('powerup');
+                const dataUrl = canvasRef.current.toDataURL();
+                onSave(dataUrl);
+            };
+
+            return (
+                <div className="flex flex-col items-center">
+                    <div className="mb-2 text-lg font-bold text-amber-100 flex items-center gap-2">
+                        <span className="w-3 h-3 rounded-full" style={{ backgroundColor: colorHex }}></span>
+                        Dibuja tu personaje para <span style={{ color: colorHex }}>{playerName}</span>
+                    </div>
+                    
+                    <div className="relative border-4 border-amber-950 rounded-2xl overflow-hidden shadow-lg mb-4">
+                        <canvas 
+                            ref={canvasRef}
+                            width={240}
+                            height={240}
+                            className="bg-stone-50 cursor-crosshair touch-none"
+                            onMouseDown={startDrawing}
+                            onMouseMove={draw}
+                            onMouseUp={stopDrawing}
+                            onMouseLeave={stopDrawing}
+                            onTouchStart={startDrawing}
+                            onTouchMove={draw}
+                            onTouchEnd={stopDrawing}
+                        />
+                    </div>
+
+                    {/* Herramientas de dibujo */}
+                    <div className="flex flex-wrap gap-2 justify-center mb-6 bg-amber-950/40 p-3 rounded-xl border border-amber-900 max-w-[280px]">
+                        {/* Paleta de colores */}
+                        {['#1c1917', '#ef4444', '#3b82f6', '#22c55e', '#eab308', '#d97706'].map(col => (
+                            <button 
+                                key={col}
+                                onClick={() => { playSfx('click'); setBrushColor(col); }}
+                                className={`w-8 h-8 rounded-full border-2 border-amber-950 transition-transform ${brushColor === col ? 'scale-125 ring-2 ring-white' : 'hover:scale-110'}`}
+                                style={{ backgroundColor: col }}
+                            />
+                        ))}
+                        {/* Borrador */}
+                        <button 
+                            onClick={() => { playSfx('click'); setBrushColor('#fcf8f2'); }}
+                            className={`w-8 h-8 rounded-full bg-white text-stone-900 border-2 border-amber-950 flex items-center justify-center transition-transform hover:scale-110 ${brushColor === '#fcf8f2' ? 'scale-125 ring-2 ring-amber-500' : ''}`}
+                            title="Borrador"
+                        >
+                            <i className="fa-solid fa-eraser text-xs"></i>
+                        </button>
+                        
+                        {/* Tamaños de pincel */}
+                        <div className="w-full h-[1px] bg-amber-900 my-1"></div>
+                        <div className="flex gap-4 items-center justify-center w-full">
+                            <span className="text-xs text-amber-200">Grosor:</span>
+                            {[3, 6, 12].map(size => (
+                                <button
+                                    key={size}
+                                    onClick={() => { playSfx('click'); setBrushSize(size); }}
+                                    className={`rounded-full bg-amber-200 border border-amber-950 transition-all ${brushSize === size ? 'ring-2 ring-white scale-110' : ''}`}
+                                    style={{ width: `${size + 10}px`, height: `${size + 10}px` }}
+                                />
+                            ))}
+                        </div>
+                    </div>
+
+                    <div className="flex gap-3 w-full">
+                        <button 
+                            onClick={clearCanvas}
+                            className="flex-1 py-3 text-sm font-bold bg-amber-900 hover:bg-amber-800 text-amber-50 rounded-xl border-2 border-amber-950 transition-transform hover:scale-105 active:scale-95 shadow-md"
+                        >
+                            <i className="fa-solid fa-trash-can mr-1"></i> Borrar
+                        </button>
+                        <button 
+                            onClick={saveImage}
+                            className="flex-1 py-3 text-sm font-bold bg-green-700 hover:bg-green-600 text-white rounded-xl border-2 border-amber-950 transition-transform hover:scale-105 active:scale-95 shadow-md"
+                        >
+                            Listo <i className="fa-solid fa-check ml-1"></i>
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+
+        function App() {
+            const [gameState, setGameState] = React.useState('menu'); // menu, setup, drawing, playing, paused, gameover, victory
+            const [difficulty, setDifficulty] = React.useState('normal'); // normal, hard
+            const [playerCount, setPlayerCount] = React.useState(1);
+            const [players, setPlayers] = React.useState([]);
+            const [currPlayerIdx, setCurrPlayerIdx] = React.useState(0);
+            const [logs, setLogs] = React.useState([]);
+            const [diceValue, setDiceValue] = React.useState(null);
+            const [pendingEvent, setPendingEvent] = React.useState(null);
+            const [winner, setWinner] = React.useState(null);
+            const [drawingIndex, setDrawingIndex] = React.useState(0);
+            const [showRules, setShowRules] = React.useState(false);
+            const [tempPlayers, setTempPlayers] = React.useState([]);
+
+            // Auto-scroll para la consola de crónicas
+            React.useEffect(() => {
+                const el = document.getElementById('log-end');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+            }, [logs]);
+
+            const log = (msg) => setLogs(prev => [...prev, msg]);
+
+            const setupPlayersCount = (num) => {
+                playSfx('click');
+                setPlayerCount(num);
+                
+                // Preparar array temporal para nombres y colores
+                const initialTemp = Array.from({ length: num }).map((_, i) => ({
+                    id: i,
+                    name: `Jugador ${PLAYER_PALETTES[i].name}`,
+                    colorClass: PLAYER_PALETTES[i].bg,
+                    colorHex: PLAYER_PALETTES[i].hex,
+                    borderClass: PLAYER_PALETTES[i].border
+                }));
+                setTempPlayers(initialTemp);
+                setGameState('setup');
+            };
+
+            const startDrawingPhase = () => {
+                playSfx('click');
+                setDrawingIndex(0);
+                setGameState('drawing');
+            };
+
+            const handleSaveAvatar = (dataUrl) => {
+                const updatedTemp = [...tempPlayers];
+                updatedTemp[drawingIndex] = {
+                    ...updatedTemp[drawingIndex],
+                    pos: 1,
+                    hp: INITIAL_HP,
+                    atk: INITIAL_ATK,
+                    skipTurns: 0,
+                    isDead: false,
+                    defeatedEnemies: [],
+                    avatarData: dataUrl,
+                    ledger: [
+                        { action: 'Inicio', val: '40 ❤️ | 10 ⚔️' }
+                    ]
+                };
+                setTempPlayers(updatedTemp);
+
+                if (drawingIndex + 1 < playerCount) {
+                    setDrawingIndex(drawingIndex + 1);
+                } else {
+                    // Todos han dibujado, empezamos el juego
+                    setPlayers(updatedTemp);
+                    setGameState('playing');
+                    setCurrPlayerIdx(0);
+                    setDiceValue(null);
+                    setPendingEvent(null);
+                    setLogs([`📜 ¡Inicia "La Historia" en modo ${difficulty.toUpperCase()}! Los valientes aventureros avanzan hacia La Calavera.`]);
+                    playSfx('victory');
+                }
+            };
+
+            const handlePauseToggle = () => {
+                playSfx('click');
+                if (gameState === 'playing') {
+                    setGameState('paused');
+                } else if (gameState === 'paused') {
+                    setGameState('playing');
+                }
+            };
+
+            const handleRestart = () => {
+                playSfx('click');
+                setGameState('menu');
+                setPlayers([]);
+                setTempPlayers([]);
+                setLogs([]);
+                setWinner(null);
+            };
+
+            const rollDiceForMove = () => {
+                playSfx('dice');
+                const roll = Math.floor(Math.random() * 6) + 1;
+                setDiceValue(roll);
+                const p = players[currPlayerIdx];
+                log(`🎲 ${p.name} tiró un ${roll}.`);
+                
+                setTimeout(() => {
+                    movePlayer(p, p.pos + roll);
+                }, 850);
+            };
+
+            const movePlayer = (player, targetPos) => {
+                let finalPos = targetPos;
+                
+                // Modo difícil: detenerse de forma obligatoria en casillas enemigas no derrotadas
+                if (difficulty === 'hard') {
+                    for (let i = player.pos + 1; i <= Math.min(finalPos, BOARD_SIZE); i++) {
+                        const stepCell = BOARD_DATA[i];
+                        if (stepCell && (stepCell.type === 'enemy' || stepCell.type === 'boss')) {
+                            if (!player.defeatedEnemies.includes(i)) {
+                                finalPos = i; 
+                                log(`⚔️ ¡Fuerza de detención! ${player.name} debe detenerse a luchar en la casilla ${i}.`);
+                                break;
+                            }
+                        }
+                    }
+                }
+                
+                finalPos = Math.min(finalPos, BOARD_SIZE);
+                
+                const newPlayers = [...players];
+                const pIndex = newPlayers.findIndex(p => p.id === player.id);
+                newPlayers[pIndex].pos = finalPos;
+                setPlayers(newPlayers);
+                
+                log(`🚶 ${player.name} avanza a la casilla ${finalPos}.`);
+                
+                setTimeout(() => {
+                    applyCellEffect(newPlayers[pIndex], finalPos, newPlayers);
+                }, 500);
+            };
+
+            const checkDeath = (player, list) => {
+                if (player.hp <= 0) {
+                    const idx = list.findIndex(p => p.id === player.id);
+                    list[idx].isDead = true;
+                    list[idx].hp = 0;
+                    list[idx].ledger.push({ action: '💀 Derrota', val: 'Muerto' });
+                    log(`💀 ¡${player.name} se quedó sin vida en su hoja y ha caído!`);
+                    playSfx('hurt');
+                    return true;
+                }
+                return false;
+            };
+
+            const applyCellEffect = (p, pos, list) => {
+                const cell = BOARD_DATA[pos];
+                let updatedPlayers = [...list];
+                const pIdx = updatedPlayers.findIndex(x => x.id === p.id);
+
+                const saveAndContinue = () => {
+                    updatedPlayers[pIdx] = p;
+                    const isDead = checkDeath(p, updatedPlayers);
+                    setPlayers(updatedPlayers);
+                    if (!isDead) {
+                        nextTurn(updatedPlayers);
+                    } else if (updatedPlayers.some(x => !x.isDead)) {
+                        nextTurn(updatedPlayers);
+                    } else {
+                        setGameState('gameover');
+                    }
+                };
+
+                if (!cell || cell.type === 'empty' || cell.type === 'start') {
+                    saveAndContinue();
+                    return;
+                }
+
+                playSfx('click');
+
+                switch (cell.type) {
+                    case 'potion':
+                        p.hp += cell.hp;
+                        p.ledger.push({ action: `🧪 Poción`, val: `+${cell.hp} ❤️` });
+                        log(`🧪 ${p.name} bebe poción: +${cell.hp} Vida (Total: ${p.hp}).`);
+                        playSfx('powerup');
+                        saveAndContinue();
+                        break;
+                    case 'trap':
+                        p.hp += cell.hp; // El valor es negativo
+                        if (cell.atk) {
+                            p.atk = Math.max(0, p.atk + cell.atk);
+                            p.ledger.push({ action: `🪤 Trampa`, val: `${cell.hp} ❤️ | ${cell.atk} ⚔️` });
+                            log(`🪤 ${p.name} pisó trampa de oso: ${cell.hp} Vida, ${cell.atk} Fuerza.`);
+                        } else {
+                            p.ledger.push({ action: `🪤 Trampa`, val: `${cell.hp} ❤️` });
+                            log(`🪤 ${p.name} pisó trampa de oso: ${cell.hp} Vida.`);
+                        }
+                        playSfx('hurt');
+                        saveAndContinue();
+                        break;
+                    case 'cliff':
+                        p.hp += cell.hp;
+                        p.ledger.push({ action: `🕳️ Hueco`, val: `${cell.hp} ❤️` });
+                        log(`🕳️ ${p.name} cayó en un barranco: ${cell.hp} Vida.`);
+                        playSfx('hurt');
+                        saveAndContinue();
+                        break;
+                    case 'enemy':
+                    case 'boss':
+                        if (p.defeatedEnemies.includes(pos)) {
+                            log(`🛡️ ${p.name} pasa con cuidado sobre un oponente ya derrotado.`);
+                            saveAndContinue();
+                        } else {
+                            setPendingEvent({ 
+                                type: 'combat', 
+                                player: p, 
+                                cell, 
+                                pos,
+                                enemyHp: cell.maxHp, 
+                                enemyMaxHp: cell.maxHp, 
+                                enemyAtk: cell.atk, 
+                                enemyName: cell.label,
+                                isBoss: cell.type === 'boss',
+                                rollResult: null
+                            });
+                        }
+                        break;
+                    case 'jump':
+                        log(`🦘 ¡${p.name} salta desde la casilla ${pos} hasta la ${cell.target}!`);
+                        p.ledger.push({ action: `🦘 Salto`, val: `Ir a ${cell.target}` });
+                        updatedPlayers[pIdx] = p;
+                        setPlayers(updatedPlayers);
+                        playSfx('powerup');
+                        setTimeout(() => movePlayer(p, cell.target), 800);
+                        break;
+                    case 'maze':
+                        p.skipTurns += cell.turns;
+                        p.ledger.push({ action: `🌀 Laberinto`, val: `-${cell.turns} Turnos` });
+                        log(`🌀 ${p.name} entra al Laberinto. Pierde ${cell.turns} turnos.`);
+                        saveAndContinue();
+                        break;
+                    case 'happy':
+                    case 'gift':
+                    case 'strength':
+                    case 'heart':
+                    case 'dice':
+                        // Requieren lanzar dado de evento
+                        setPendingEvent({ player: p, cell, type: cell.type, rollResult: null });
+                        break;
+                    default:
+                        saveAndContinue();
+                        break;
+                }
+            };
+
+            const resolveEventRoll = () => {
+                playSfx('dice');
+                const roll = Math.floor(Math.random() * 6) + 1;
+                
+                let p = { ...players.find(x => x.id === pendingEvent.player.id) };
+                let c = pendingEvent.cell;
+                let list = [...players];
+                const pIdx = list.findIndex(x => x.id === p.id);
+
+                setPendingEvent(prev => ({ ...prev, rollResult: roll }));
+
+                setTimeout(() => {
+                    log(`🎲 Evento ${c.label}: ${p.name} sacó un ${roll}.`);
+
+                    switch (pendingEvent.type) {
+                        case 'happy': // 1-3: +5 Fuerza (#), 4-6: +5 Vida (❤️)
+                            if (roll <= 3) { 
+                                p.atk += 5; 
+                                p.ledger.push({ action: `🙂 Cara Feliz`, val: `+5 ⚔️` });
+                                log("🙂 ¡Cara Feliz te otorga +5 de Fuerza!");
+                                playSfx('powerup');
+                            } else { 
+                                p.hp += 5; 
+                                p.ledger.push({ action: `🙂 Cara Feliz`, val: `+5 ❤️` });
+                                log("🙂 ¡Cara Feliz te otorga +5 de Vida!");
+                                playSfx('powerup');
+                            }
+                            break;
+                        case 'gift': // 1-3: -5 Vida, 4-6: +5 Vida, +5 Fuerza
+                            if (roll <= 3) { 
+                                p.hp -= 5; 
+                                p.ledger.push({ action: `🎁 Caja Broma`, val: `-5 ❤️` });
+                                log("🎁 ¡Sorpresa desagradable! Es una broma pesada: -5 de Vida.");
+                                playSfx('hurt');
+                            } else { 
+                                p.hp += 5; 
+                                p.atk += 5; 
+                                p.ledger.push({ action: `🎁 Regalo Real`, val: `+5 ❤️ | +5 ⚔️` });
+                                log("🎁 ¡Qué gran regalo! Recibes +5 de Vida y +5 de Fuerza.");
+                                playSfx('powerup');
+                            }
+                            break;
+                        case 'strength': // 1-3: -10 Fuerza, 4-6: +15 Fuerza
+                            if (roll <= 3) { 
+                                p.atk = Math.max(0, p.atk - 10); 
+                                p.ledger.push({ action: `💪 Fallo Fza`, val: `-10 ⚔️` });
+                                log("💪 Te sobreesforzaste y fallaste la prueba: -10 Fuerza.");
+                                playSfx('hurt');
+                            } else { 
+                                p.atk += 15; 
+                                p.ledger.push({ action: `💪 Éxito Fza`, val: `+15 ⚔️` });
+                                log("💪 ¡Demuestras una fuerza increíble! +15 de Fuerza.");
+                                playSfx('powerup');
+                            }
+                            break;
+                        case 'heart': // 1-3: +10 Vida, 4-6: -15 Vida
+                            if (roll <= 3) { 
+                                p.hp += 10; 
+                                p.ledger.push({ action: `❤️ Corazón Sano`, val: `+10 ❤️` });
+                                log("❤️ El latido de tu corazón se estabiliza: +10 de Vida.");
+                                playSfx('powerup');
+                            } else { 
+                                p.hp -= 15; 
+                                p.ledger.push({ action: `💔 Corazón Roto`, val: `-15 ❤️` });
+                                log("💔 Un fuerte dolor de pecho te azota: -15 de Vida.");
+                                playSfx('hurt');
+                            }
+                            break;
+                        case 'dice': // 1-3: -20 Vida y Daño, 4-6: +20 Vida y Daño
+                            if (roll <= 3) { 
+                                p.hp = Math.max(0, p.hp - 20); 
+                                p.atk = Math.max(0, p.atk - 20); 
+                                p.ledger.push({ action: `🎲 Mala Suerte`, val: `-20 ❤️ | -20 ⚔️` });
+                                log("🎲 ¡Mala suerte del dado gigante! Pierdes 20 de Vida y 20 de Fuerza.");
+                                playSfx('hurt');
+                            } else { 
+                                p.hp += 20; 
+                                p.atk += 20; 
+                                p.ledger.push({ action: `🎲 Gran Suerte`, val: `+20 ❤️ | +20 ⚔️` });
+                                log("🎲 ¡El destino sonríe glorioso! Obtienes +20 de Vida y +20 de Fuerza.");
+                                playSfx('powerup');
+                            }
+                            break;
+                    }
+
+                    list[pIdx] = p;
+                    const isDead = checkDeath(p, list);
+                    setPlayers(list);
+                    setPendingEvent(null);
+                    
+                    if (!isDead) {
+                        nextTurn(list);
+                    } else if (list.some(x => !x.isDead)) {
+                        nextTurn(list);
+                    } else {
+                        setGameState('gameover');
+                    }
+                }, 1000);
+            };
+
+            const resolveCombatRound = () => {
+                playSfx('dice');
+                const roll = Math.floor(Math.random() * 6) + 1;
+                
+                let p = { ...players.find(x => x.id === pendingEvent.player.id) };
+                let evt = { ...pendingEvent };
+                let list = [...players];
+                const pIdx = list.findIndex(x => x.id === p.id);
+
+                evt.rollResult = roll;
+                setPendingEvent(evt);
+
+                setTimeout(() => {
+                    let damageToEnemy = 0;
+                    let pDamageMsg = "";
+                    let selfDmg = 0;
+
+                    // Lógica estricta de dados en combate descrita por el usuario
+                    switch(roll) {
+                        case 1:
+                            selfDmg = 5;
+                            p.hp -= selfDmg;
+                            pDamageMsg = `🎲 1: ¡Fallas catastróficamente! Te causas ${selfDmg} de daño a ti mismo.`;
+                            playSfx('hurt');
+                            break;
+                        case 2:
+                            pDamageMsg = `🎲 2: Fallas el golpe y no infliges ningún tipo de daño.`;
+                            break;
+                        case 3:
+                            // Depende de la fuerza porque haces la mitad del daño acumulado
+                            damageToEnemy = Math.floor(p.atk / 2);
+                            pDamageMsg = `🎲 3: Golpe débil. Solo logras conectar la mitad de tu fuerza: ${damageToEnemy} daño.`;
+                            playSfx('hit');
+                            break;
+                        case 4:
+                            // Quitas tu daño con penalizador de 5 o 10 dependiendo del modo
+                            const pen = difficulty === 'hard' ? 10 : 5;
+                            damageToEnemy = Math.max(1, p.atk - pen);
+                            pDamageMsg = `🎲 4: Golpe con penalizador por dificultad (${difficulty === 'hard' ? '-10' : '-5'}). Daño: ${damageToEnemy}.`;
+                            playSfx('hit');
+                            break;
+                        case 5:
+                            damageToEnemy = p.atk;
+                            pDamageMsg = `🎲 5: ¡Golpe directo! Infliges todo tu daño: ${damageToEnemy}.`;
+                            playSfx('hit');
+                            break;
+                        case 6:
+                            // Crítico con +10 (normal) o +5 (difícil)
+                            const bonus = difficulty === 'hard' ? 5 : 10;
+                            damageToEnemy = p.atk + bonus;
+                            pDamageMsg = `🎲 6: ¡GOLPE CRÍTICO! Se suman +${bonus} a tu ataque. Daño total: ${damageToEnemy}.`;
+                            playSfx('victory');
+                            break;
+                    }
+
+                    log(`⚔️ ${p.name}: ${pDamageMsg}`);
+
+                    if (damageToEnemy > 0) {
+                        evt.enemyHp = Math.max(0, evt.enemyHp - damageToEnemy);
+                        log(`💥 El enemigo ${evt.enemyName} recibe ${damageToEnemy} daño. (Vida restante: ${evt.enemyHp})`);
+                    }
+
+                    // Checar si el enemigo muere
+                    if (evt.enemyHp === 0) {
+                        if (evt.isBoss) {
+                            log(`👑 ¡FELICIDADES! ¡${p.name} HA DERROTADO A LA CALAVERA FINAL!`);
+                            p.ledger.push({ action: '👑 Victoria', val: 'Venció Jefe' });
+                            setGameState('victory');
+                            setWinner(p);
+                            setPendingEvent(null);
+                            playSfx('victory');
+                            return;
+                        }
+
+                        log(`🏆 ¡${p.name} venció a ${evt.enemyName}!`);
+                        if (evt.cell.rewardAtk) {
+                            p.atk += evt.cell.rewardAtk;
+                            p.ledger.push({ action: `⚔️ Victoria`, val: `+${evt.cell.rewardAtk} Fuerza` });
+                            log(`💪 Recompensa de victoria: +${evt.cell.rewardAtk} de Fuerza.`);
+                        }
+                        p.defeatedEnemies.push(evt.pos);
+                        
+                        list[pIdx] = p;
+                        setPlayers(list);
+                        setPendingEvent(null);
+                        nextTurn(list);
+                        return;
+                    }
+
+                    // Contraataque del enemigo si sobrevive
+                    if (roll !== 1) { // Si ya se hizo daño a sí mismo con un '1', ¿contraataca igual? Sí, para balancear la ferocidad del combate
+                        p.hp -= evt.enemyAtk;
+                        p.ledger.push({ action: `💥 Combate`, val: `-${evt.enemyAtk} ❤️` });
+                        log(`👹 El enemigo contraataca a ${p.name} causándole ${evt.enemyAtk} de daño.`);
+                        playSfx('hurt');
+                    } else {
+                        p.ledger.push({ action: `💥 Autodaño`, val: `-${selfDmg} ❤️` });
+                    }
+
+                    list[pIdx] = p;
+                    const isDead = checkDeath(p, list);
+                    setPlayers(list);
+
+                    if (isDead) {
+                        setPendingEvent(null);
+                        if (list.some(x => !x.isDead)) {
+                            nextTurn(list);
+                        } else {
+                            setGameState('gameover');
+                        }
+                    } else {
+                        // Resetear dado visual para el siguiente tiro del combate
+                        evt.rollResult = null;
+                        setPendingEvent(evt);
+                    }
+                }, 1000);
+            };
+
+            const nextTurn = (currentList = players) => {
+                let list = [...currentList];
+                if (list.every(p => p.isDead)) {
+                    setGameState('gameover');
+                    return;
+                }
+
+                let nextIdx = (currPlayerIdx + 1) % list.length;
+                
+                for (let i = 0; i < list.length * 4; i++) {
+                    let nextP = list[nextIdx];
+                    if (!nextP.isDead) {
+                        if (nextP.skipTurns > 0) {
+                            log(`💤 ${nextP.name} está atrapado en el laberinto y pierde su turno. (${nextP.skipTurns} restantes)`);
+                            nextP.skipTurns -= 1;
+                            list[nextIdx] = nextP;
+                        } else {
+                            setPlayers(list);
+                            setCurrPlayerIdx(nextIdx);
+                            setDiceValue(null);
+                            return;
+                        }
+                    }
+                    nextIdx = (nextIdx + 1) % list.length;
+                }
+                setPlayers(list);
+            };
+
+            const renderModals = () => {
+                if (!pendingEvent) return null;
+                const { type, player, cell, rollResult } = pendingEvent;
+
+                if (type === 'combat') {
+                    const playerHpPct = Math.max(0, Math.min(100, (player.hp / INITIAL_HP) * 100));
+                    const enemyHpPct = Math.max(0, Math.min(100, (pendingEvent.enemyHp / pendingEvent.enemyMaxHp) * 100));
+
+                    return (
+                        <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-40 p-4">
+                            <div className={`wood-panel max-w-lg w-full p-6 text-center animate-bounce-slow border-4 ${pendingEvent.isBoss ? 'border-red-600' : 'border-amber-950'}`}>
+                                <span className="absolute -top-6 left-1/2 -translate-x-1/2 wood-banner text-amber-950 px-6 py-1 rounded-xl text-lg font-black uppercase border-4 border-amber-950">
+                                    ⚔️ ¡A PELEAR! ⚔️
+                                </span>
+                                
+                                <div className="mt-4 text-6xl mb-2">{cell.icon}</div>
+                                <h3 className="text-2xl font-bold mb-4 text-amber-100 uppercase">{pendingEvent.enemyName}</h3>
+
+                                {/* Comparativa de Atributos */}
+                                <div className="grid grid-cols-2 gap-4 bg-amber-950/50 p-4 rounded-xl border border-amber-900 text-left mb-4">
+                                    {/* Jugador */}
+                                    <div>
+                                        <div className="flex items-center gap-1.5 font-bold truncate" style={{ color: player.colorHex }}>
+                                            <img src={player.avatarData} className="w-8 h-8 rounded-full border border-amber-950 bg-stone-100" />
+                                            <span>{player.name}</span>
+                                        </div>
+                                        <div className="w-full bg-stone-800 h-3 rounded-full mt-2 overflow-hidden border border-amber-950">
+                                            <div className="bg-green-500 h-full" style={{ width: `${playerHpPct}%` }}></div>
+                                        </div>
+                                        <p className="text-xs mt-1 text-amber-200">❤️ {player.hp} / {INITIAL_HP} | ⚔️ {player.atk} Fza</p>
+                                    </div>
+                                    {/* Enemigo */}
+                                    <div className="text-right flex flex-col items-end">
+                                        <div className="font-bold text-red-400">{pendingEvent.enemyName}</div>
+                                        <div className="w-full bg-stone-800 h-3 rounded-full mt-2 overflow-hidden border border-amber-950">
+                                            <div className="bg-red-500 h-full" style={{ width: `${enemyHpPct}%` }}></div>
+                                        </div>
+                                        <p className="text-xs mt-1 text-amber-200">❤️ {pendingEvent.enemyHp} / {pendingEvent.enemyMaxHp} | ⚔️ {pendingEvent.enemyAtk} Atk</p>
+                                    </div>
+                                </div>
+
+                                <div className="bg-amber-100/10 p-3 rounded-xl border border-amber-900/50 text-left text-xs text-amber-200 mb-6 space-y-1">
+                                    <p className="font-bold text-amber-400 text-center uppercase tracking-wider mb-1">Efectos del Dado al Atacar:</p>
+                                    <p>🎯 1: Fallas golpe y te restas 5 de vida.</p>
+                                    <p>🎯 2: Fallas el golpe. No causas daño.</p>
+                                    <p>🎯 3: Conectas la mitad de tu fuerza actual.</p>
+                                    <p>🎯 4: Tu fuerza menos {difficulty === 'hard' ? '10' : '5'} de penalizador.</p>
+                                    <p>🎯 5: Causas todo tu daño equivalente a tu fuerza.</p>
+                                    <p>🎯 6: ¡Crítico! Tu fuerza más {difficulty === 'hard' ? '5' : '10'} de daño.</p>
+                                </div>
+
+                                {/* Dado de combate */}
+                                {rollResult !== null && (
+                                    <div className="mb-4 text-3xl font-black text-amber-100 bg-amber-950/70 py-2 px-4 rounded-xl border border-amber-900 inline-block animate-pulse">
+                                        🎲 Sacaste: {rollResult}
+                                    </div>
+                                )}
+
+                                <button 
+                                    onClick={resolveCombatRound}
+                                    disabled={rollResult !== null}
+                                    className="w-full py-4 cartoon-btn text-xl"
+                                >
+                                    {rollResult !== null ? 'Procesando golpe...' : '🎲 Lanzar dado para Atacar'}
+                                </button>
+                            </div>
+                        </div>
+                    );
+                }
+
+                // Modal genérico para eventos aleatorios con el dado (Feliz, Regalo, Fuerza, Corazón, Dado Suerte)
+                return (
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-40 p-4">
+                        <div className="wood-panel max-w-sm w-full p-6 text-center animate-bounce-slow">
+                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 wood-banner text-amber-950 px-6 py-1 rounded-xl text-lg font-black uppercase border-4 border-amber-950">
+                                🎲 PRUEBA DE SUERTE
+                            </span>
+                            
+                            <div className="mt-4 text-6xl mb-2">{cell.icon}</div>
+                            <h3 className="text-xl font-black text-amber-100 mb-1">{cell.label}</h3>
+                            <p className="text-sm text-amber-200/80 mb-4">{cell.desc}</p>
+                            
+                            <div className="bg-amber-950/40 border border-amber-900 rounded-xl p-3 mb-6 text-left text-xs text-amber-200">
+                                <p className="font-bold text-amber-400 mb-1">Resultados de dado posibles:</p>
+                                {type === 'happy' && (
+                                    <>
+                                        <p>🎲 1, 2, 3: Te otorga +5 de Fuerza ⚔️</p>
+                                        <p>🎲 4, 5, 6: Te otorga +5 de Vida ❤️</p>
+                                    </>
+                                )}
+                                {type === 'gift' && (
+                                    <>
+                                        <p>🎲 1, 2, 3: Regalo broma: Pierdes -5 de Vida ❤️</p>
+                                        <p>🎲 4, 5, 6: ¡Regalo magnífico!: +5 Vida ❤️ y +5 Fuerza ⚔️</p>
+                                    </>
+                                )}
+                                {type === 'strength' && (
+                                    <>
+                                        <p>🎲 1, 2, 3: Fallas la prueba de fuerza: Pierdes -10 Fuerza ⚔️</p>
+                                        <p>🎲 4, 5, 6: Superas la prueba: Ganas +15 Fuerza ⚔️</p>
+                                    </>
+                                )}
+                                {type === 'heart' && (
+                                    <>
+                                        <p>🎲 1, 2, 3: Corazón Sano: Te cura +10 de Vida ❤️</p>
+                                        <p>🎲 4, 5, 6: Dolor de Pecho: Pierdes -15 de Vida ❤️</p>
+                                    </>
+                                )}
+                                {type === 'dice' && (
+                                    <>
+                                        <p>🎲 1, 2, 3: Mala racha: Pierdes -20 Vida ❤️ y -20 Fuerza ⚔️</p>
+                                        <p>🎲 4, 5, 6: Fortuna suprema: Ganas +20 Vida ❤️ y +20 Fuerza ⚔️</p>
+                                    </>
+                                )}
+                            </div>
+
+                            {rollResult !== null ? (
+                                <div className="mb-6 text-4xl font-black text-yellow-400 bg-amber-950 py-3 rounded-xl border border-amber-900 animate-pulse">
+                                    🎲 Dado: {rollResult}
+                                </div>
+                            ) : (
+                                <button 
+                                    onClick={resolveEventRoll}
+                                    className="w-full py-4 cartoon-btn text-lg"
+                                >
+                                    🎲 Probar Destino
+                                </button>
+                            )}
+                        </div>
+                    </div>
+                );
+            };
+
+            const renderPauseMenu = () => {
+                if (gameState !== 'paused') return null;
+                return (
+                    <div className="fixed inset-0 bg-black/85 backdrop-blur-md flex items-center justify-center z-50 p-4">
+                        <div className="wood-panel max-w-[280px] w-full p-6 text-center flex flex-col gap-4">
+                            {/* Banner superior "MENU" exacto a image_02a589.jpg */}
+                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 wood-banner text-amber-950 px-8 py-1.5 rounded-xl text-xl font-black uppercase border-4 border-amber-950">
+                                MENU
+                            </span>
+                            
+                            <div className="mt-4 flex flex-col gap-4">
+                                <button 
+                                    onClick={handlePauseToggle}
+                                    className="w-full py-3.5 cartoon-btn text-base"
+                                >
+                                    PLAY (Seguir)
+                                </button>
+                                
+                                <button 
+                                    onClick={() => { playSfx('click'); setShowRules(true); }}
+                                    className="w-full py-3.5 cartoon-btn text-base"
+                                >
+                                    REGLAS (ABOUT)
+                                </button>
+
+                                <div className="bg-amber-950/40 p-3 rounded-xl border border-amber-900 flex flex-col items-center">
+                                    <span className="text-xs text-amber-300 font-bold mb-1">DIFICULTAD:</span>
+                                    <div className="flex gap-2">
+                                        <button 
+                                            onClick={() => { playSfx('click'); setDifficulty('normal'); }}
+                                            className={`px-3 py-1 rounded text-xs font-bold transition-all ${difficulty === 'normal' ? 'bg-amber-100 text-amber-950 border-2 border-amber-950 shadow' : 'bg-amber-900 text-amber-200'}`}
+                                        >
+                                            Normal
+                                        </button>
+                                        <button 
+                                            onClick={() => { playSfx('click'); setDifficulty('hard'); }}
+                                            className={`px-3 py-1 rounded text-xs font-bold transition-all ${difficulty === 'hard' ? 'bg-red-600 text-white border-2 border-amber-950 shadow' : 'bg-amber-900 text-amber-200'}`}
+                                        >
+                                            Difícil
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <button 
+                                    onClick={handleRestart}
+                                    className="w-full py-3.5 cartoon-btn text-base bg-red-100 text-red-950 hover:bg-red-200"
+                                >
+                                    QUIT (Salir)
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            };
+
+            const renderRulesOverlay = () => {
+                if (!showRules) return null;
+                return (
+                    <div className="fixed inset-0 bg-black/90 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+                        <div className="wood-panel max-w-lg w-full p-6 max-h-[85vh] flex flex-col">
+                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 wood-banner text-amber-950 px-8 py-1.5 rounded-xl text-xl font-black uppercase border-4 border-amber-950">
+                                REGLAS DE LA HISTORIA
+                            </span>
+                            
+                            <div className="mt-4 flex-1 overflow-y-auto pr-2 text-sm text-amber-100 space-y-4 text-left font-sans">
+                                <div>
+                                    <h4 className="font-bold text-amber-400 flex items-center gap-2 text-base">
+                                        <span>⚔️</span> Modos de Juego
+                                    </h4>
+                                    <p className="mt-1">
+                                        <strong>Modo Normal:</strong> Solo peleas si tu tirada final cae exactamente sobre la casilla del enemigo o calavera.
+                                    </p>
+                                    <p className="mt-1">
+                                        <strong>Modo Difícil:</strong> ¡No puedes esquivarlos! Si tu tirada pasa de largo sobre una casilla de enemigo, te verás obligado a detenerte y pelear hasta vencerlo.
+                                    </p>
+                                </div>
+
+                                <div className="h-[1px] bg-amber-900"></div>
+
+                                <div>
+                                    <h4 className="font-bold text-amber-400 flex items-center gap-2 text-base">
+                                        <span>📜</span> Efecto de Casillas
+                                    </h4>
+                                    <ul className="space-y-2 mt-2">
+                                        <li>🧪 <strong>Pociones (Casillas 3, 11, 14):</strong> Recuperas la cantidad de Vida indicada (+5 o +10).</li>
+                                        <li>🪤 <strong>Trampas de Oso (Casillas 6, 23):</strong> Pierdes la Vida y Fuerza indicadas de inmediato.</li>
+                                        <li>🕳️ <strong>Barrancos (Casilla 10):</strong> El terreno cede y pierdes -15 de Vida automáticamente.</li>
+                                        <li>🦘 <strong>Saltos (Casillas 7, 15):</strong> Tomas un atajo que te avanza hasta la casilla indicada.</li>
+                                        <li>🌀 <strong>Laberinto (Casilla 26):</strong> Te desorientas en sus pasillos perdiendo 2 turnos completos.</li>
+                                        <li>🙂 <strong>Cara Feliz (Casillas 5, 15, 22):</strong> Tiras el dado. Un resultado de 1-3 otorga +5 de Fuerza, de 4-6 otorga +5 de Vida.</li>
+                                        <li>🎁 <strong>Regalo (Casilla 8):</strong> Tiras el dado. 1-3 es caja de broma (-5 de Vida), 4-6 es un cofre (+5 de Vida y +5 de Fuerza).</li>
+                                        <li>💪 <strong>Prueba de Fuerza (Casilla 17):</strong> Tiras el dado. 1-3 reduce -10 tu Fuerza, 4-6 aumenta tu Fuerza en +15.</li>
+                                        <li>❤️ <strong>Corazón (Casilla 20):</strong> Tiras el dado. 1-3 otorga +10 de Vida, 4-6 reduce -15 de tu Vida.</li>
+                                        <li>🎲 <strong>Dado de la Suerte (Casilla 28):</strong> Tiras el dado. 1-3 resta -20 de tu Vida y Fuerza, 4-6 te añade +20 a ambos atributos.</li>
+                                        <li>💀 <strong>La Calavera (Casilla 30):</strong> El Jefe Supremo. Debes combatirlo y ganarle para finalizar la historia con victoria.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <button 
+                                onClick={() => { playSfx('click'); setShowRules(false); }}
+                                className="mt-4 w-full py-3 cartoon-btn"
+                            >
+                                Entendido
+                            </button>
+                        </div>
+                    </div>
+                );
+            };
+
+            if (gameState === 'menu') {
+                return (
+                    <div className="min-h-screen flex items-center justify-center p-4">
+                        <div className="wood-panel max-w-sm w-full p-6 text-center flex flex-col gap-6">
+                            {/* Título tipo Banner al estilo de image_02a589.jpg */}
+                            <div className="wood-banner py-3 px-4 rounded-xl border-4 border-amber-950 my-2">
+                                <h1 className="text-3xl md:text-4xl font-black text-amber-950 tracking-wide uppercase drop-shadow">
+                                    La Historia
+                               </h1>
+                            </div>
+                            
+                            <p className="text-amber-200 text-sm italic font-medium -mt-2">
+                                "El gran juego de rol y tablero dibujado a mano."
+                            </p>
+
+                            <div className="flex flex-col gap-4 mt-2">
+                                <button 
+                                    onClick={() => setupPlayersCount(1)}
+                                    className="w-full py-3.5 cartoon-btn text-base"
+                                >
+                                    Solo Guerrero (1 Jugador)
+                                </button>
+                                <button 
+                                    onClick={() => setupPlayersCount(2)}
+                                    className="w-full py-3.5 cartoon-btn text-base"
+                                >
+                                    Duelo de 2 Jugadores
+                                </button>
+                                <button 
+                                    onClick={() => setupPlayersCount(3)}
+                                    className="w-full py-3.5 cartoon-btn text-base"
+                                >
+                                    Gesta de 3 Jugadores
+                                </button>
+                                <button 
+                                    onClick={() => setupPlayersCount(4)}
+                                    className="w-full py-3.5 cartoon-btn text-base"
+                                >
+                                    Grupo de 4 Jugadores
+                                </button>
+                            </div>
+
+                            <button 
+                                onClick={() => { playSfx('click'); setShowRules(true); }}
+                                className="mt-2 w-full py-2.5 bg-amber-950/50 hover:bg-amber-950/70 border border-amber-900 rounded-xl font-bold text-amber-300 text-xs tracking-wider uppercase transition-all"
+                            >
+                                <i className="fa-solid fa-book-open mr-1"></i> Cómo Jugar (Manual)
+                            </button>
+                            
+                            {renderRulesOverlay()}
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gameState === 'setup') {
+                return (
+                    <div className="min-h-screen flex items-center justify-center p-4">
+                        <div className="wood-panel max-w-md w-full p-6 text-center flex flex-col gap-5">
+                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 wood-banner text-amber-950 px-8 py-1.5 rounded-xl text-lg font-black uppercase border-4 border-amber-950">
+                                PREPARACIÓN
+                            </span>
+                            
+                            <div className="mt-4 flex flex-col gap-4 text-left">
+                                <label className="text-sm font-bold text-amber-200 uppercase tracking-wider block">
+                                    Elige la dificultad del calabozo:
+                                </label>
+                                <div className="grid grid-cols-2 gap-3">
+                                    <button 
+                                        onClick={() => { playSfx('click'); setDifficulty('normal'); }}
+                                        className={`py-3 rounded-xl font-bold border-2 transition-all flex flex-col items-center justify-center
+                                            ${difficulty === 'normal' 
+                                                ? 'bg-amber-100 text-amber-950 border-amber-950 shadow-md ring-2 ring-amber-400' 
+                                                : 'bg-amber-900/60 text-amber-200 border-amber-950 hover:bg-amber-900'}`}
+                                    >
+                                        <span className="text-lg">😀 Normal</span>
+                                        <span className="text-[10px] opacity-75">Ignoras enemigos al pasar de largo</span>
+                                    </button>
+                                    <button 
+                                        onClick={() => { playSfx('click'); setDifficulty('hard'); }}
+                                        className={`py-3 rounded-xl font-bold border-2 transition-all flex flex-col items-center justify-center
+                                            ${difficulty === 'hard' 
+                                                ? 'bg-red-600 text-white border-amber-950 shadow-md ring-2 ring-red-400' 
+                                                : 'bg-amber-900/60 text-amber-200 border-amber-950 hover:bg-amber-900'}`}
+                                    >
+                                        <span className="text-lg">👹 Difícil</span>
+                                        <span className="text-[10px] opacity-75">Freno obligado para combatir</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="flex flex-col gap-3 text-left">
+                                <label className="text-sm font-bold text-amber-200 uppercase tracking-wider block">
+                                    Escribe los nombres de los héroes:
+                                </label>
+                                {tempPlayers.map((tp, idx) => (
+                                    <div key={tp.id} className="flex items-center gap-3">
+                                        <span className={`w-4 h-4 rounded-full ${tp.colorClass} border border-amber-950 flex-none`}></span>
+                                        <input 
+                                            type="text" 
+                                            value={tp.name}
+                                            onChange={(e) => {
+                                                const updated = [...tempPlayers];
+                                                updated[idx].name = e.target.value.substring(0, 16);
+                                                setTempPlayers(updated);
+                                            }}
+                                            className="flex-1 px-3 py-2 rounded-xl text-stone-950 font-bold bg-amber-50 border-2 border-amber-950 focus:outline-none focus:ring-2 focus:ring-amber-500"
+                                            placeholder={`Héroe ${idx + 1}`}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="flex gap-3 mt-2">
+                                <button 
+                                    onClick={() => { playSfx('click'); setGameState('menu'); }}
+                                    className="flex-1 py-3 text-sm font-bold bg-amber-950/70 border border-amber-900 rounded-xl text-amber-100"
+                                >
+                                    Volver
+                                </button>
+                                <button 
+                                    onClick={startDrawingPhase}
+                                    className="flex-1 py-3 cartoon-btn text-sm"
+                                >
+                                    Dibujar Personajes <i className="fa-solid fa-paint-brush ml-1"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gameState === 'drawing') {
+                const currentDrawingPlayer = tempPlayers[drawingIndex];
+                return (
+                    <div className="min-h-screen flex items-center justify-center p-4">
+                        <div className="wood-panel max-w-sm w-full p-6 text-center">
+                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 wood-banner text-amber-950 px-6 py-1.5 rounded-xl text-md font-black uppercase border-4 border-amber-950">
+                                PIZARRÓN ({drawingIndex + 1}/{playerCount})
+                            </span>
+                            
+                            <div className="mt-4">
+                                {currentDrawingPlayer && (
+                                    <DrawingBoard 
+                                        colorHex={currentDrawingPlayer.colorHex}
+                                        playerName={currentDrawingPlayer.name}
+                                        onSave={handleSaveAvatar}
+                                    />
+                                )}
+                            </div>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gameState === 'gameover') {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+                        <div className="wood-panel max-w-md w-full p-8 text-center flex flex-col items-center gap-4">
+                            <div className="text-8xl animate-pulse">💀</div>
+                            <h1 className="text-4xl md:text-5xl font-black text-red-500 tracking-tight uppercase">GAME OVER</h1>
+                            <p className="text-amber-200">
+                                Todos los héroes han caído en el laberinto del destino. La historia termina aquí...
+                            </p>
+                            
+                            <button 
+                                onClick={handleRestart}
+                                className="w-full py-4 cartoon-btn text-lg mt-4"
+                            >
+                                Reescribir la historia
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gameState === 'victory') {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+                        <div className="wood-panel max-w-md w-full p-8 text-center flex flex-col items-center gap-4 border-4 border-yellow-500">
+                            <div className="text-8xl animate-bounce">👑</div>
+                            <h1 className="text-4xl md:text-5xl font-black text-yellow-400 tracking-tight uppercase">¡VICTORIA ÉPICA!</h1>
+                            
+                            <div className="my-4 p-4 grid-paper rounded-2xl flex flex-col items-center gap-3 w-full">
+                                <img src={winner?.avatarData} className="w-24 h-24 rounded-2xl border-4 border-amber-950 bg-stone-50" />
+                                <h3 className="text-2xl font-bold text-amber-950" style={{ color: winner?.colorHex }}>
+                                    {winner?.name}
+                                </h3>
+                                <p className="text-sm font-bold text-stone-700">
+                                    Ha derrotado a La Calavera Final y escrito un glorioso final.
+                                </p>
+                            </div>
+
+                            <button 
+                                onClick={handleRestart}
+                                className="w-full py-4 cartoon-btn text-lg"
+                            >
+                                Jugar de Nuevo
+                            </button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const currPlayer = players[currPlayerIdx];
+
+            return (
+                <div className="min-h-screen p-3 md:p-6 flex flex-col xl:flex-row gap-6 max-w-[1600px] mx-auto relative">
+                    
+                    {/* Botón de Pausa flotante al estilo del control de pausa de la imagen image_02a589.jpg */}
+                    <button 
+                        onClick={handlePauseToggle}
+                        className="fixed top-3 right-3 md:top-6 md:right-6 w-12 h-12 wood-control-btn flex items-center justify-center text-xl z-30"
+                        title="Pausar juego"
+                    >
+                        <i className="fa-solid fa-pause"></i>
+                    </button>
+
+                    {/* PANEL IZQUIERDO: HÉROE DE TURNO Y TABLAS DE PERSONAJES (Sumas y Restas) */}
+                    <div className="flex-none xl:w-[320px] flex flex-col gap-6">
+                        
+                        {/* Control de Turno */}
+                        <div className="wood-panel p-5 flex flex-col items-center">
+                            <span className="absolute -top-5 left-1/2 -translate-x-1/2 wood-banner text-amber-950 px-6 py-0.5 rounded-xl text-xs font-black uppercase border-4 border-amber-950">
+                                TURNO ACTUAL
+                            </span>
+                            
+                            {currPlayer && (
+                                <div className="mt-3 flex flex-col items-center w-full">
+                                    <div className="relative mb-3">
+                                        <img src={currPlayer.avatarData} className={`w-20 h-20 rounded-2xl border-4 ${currPlayer.borderClass} bg-stone-50`} />
+                                        <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full ${currPlayer.colorClass} border-2 border-amber-950`}></div>
+                                    </div>
+                                    <h3 className="text-xl font-bold text-center truncate w-full mb-1" style={{ color: currPlayer.colorHex }}>
+                                        {currPlayer.name}
+                                    </h3>
+                                    <p className="text-xs text-amber-200/80 font-bold uppercase tracking-wider mb-4">
+                                        Casilla Actual: <span className="text-amber-100 text-sm font-black">{currPlayer.pos}</span>
+                                    </p>
+                                    
+                                    <button 
+                                        onClick={rollDiceForMove}
+                                        disabled={pendingEvent !== null || diceValue !== null}
+                                        className="w-full py-3.5 cartoon-btn text-lg"
+                                    >
+                                        {diceValue ? (
+                                            <span className="text-3xl animate-bounce">🎲 {diceValue}</span>
+                                        ) : (
+                                            <>🎲 Lanzar Dado</>
+                                        )}
+                                    </button>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Listado de Jugadores / Tablas con Sumas y Restas */}
+                        <div className="flex-1 flex flex-col gap-4 overflow-y-auto max-h-[50vh] xl:max-h-none">
+                            {players.map(p => (
+                                <div 
+                                    key={p.id}
+                                    className={`relative rounded-2xl border-4 transition-all overflow-hidden ${p.isDead ? 'opacity-40 grayscale' : ''} ${currPlayerIdx === p.id && !p.isDead ? 'border-amber-400 shadow-lg shadow-amber-400/20' : 'border-amber-950'}`}
+                                >
+                                    {/* Encabezado del Personaje */}
+                                    <div className="bg-amber-950/80 p-3 flex items-center gap-3 border-b-2 border-amber-950">
+                                        <img src={p.avatarData} className="w-10 h-10 rounded-xl border border-amber-950 bg-stone-50 flex-none" />
+                                        <div className="min-w-0 flex-1">
+                                            <p className="font-bold text-sm truncate" style={{ color: p.colorHex }}>{p.name}</p>
+                                            <div className="flex gap-4 text-xs font-mono">
+                                                <span className="text-green-400">❤️ {p.hp}</span>
+                                                <span className="text-blue-400">⚔️ {p.atk} Fza</span>
+                                            </div>
+                                        </div>
+                                        {p.isDead && <span className="bg-red-700 text-white font-bold text-[10px] px-2 py-0.5 rounded-full uppercase">CAÍDO</span>}
+                                        {p.skipTurns > 0 && <span className="bg-amber-700 text-white font-bold text-[10px] px-2 py-0.5 rounded-full uppercase">🌀 Pausa {p.skipTurns}T</span>}
+                                    </div>
+
+                                    {/* Tabla Cuadriculada (Sumas y Restas manuscritas como tu dibujo) */}
+                                    <div className="grid-paper p-3 h-32 overflow-y-auto text-xs flex flex-col gap-1">
+                                        <p className="text-[10px] font-bold text-stone-500 uppercase border-b border-stone-300 pb-1 mb-1 tracking-wider">
+                                            Hoja de Sumas y Restas:
+                                        </p>
+                                        {p.ledger.map((item, i) => (
+                                            <div key={i} className="flex justify-between items-center border-b border-stone-200/50 py-0.5 font-mono">
+                                                <span className="text-stone-600 font-bold">{item.action}:</span>
+                                                <span className="marker-text text-amber-950 text-[11px] font-extrabold">{item.val}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    </div>
+
+                    {/* PANEL CENTRAL: EL TABLERO DE JUEGO (6 columnas x 5 filas) */}
+                    <div className="flex-1 flex items-center justify-center p-2">
+                        <div className="grid grid-cols-6 gap-1 md:gap-2 max-w-4xl w-full">
+                            {VISUAL_ORDER.map(num => {
+                                const cell = BOARD_DATA[num] || { type: 'empty', label: 'Camino', icon: '🌲' };
+                                const playersHere = players.filter(p => p.pos === num && !p.isDead);
+                                
+                                // Coloración de casillas basadas en tu diseño
+                                let bgClass = "bg-amber-900/40 border-amber-900/60 hover:bg-amber-800/50";
+                                let textClass = "text-amber-100";
+                                let customStyle = {};
+
+                                if (num === 1) {
+                                    bgClass = "bg-emerald-950/60 border-emerald-700/50";
+                                } else if (num === 30) {
+                                    bgClass = "bg-red-950/60 border-red-700/50 boss-cell-glow";
+                                } else if (['trap', 'cliff'].includes(cell.type)) {
+                                    bgClass = "bg-rose-950/40 border-rose-900/50";
+                                } else if (cell.type === 'potion') {
+                                    bgClass = "bg-green-950/30 border-green-900/50";
+                                } else if (cell.type === 'jump') {
+                                    bgClass = "bg-indigo-950/40 border-indigo-900/50";
+                                } else if (cell.type === 'maze') {
+                                    bgClass = "bg-violet-950/40 border-violet-900/50";
+                                }
+
+                                return (
+                                    <div 
+                                        key={num} 
+                                        className={`relative aspect-square border-2 rounded-2xl flex flex-col items-center justify-center p-1 transition-all ${bgClass} border-amber-950/60`}
+                                        style={customStyle}
+                                        title={cell.desc}
+                                    >
+                                        {/* Número de Casilla */}
+                                        <span className="absolute top-1 left-1.5 text-[10px] md:text-sm text-amber-200/50 font-mono font-black">
+                                            {num}
+                                        </span>
+                                        
+                                        {/* Icono de Casilla */}
+                                        <span className="text-2xl md:text-4xl lg:text-5xl filter drop-shadow">
+                                            {cell.icon}
+                                        </span>
+                                        
+                                        {/* Nombre de Casilla */}
+                                        <span className="text-[7px] md:text-[10px] leading-tight text-center font-bold text-amber-200/90 px-0.5 hidden sm:block truncate w-full mt-1">
+                                            {cell.label}
+                                        </span>
+
+                                        {/* Fichas de Jugadores sobre la Casilla */}
+                                        <div className="absolute bottom-1 right-1 sm:top-1 sm:bottom-auto flex gap-1 flex-wrap-reverse sm:flex-wrap justify-end">
+                                            {playersHere.map(p => (
+                                                <div 
+                                                    key={p.id} 
+                                                    className={`w-3.5 h-3.5 md:w-5 md:h-5 rounded-full border-2 border-amber-950 shadow-md z-10 token transition-transform hover:scale-125`}
+                                                    style={{ backgroundColor: p.colorHex }}
+                                                    title={p.name}
+                                                >
+                                                    <img src={p.avatarData} className="w-full h-full rounded-full pointer-events-none" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                );
+                            })}
+                        </div>
+                    </div>
+
+                    {/* PANEL DERECHO: CRÓNICA DE EVENTOS (Consola de Rol) */}
+                    <div className="flex-none xl:w-[280px] wood-panel p-4 flex flex-col h-48 xl:h-auto overflow-hidden">
+                        <span className="absolute -top-5 left-1/2 -translate-x-1/2 wood-banner text-amber-950 px-6 py-0.5 rounded-xl text-xs font-black uppercase border-4 border-amber-950">
+                            📜 CRÓNICA
+                        </span>
+                        
+                        <div className="flex-1 overflow-y-auto mt-2 flex flex-col gap-2 text-xs font-mono text-amber-200 text-left pr-1">
+                            {logs.map((logStr, i) => (
+                                <div key={i} className="pb-1 border-b border-amber-950/30 text-amber-100/90 last:border-0">
+                                    <span className="text-amber-500 font-bold">&gt;</span> {logStr}
+                                </div>
+                            ))}
+                            <div id="log-end" className="h-1 flex-none" />
+                        </div>
+                    </div>
+
+                    {/* Modales de Eventos e Interacciones */}
+                    {renderModals()}
+                    
+                    {/* Menú de Pausa */}
+                    {renderPauseMenu()}
+                    
+                    {/* Overlay de Reglas */}
+                    {renderRulesOverlay()}
+                </div>
+            );
+        }
+
+        const root = ReactDOM.createRoot(document.getElementById('root'));
+        root.render(<App />);
+    </script>
+</body>
+</html>
+```
+eof
+
+### Cambios Clave y Nuevas Funcionalidades:
+1. **Menú de Pausa Estilizado (según `image_02a589.jpg`)**: He incorporado un botón flotante con el icono de pausa `||`. Al presionarlo, el juego se pausa y despliega un menú flotante de madera con los botones de **Reanudar (Play)**, **Reglas (About)**, **Opciones de Dificultad**, y **Salir (Quit)**.
+2. **Tablas de Personaje y Pizarrón de Dibujo**: Al registrar a los jugadores, cada uno puede dibujar su avatar a mano en un lienzo interactivo con lápices de colores y un borrador. En la interfaz de juego, cada jugador tiene su propia "hoja de libreta cuadriculada" (emulando las imágenes reales que enviaste) donde se registran con texto de marcador todas las sumas y restas de vida (`❤️`) y fuerza (`⚔️`) que ocurren.
+3. **Mecánica de Daño en Combate**: Se incorporó el combate con dados detallado, con daños catastróficos por sacar `1`, fallos por `2`, daño a la mitad por `3`, penalizaciones por `4`, daño total por `5`, y críticos letales por sacar `6` (sumando `+10` en normal y `+5` en difícil).
+4. **Modos de Dificultad**: El **Modo Normal** y el **Modo Difícil** funcionan exactamente como pediste, con la regla del bloqueo obligatorio de avance en modo difícil.
+5. **Efectos de Sonido 8-bit**: Clics, lanzamiento de dados, golpes, heridas y acordes triunfales generados directamente con la Web Audio API para asegurar que funcione sin dependencias ni enlaces externos rotos.
