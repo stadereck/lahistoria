@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Historia - Juego de Tablero</title>
+    <title>La Historia v2.5 - Daño en Combate Arreglado</title>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
     
@@ -169,6 +169,53 @@
         }
         .confetti { position: absolute; top: -10%; z-index: 50; }
 
+        @keyframes menu-crack {
+            0% { filter: brightness(1); transform: scale(1); }
+            10% { filter: brightness(1.2); transform: scale(1.02) rotate(1deg); }
+            20% { filter: brightness(1.4); transform: scale(0.98) rotate(-1deg); }
+            30% { filter: brightness(1.6) contrast(1.2); transform: scale(1.03) rotate(2deg); }
+            45% { filter: brightness(2) contrast(1.5); transform: scale(0.97) rotate(-2deg); }
+            60% { filter: brightness(4) grayscale(0.5); transform: scale(1.05); }
+            80% { filter: brightness(10) grayscale(1); opacity: 1; transform: scale(1.1); }
+            100% { filter: brightness(1); transform: scale(1); }
+        }
+        
+        @keyframes white-flash {
+            0%, 50% { opacity: 0; }
+            75%, 85% { opacity: 1; }
+            100% { opacity: 0; }
+        }
+
+        .cracking-active {
+            animation: menu-crack 3s ease-in-out forwards;
+            pointer-events: none;
+        }
+
+        .white-overlay {
+            position: fixed; inset: 0; background: white; z-index: 9999;
+            pointer-events: none; opacity: 0;
+            animation: white-flash 3s ease-in-out forwards;
+        }
+
+        /* Grietas superpuestas */
+        .crack-lines {
+            position: absolute; inset: 0; z-index: 10; pointer-events: none;
+            background-image: radial-gradient(circle at 50% 50%, transparent 20%, rgba(255,255,255,0.8) 100%),
+                              linear-gradient(45deg, transparent 48%, white 49%, white 51%, transparent 52%),
+                              linear-gradient(-45deg, transparent 48%, white 49%, white 51%, transparent 52%),
+                              linear-gradient(10deg, transparent 49%, white 50%, transparent 51%);
+            background-size: 100% 100%;
+            opacity: 0;
+            animation: cracks-appear 3s ease-in-out forwards;
+        }
+
+        @keyframes cracks-appear {
+            0%, 20% { opacity: 0; transform: scale(0.9); }
+            40% { opacity: 0.5; transform: scale(1); }
+            60% { opacity: 1; transform: scale(1.05); }
+            80%, 100% { opacity: 0; }
+        }
+
         ::-webkit-scrollbar { width: 8px; }
         ::-webkit-scrollbar-track { background: var(--game-900); }
         ::-webkit-scrollbar-thumb { background: var(--game-500); border-radius: 4px; border: 2px solid var(--game-900); }
@@ -179,111 +226,39 @@
 
     <script type="text/babel">
         const WORLDS = [
-            { 
-                id: 1, name: 'Bosque de Roble', icon: '🌲', bossId: 1,
-                theme: { g900: '#451a03', g700: '#78350f', g500: '#d97706', g300: '#fcd34d', g100: '#fef3c7', bg: '#2c1a04', dot: 'rgba(217, 119, 6, 0.15)' }
-            },
-            { 
-                id: 2, name: 'Caverna Oscura', icon: '🦇', bossId: 2,
-                theme: { g900: '#171717', g700: '#262626', g500: '#525252', g300: '#a3a3a3', g100: '#f5f5f5', bg: '#0a0a0a', dot: 'rgba(163, 163, 163, 0.15)' }
-            },
-            { 
-                id: 3, name: 'Volcán Infernal', icon: '🌋', bossId: 3,
-                theme: { g900: '#450a0a', g700: '#7f1d1d', g500: '#b91c1c', g300: '#fca5a5', g100: '#fef2f2', bg: '#2a0404', dot: 'rgba(239, 68, 68, 0.15)' }
-            },
-            { 
-                id: 4, name: 'Reino Celestial', icon: '☁️', bossId: 4,
-                theme: { g900: '#1e3a8a', g700: '#1d4ed8', g500: '#3b82f6', g300: '#93c5fd', g100: '#eff6ff', bg: '#0f172a', dot: 'rgba(96, 165, 250, 0.15)' }
-            }
+            { id: 1, name: 'Bosque de Roble', icon: '🌲', bossId: 1, theme: { g900: '#451a03', g700: '#78350f', g500: '#d97706', g300: '#fcd34d', g100: '#fef3c7', bg: '#2c1a04', dot: 'rgba(217, 119, 6, 0.15)' } },
+            { id: 2, name: 'Caverna Oscura', icon: '🦇', bossId: 2, theme: { g900: '#171717', g700: '#262626', g500: '#525252', g300: '#a3a3a3', g100: '#f5f5f5', bg: '#0a0a0a', dot: 'rgba(163, 163, 163, 0.15)' } },
+            { id: 3, name: 'Volcán Infernal', icon: '🌋', bossId: 3, theme: { g900: '#450a0a', g700: '#7f1d1d', g500: '#b91c1c', g300: '#fca5a5', g100: '#fef2f2', bg: '#2a0404', dot: 'rgba(239, 68, 68, 0.15)' } },
+            { id: 4, name: 'Reino Celestial', icon: '☁️', bossId: 4, theme: { g900: '#1e3a8a', g700: '#1d4ed8', g500: '#3b82f6', g300: '#93c5fd', g100: '#eff6ff', bg: '#0f172a', dot: 'rgba(96, 165, 250, 0.15)' } },
+            { id: 5, name: 'Desierto Espejismo', icon: '🐫', bossId: 5, theme: { g900: '#713f12', g700: '#a16207', g500: '#ca8a04', g300: '#fde047', g100: '#fefce8', bg: '#422006', dot: 'rgba(202, 138, 4, 0.15)' } },
+            { id: 6, name: 'Pantano Tóxico', icon: '🐸', bossId: 6, theme: { g900: '#14532d', g700: '#166534', g500: '#22c55e', g300: '#86efac', g100: '#f0fdf4', bg: '#052e16', dot: 'rgba(34, 197, 94, 0.15)' } },
+            { id: 7, name: 'Ciudad Mecánica', icon: '⚙️', bossId: 7, theme: { g900: '#312e81', g700: '#4338ca', g500: '#6366f1', g300: '#a5b4fc', g100: '#eef2ff', bg: '#1e1b4b', dot: 'rgba(99, 102, 241, 0.15)' } },
+            { id: 8, name: 'Tundra Helada', icon: '❄️', bossId: 8, theme: { g900: '#0c4a6e', g700: '#0369a1', g500: '#0ea5e9', g300: '#7dd3fc', g100: '#f0f9ff', bg: '#082f49', dot: 'rgba(14, 165, 233, 0.15)' } },
+            { id: 9, name: 'Selva Mutante', icon: '🦖', bossId: 9, theme: { g900: '#064e3b', g700: '#047857', g500: '#10b981', g300: '#6ee7b7', g100: '#ecfdf5', bg: '#022c22', dot: 'rgba(16, 185, 129, 0.15)' } },
+            { id: 10, name: 'Océano Profundo', icon: '🦑', bossId: 10, theme: { g900: '#172554', g700: '#1e3a8a', g500: '#3b82f6', g300: '#93c5fd', g100: '#eff6ff', bg: '#0b1120', dot: 'rgba(59, 130, 246, 0.15)' } },
+            { id: 11, name: 'Ruinas Flotantes', icon: '🏛️', bossId: 11, theme: { g900: '#4a044e', g700: '#86198f', g500: '#d946ef', g300: '#f0abfc', g100: '#fdf4ff', bg: '#2e0231', dot: 'rgba(217, 70, 239, 0.15)' } },
+            { id: 12, name: 'Dimensión Cristal', icon: '💎', bossId: 12, theme: { g900: '#831843', g700: '#be185d', g500: '#ec4899', g300: '#f9a8d4', g100: '#fdf2f8', bg: '#500724', dot: 'rgba(236, 72, 153, 0.15)' } },
+            { id: 13, name: 'Purgatorio Sombras', icon: '🌑', bossId: 13, theme: { g900: '#27272a', g700: '#3f3f46', g500: '#71717a', g300: '#d4d4d8', g100: '#fafafa', bg: '#18181b', dot: 'rgba(113, 113, 122, 0.15)' } },
+            { id: 14, name: 'Galaxia Perdida', icon: '🌌', bossId: 14, theme: { g900: '#2e1065', g700: '#5b21b6', g500: '#8b5cf6', g300: '#c4b5fd', g100: '#f5f3ff', bg: '#1c0a3e', dot: 'rgba(139, 92, 246, 0.15)' } },
+            { id: 15, name: 'El Vacío', icon: '👁️', bossId: 15, theme: { g900: '#000000', g700: '#111111', g500: '#333333', g300: '#888888', g100: '#ffffff', bg: '#050505', dot: 'rgba(255, 255, 255, 0.1)' } }
         ];
-
-        const applyTheme = (worldId) => {
-            const w = WORLDS.find(x => x.id === worldId) || WORLDS[0];
-            const root = document.documentElement;
-            root.style.setProperty('--game-900', w.theme.g900);
-            root.style.setProperty('--game-700', w.theme.g700);
-            root.style.setProperty('--game-500', w.theme.g500);
-            root.style.setProperty('--game-300', w.theme.g300);
-            root.style.setProperty('--game-100', w.theme.g100);
-            root.style.setProperty('--game-bg', w.theme.bg);
-            root.style.setProperty('--game-dot', w.theme.dot);
-        };
-
-        window.isSoundEnabled = true;
-
-        const playSfx = (type) => {
-            if (!window.isSoundEnabled) return;
-            try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
-                const osc = ctx.createOscillator(); const gain = ctx.createGain();
-                osc.connect(gain); gain.connect(ctx.destination);
-                const now = ctx.currentTime;
-
-                if (type === 'click') {
-                    osc.type = 'triangle'; osc.frequency.setValueAtTime(600, now);
-                    osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
-                    gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
-                    osc.start(now); osc.stop(now + 0.1);
-                } else if (type === 'tick') {
-                    osc.type = 'square'; osc.frequency.setValueAtTime(800, now);
-                    gain.gain.setValueAtTime(0.05, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
-                    osc.start(now); osc.stop(now + 0.05);
-                } else if (type === 'dice') {
-                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now);
-                    osc.frequency.setValueAtTime(500, now + 0.15);
-                    gain.gain.setValueAtTime(0.12, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
-                    osc.start(now); osc.stop(now + 0.25);
-                } else if (type === 'hit') {
-                    osc.type = 'square'; osc.frequency.setValueAtTime(220, now);
-                    osc.frequency.exponentialRampToValueAtTime(40, now + 0.2);
-                    gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
-                    osc.start(now); osc.stop(now + 0.2);
-                } else if (type === 'hurt') {
-                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, now);
-                    osc.frequency.linearRampToValueAtTime(50, now + 0.4);
-                    gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
-                    osc.start(now); osc.stop(now + 0.4);
-                } else if (type === 'powerup') {
-                    osc.type = 'sine'; osc.frequency.setValueAtTime(300, now);
-                    osc.frequency.exponentialRampToValueAtTime(900, now + 0.4);
-                    gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
-                    osc.start(now); osc.stop(now + 0.4);
-                } else if (type === 'victory') {
-                    const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
-                    notes.forEach((freq, idx) => {
-                        const o = ctx.createOscillator(); const g = ctx.createGain();
-                        o.connect(g); g.connect(ctx.destination); o.type = 'triangle';
-                        o.frequency.setValueAtTime(freq, now + idx * 0.1);
-                        g.gain.setValueAtTime(0.15, now + idx * 0.1); g.gain.linearRampToValueAtTime(0.01, now + 0.8);
-                        o.start(now + idx * 0.1); o.stop(now + 0.8);
-                    });
-                }
-            } catch (e) {}
-        };
-
-        const generateBotAvatar = (colorHex, name) => {
-            const canvas = document.createElement('canvas');
-            canvas.width = 240; canvas.height = 240;
-            const ctx = canvas.getContext('2d');
-            ctx.fillStyle = '#fcf8f2'; ctx.fillRect(0, 0, 240, 240);
-            ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
-            for (let i = 15; i < 240; i += 15) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 240); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(240, i); ctx.stroke(); }
-            ctx.strokeStyle = '#1c1917'; ctx.lineWidth = 8; ctx.fillStyle = colorHex;
-            ctx.fillRect(60, 60, 120, 120); ctx.strokeRect(60, 60, 120, 120);
-            ctx.fillStyle = '#fff'; ctx.fillRect(80, 90, 30, 30); ctx.fillRect(130, 90, 30, 30);
-            ctx.strokeRect(80, 90, 30, 30); ctx.strokeRect(130, 90, 30, 30);
-            ctx.fillStyle = '#1c1917';
-            const offset = name.length % 2 === 0 ? 10 : 5;
-            ctx.fillRect(90, 100 + offset, 10, 10); ctx.fillRect(140, 100 - offset, 10, 10);
-            ctx.beginPath(); ctx.moveTo(90, 150); ctx.lineTo(150, 150); ctx.stroke();
-            return canvas.toDataURL();
-        };
 
         const BOSS_POOL = [
             { id: 1, maxHp: 120, atk: 15, label: 'LA CALAVERA', icon: '💀', desc: '¡El soberano clásico del calabozo!' },
             { id: 2, maxHp: 150, atk: 12, label: 'EL REY LÁPIZ', icon: '✏️', desc: '¡Gobernante de los trazos y borrones!' },
             { id: 3, maxHp: 90, atk: 25, label: 'DRAGÓN TINTA', icon: '🐉', desc: '¡Poca vida, pero daño devastador!' },
-            { id: 4, maxHp: 200, atk: 20, label: 'DIOS DADO', icon: '🎲', desc: '¡Entidad suprema del azar!' }
+            { id: 4, maxHp: 200, atk: 20, label: 'DIOS DADO', icon: '🎲', desc: '¡Entidad suprema del azar!' },
+            { id: 5, maxHp: 140, atk: 18, label: 'FARAÓN ARENA', icon: '🐫', desc: '¡Sus maldiciones son eternas!' },
+            { id: 6, maxHp: 160, atk: 15, label: 'SAPO MUTANTE', icon: '🐸', desc: '¡Cuidado con su veneno!' },
+            { id: 7, maxHp: 220, atk: 14, label: 'ROBOT DESTROY', icon: '⚙️', desc: '¡Máquina de guerra imparable!' },
+            { id: 8, maxHp: 250, atk: 10, label: 'YETI HIELO', icon: '❄️', desc: '¡Un tanque que congela tus huesos!' },
+            { id: 9, maxHp: 180, atk: 22, label: 'T-REX ESPINAS', icon: '🦖', desc: '¡Depredador Alfa prehistórico!' },
+            { id: 10, maxHp: 300, atk: 12, label: 'KRAKEN ABISAL', icon: '🦑', desc: '¡El terror de las profundidades!' },
+            { id: 11, maxHp: 200, atk: 25, label: 'GÁRGOLA', icon: '🏛️', desc: '¡Piedra viviente y feroz!' },
+            { id: 12, maxHp: 150, atk: 30, label: 'GOLEM CRISTAL', icon: '💎', desc: '¡Refleja y corta como cuchillas!' },
+            { id: 13, maxHp: 180, atk: 28, label: 'SOMBRA MAYOR', icon: '🌑', desc: '¡No puedes golpear lo que no ves!' },
+            { id: 14, maxHp: 400, atk: 20, label: 'AGUJERO NEGRO', icon: '🌌', desc: '¡Consume toda la esperanza!' },
+            { id: 15, maxHp: 999, atk: 40, label: 'DIOS DEL VACÍO', icon: '👁️', desc: '¡El creador y destructor de todo!' }
         ];
 
         const BOT_NAMES = ['Shadow', 'ProGamer', 'Noob', 'Dark_Knight', 'Faker', 'IALord', 'Ninja', 'Cyber', 'Ghost', 'Viper', 'Titan', 'Reaper', 'Specter', 'Wraith', 'Phantom', 'Doom'];
@@ -316,7 +291,7 @@
             15: { type: 'jump', target: 18, label: 'Salta al 18', icon: '🦘', desc: 'Portal mágico.' },
             16: { type: 'happy', label: 'Cara Feliz', icon: '🙂', desc: 'Dado de bendiciones.' },
             17: { type: 'strength', label: 'Fuerza', icon: '💪', desc: 'Prueba tu poder.' },
-            18: { type: 'enemy', maxHp: 50, atk: 10, rewardAtk: 10, label: 'Guardián', icon: '👹', desc: 'Sub-Jefe Feroz.' },
+            18: { type: 'enemy', maxHp: 50, atk: 10, rewardAtk: 10, label: 'Guardián', icon: '😡', desc: 'Sub-Jefe Feroz.' },
             19: { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura.' },
             20: { type: 'heart', label: 'Corazón', icon: '❤️', desc: 'Salud o infarto.' },
             21: { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura.' },
@@ -331,6 +306,82 @@
             30: { type: 'boss', maxHp: 120, atk: 15, label: 'JEFE', icon: '💀', desc: 'Jefe Final' }
         };
         const VISUAL_ORDER = [ 25, 26, 27, 28, 29, 30, 24, 23, 22, 21, 20, 19, 13, 14, 15, 16, 17, 18, 12, 11, 10, 9, 8, 7, 1, 2, 3, 4, 5, 6 ];
+
+        const applyTheme = (worldId) => {
+            const w = WORLDS.find(x => x.id === worldId) || WORLDS[0];
+            const root = document.documentElement;
+            root.style.setProperty('--game-900', w.theme.g900);
+            root.style.setProperty('--game-700', w.theme.g700);
+            root.style.setProperty('--game-500', w.theme.g500);
+            root.style.setProperty('--game-300', w.theme.g300);
+            root.style.setProperty('--game-100', w.theme.g100);
+            root.style.setProperty('--game-bg', w.theme.bg);
+            root.style.setProperty('--game-dot', w.theme.dot);
+        };
+
+        window.isSoundEnabled = true;
+
+        const playSfx = (type) => {
+            if (!window.isSoundEnabled) return;
+            try {
+                const ctx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = ctx.createOscillator(); const gain = ctx.createGain();
+                osc.connect(gain); gain.connect(ctx.destination);
+                const now = ctx.currentTime;
+
+                if (type === 'click') {
+                    osc.type = 'triangle'; osc.frequency.setValueAtTime(600, now); osc.frequency.exponentialRampToValueAtTime(100, now + 0.1);
+                    gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.1);
+                    osc.start(now); osc.stop(now + 0.1);
+                } else if (type === 'tick') {
+                    osc.type = 'square'; osc.frequency.setValueAtTime(800, now);
+                    gain.gain.setValueAtTime(0.05, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.05);
+                    osc.start(now); osc.stop(now + 0.05);
+                } else if (type === 'dice') {
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(150, now); osc.frequency.setValueAtTime(500, now + 0.15);
+                    gain.gain.setValueAtTime(0.12, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.25);
+                    osc.start(now); osc.stop(now + 0.25);
+                } else if (type === 'hit') {
+                    osc.type = 'square'; osc.frequency.setValueAtTime(220, now); osc.frequency.exponentialRampToValueAtTime(40, now + 0.2);
+                    gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.2);
+                    osc.start(now); osc.stop(now + 0.2);
+                } else if (type === 'hurt') {
+                    osc.type = 'sawtooth'; osc.frequency.setValueAtTime(180, now); osc.frequency.linearRampToValueAtTime(50, now + 0.4);
+                    gain.gain.setValueAtTime(0.3, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now); osc.stop(now + 0.4);
+                } else if (type === 'powerup') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(900, now + 0.4);
+                    gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.4);
+                    osc.start(now); osc.stop(now + 0.4);
+                } else if (type === 'victory') {
+                    const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
+                    notes.forEach((freq, idx) => {
+                        const o = ctx.createOscillator(); const g = ctx.createGain();
+                        o.connect(g); g.connect(ctx.destination); o.type = 'triangle';
+                        o.frequency.setValueAtTime(freq, now + idx * 0.1);
+                        g.gain.setValueAtTime(0.15, now + idx * 0.1); g.gain.linearRampToValueAtTime(0.01, now + 0.8);
+                        o.start(now + idx * 0.1); o.stop(now + 0.8);
+                    });
+                } else if (type === 'magic') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(800, now); osc.frequency.exponentialRampToValueAtTime(2000, now + 1);
+                    gain.gain.setValueAtTime(0.1, now); gain.gain.linearRampToValueAtTime(0, now + 1);
+                    osc.start(now); osc.stop(now + 1);
+                }
+            } catch (e) {}
+        };
+
+        const generateBotAvatar = (colorHex, name) => {
+            const canvas = document.createElement('canvas'); canvas.width = 240; canvas.height = 240; const ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#fcf8f2'; ctx.fillRect(0, 0, 240, 240); ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
+            for (let i = 15; i < 240; i += 15) { ctx.beginPath(); ctx.moveTo(i, 0); ctx.lineTo(i, 240); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, i); ctx.lineTo(240, i); ctx.stroke(); }
+            ctx.strokeStyle = '#1c1917'; ctx.lineWidth = 8; ctx.fillStyle = colorHex;
+            ctx.fillRect(60, 60, 120, 120); ctx.strokeRect(60, 60, 120, 120);
+            ctx.fillStyle = '#fff'; ctx.fillRect(80, 90, 30, 30); ctx.fillRect(130, 90, 30, 30); ctx.strokeRect(80, 90, 30, 30); ctx.strokeRect(130, 90, 30, 30);
+            ctx.fillStyle = '#1c1917'; const offset = name.length % 2 === 0 ? 10 : 5;
+            ctx.fillRect(90, 100 + offset, 10, 10); ctx.fillRect(140, 100 - offset, 10, 10);
+            ctx.beginPath(); ctx.moveTo(90, 150); ctx.lineTo(150, 150); ctx.stroke();
+            return canvas.toDataURL();
+        };
 
         const AnimatedBackground = () => {
             const [particles] = React.useState(() => 
@@ -373,10 +424,8 @@
             const [brushSize, setBrushSize] = React.useState(5);
 
             React.useEffect(() => {
-                const canvas = canvasRef.current; if (!canvas) return;
-                const ctx = canvas.getContext('2d');
-                ctx.fillStyle = '#fcf8f2'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
+                const canvas = canvasRef.current; if (!canvas) return; const ctx = canvas.getContext('2d');
+                ctx.fillStyle = '#fcf8f2'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
                 for (let x = 15; x < canvas.width; x += 15) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
                 for (let y = 15; y < canvas.height; y += 15) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
             }, []);
@@ -387,36 +436,20 @@
                 return { x: ((clientX - rect.left) / rect.width) * canvas.width, y: ((clientY - rect.top) / rect.height) * canvas.height };
             };
 
-            const startDrawing = (e) => {
-                e.preventDefault(); const { x, y } = getCoordinates(e); const ctx = canvasRef.current.getContext('2d');
-                ctx.beginPath(); ctx.moveTo(x, y); ctx.strokeStyle = brushColor; ctx.lineWidth = brushSize; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; setIsDrawing(true);
-            };
-            const draw = (e) => {
-                if (!isDrawing) return; e.preventDefault(); const { x, y } = getCoordinates(e); const ctx = canvasRef.current.getContext('2d'); ctx.lineTo(x, y); ctx.stroke();
-            };
+            const startDrawing = (e) => { e.preventDefault(); const { x, y } = getCoordinates(e); const ctx = canvasRef.current.getContext('2d'); ctx.beginPath(); ctx.moveTo(x, y); ctx.strokeStyle = brushColor; ctx.lineWidth = brushSize; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; setIsDrawing(true); };
+            const draw = (e) => { if (!isDrawing) return; e.preventDefault(); const { x, y } = getCoordinates(e); const ctx = canvasRef.current.getContext('2d'); ctx.lineTo(x, y); ctx.stroke(); };
 
             return (
                 <div className="flex flex-col items-center animate-pop-in">
-                    <div className="mb-2 text-lg font-bold text-game-100 flex items-center gap-2">
-                        <span className="w-3 h-3 rounded-full shadow-lg" style={{ backgroundColor: colorHex }}></span> Dibuja a <span style={{ color: colorHex }}>{playerName}</span>
-                    </div>
+                    <div className="mb-2 text-lg font-bold text-game-100 flex items-center gap-2"><span className="w-3 h-3 rounded-full shadow-lg" style={{ backgroundColor: colorHex }}></span> Dibuja a <span style={{ color: colorHex }}>{playerName}</span></div>
                     <div className="relative border-4 border-game-900 rounded-2xl overflow-hidden shadow-lg mb-4 transform transition-transform hover:scale-[1.02]">
-                        <canvas ref={canvasRef} width={240} height={240} className="bg-stone-50 cursor-crosshair touch-none"
-                            onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={() => setIsDrawing(false)} onMouseLeave={() => setIsDrawing(false)}
-                            onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={() => setIsDrawing(false)} />
+                        <canvas ref={canvasRef} width={240} height={240} className="bg-stone-50 cursor-crosshair touch-none" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={() => setIsDrawing(false)} onMouseLeave={() => setIsDrawing(false)} onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={() => setIsDrawing(false)} />
                     </div>
                     <div className="flex flex-wrap gap-2 justify-center mb-6 bg-game-900/40 p-3 rounded-xl border border-game-900 shadow-inner">
-                        {['#1c1917', '#ef4444', '#3b82f6', '#22c55e', '#eab308', '#d97706'].map(col => (
-                            <button key={col} onClick={() => { playSfx('click'); setBrushColor(col); }} className={`w-8 h-8 rounded-full border-2 border-game-900 transition-transform ${brushColor === col ? 'scale-125 ring-2 ring-white shadow-lg' : 'hover:scale-110'}`} style={{ backgroundColor: col }} />
-                        ))}
+                        {['#1c1917', '#ef4444', '#3b82f6', '#22c55e', '#eab308', '#d97706'].map(col => ( <button key={col} onClick={() => { playSfx('click'); setBrushColor(col); }} className={`w-8 h-8 rounded-full border-2 border-game-900 transition-transform ${brushColor === col ? 'scale-125 ring-2 ring-white shadow-lg' : 'hover:scale-110'}`} style={{ backgroundColor: col }} /> ))}
                         <button onClick={() => { playSfx('click'); setBrushColor('#fcf8f2'); }} className={`w-8 h-8 rounded-full bg-white text-stone-900 border-2 border-game-900 flex items-center justify-center transition-transform hover:scale-110 ${brushColor === '#fcf8f2' ? 'scale-125 ring-2 ring-game-500 shadow-lg' : ''}`}><i className="fa-solid fa-eraser text-xs"></i></button>
                         <div className="w-full h-[1px] bg-game-900/50 my-1"></div>
-                        <div className="flex gap-4 items-center justify-center w-full">
-                            <span className="text-xs text-game-300">Grosor:</span>
-                            {[3, 6, 12].map(size => (
-                                <button key={size} onClick={() => { playSfx('click'); setBrushSize(size); }} className={`rounded-full bg-game-300 border border-game-900 transition-all ${brushSize === size ? 'ring-2 ring-white scale-110 shadow-lg' : ''}`} style={{ width: `${size + 10}px`, height: `${size + 10}px` }} />
-                            ))}
-                        </div>
+                        <div className="flex gap-4 items-center justify-center w-full"><span className="text-xs text-game-300">Grosor:</span>{[3, 6, 12].map(size => ( <button key={size} onClick={() => { playSfx('click'); setBrushSize(size); }} className={`rounded-full bg-game-300 border border-game-900 transition-all ${brushSize === size ? 'ring-2 ring-white scale-110 shadow-lg' : ''}`} style={{ width: `${size + 10}px`, height: `${size + 10}px` }} /> ))}</div>
                     </div>
                     <button onClick={() => { playSfx('powerup'); onSave(canvasRef.current.toDataURL()); }} className="w-full py-3 text-sm cartoon-btn">Listo <i className="fa-solid fa-check ml-1"></i></button>
                 </div>
@@ -424,7 +457,7 @@
         }
 
         function App() {
-            // Cargar progreso del LocalStorage
+            // Estado Principal
             const [progress, setProgress] = React.useState(() => {
                 const saved = localStorage.getItem('laHistoriaProgress');
                 return saved ? JSON.parse(saved) : { unlockedWorlds: 1 };
@@ -433,9 +466,8 @@
             const [gameState, setGameState] = React.useState('menu');
             const [gameMode, setGameMode] = React.useState('local');
             const [difficulty, setDifficulty] = React.useState('normal');
-            const [selectedWorld, setSelectedWorld] = React.useState(1);
+            const [selectedWorld, setSelectedWorld] = React.useState(progress.unlockedWorlds);
             
-            // Setup local selectors
             const [localPlayerCount, setLocalPlayerCount] = React.useState(1);
             const [onlinePlayerCount, setOnlinePlayerCount] = React.useState(2);
 
@@ -457,10 +489,11 @@
             const [screenShake, setScreenShake] = React.useState(false);
             const [flashRed, setFlashRed] = React.useState(false);
 
-            // NUEVOS ESTADOS PARA BOTON "NUEVO" (AUTO-ROLL)
+            // Nuevos estados para Autoplay y Transición
             const [holdProgress, setHoldProgress] = React.useState(0);
             const holdIntervalRef = React.useRef(null);
             const isHolding = React.useRef(false);
+            const [isTransitioning, setIsTransitioning] = React.useState(false);
 
             React.useEffect(() => { applyTheme(selectedWorld); }, [selectedWorld]);
 
@@ -484,18 +517,28 @@
                 setTimeout(() => { setScreenShake(false); setFlashRed(false); }, 500);
             };
 
-            const toggleSound = () => {
-                window.isSoundEnabled = !window.isSoundEnabled; setSoundEnabled(window.isSoundEnabled);
-                if (window.isSoundEnabled) playSfx('click');
-            };
+            const toggleSound = () => { window.isSoundEnabled = !window.isSoundEnabled; setSoundEnabled(window.isSoundEnabled); if (window.isSoundEnabled) playSfx('click'); };
+            const log = (msg) => setLogs(prev => [...prev, msg]);
 
-            // LÓGICA DE AUTO-TIRO (BOTS E INTELIGENCIA DE JUGADOR)
+            // Transición Cracking Effect
+            React.useEffect(() => {
+                if (isTransitioning && gameState === 'menu') {
+                    playSfx('magic');
+                    setTimeout(() => {
+                        // Cambiar al nuevo mundo desbloqueado en el pico del destello blanco (mitad de anim.)
+                        setSelectedWorld(progress.unlockedWorlds);
+                    }, 1500);
+                    setTimeout(() => {
+                        setIsTransitioning(false);
+                    }, 3000);
+                }
+            }, [isTransitioning, gameState, progress.unlockedWorlds]);
+
+            // Autoplay Bots e Inteligencia del jugador
             React.useEffect(() => {
                 if (gameState !== 'playing' || players.length === 0 || isRolling) return;
-                const currP = players[currPlayerIdx];
-                if (!currP) return;
+                const currP = players[currPlayerIdx]; if (!currP) return;
 
-                // Lógica de IA (Bots)
                 if (currP.isBot) {
                     const timer = setTimeout(() => {
                         if (pendingEvent) {
@@ -510,23 +553,17 @@
                     return () => clearTimeout(timer);
                 }
 
-                // Lógica de Autoplay del Jugador (Botón NUEVO)
                 if (currP.autoRolls !== 0) {
                     const timer = setTimeout(() => {
                         if (pendingEvent) {
-                            // SE PAUSA EL AUTOPLAY EN LOS JEFES
-                            if (pendingEvent.isBoss) return; 
-                            
+                            if (pendingEvent.isBoss) return; // Se pausa auto roll en jefes
                             const btnId = pendingEvent.type === 'combat' ? 'btn-roll-combat' : 'btn-roll-event';
                             const btn = document.getElementById(btnId);
                             if (btn) { btn.classList.add('btn-pressed'); setTimeout(() => btn.classList.remove('btn-pressed'), 150); btn.click(); }
                         } else if (displayDice === null) {
-                            // Descontar un turno si no es infinito
                             setPlayers(prev => {
                                 const list = [...prev];
-                                if (list[currPlayerIdx] && list[currPlayerIdx].autoRolls > 0) {
-                                    list[currPlayerIdx] = { ...list[currPlayerIdx], autoRolls: list[currPlayerIdx].autoRolls - 1 };
-                                }
+                                if (list[currPlayerIdx] && list[currPlayerIdx].autoRolls > 0) list[currPlayerIdx] = { ...list[currPlayerIdx], autoRolls: list[currPlayerIdx].autoRolls - 1 };
                                 return list;
                             });
                             const btn = document.getElementById('btn-roll-move');
@@ -537,17 +574,12 @@
                 }
             }, [currPlayerIdx, pendingEvent, displayDice, gameState, players, isRolling]);
 
-            const log = (msg) => setLogs(prev => [...prev, msg]);
-
             const initSetup = (mode, count) => {
                 playSfx('click'); setGameMode(mode); 
                 let usedBotNames = [...BOT_NAMES].sort(() => 0.5 - Math.random());
                 const initialTemp = Array.from({ length: count }).map((_, i) => {
                     const isBot = mode === 'online' && i > 0;
-                    return {
-                        id: i, name: isBot ? usedBotNames.pop() : `J${i+1} ${PLAYER_PALETTES[i].name}`,
-                        colorHex: PLAYER_PALETTES[i].hex, isBot: isBot
-                    };
+                    return { id: i, name: isBot ? usedBotNames.pop() : `J${i+1} ${PLAYER_PALETTES[i].name}`, colorHex: PLAYER_PALETTES[i].hex, isBot: isBot };
                 });
                 setTempPlayers(initialTemp); setGameState('setup');
             };
@@ -572,8 +604,7 @@
                 else {
                     setPlayers(updatedTemp); setGameState('playing'); setCurrPlayerIdx(0); setDisplayDice(null); setPendingEvent(null);
                     log(`🌍 MODO: ${gameMode.toUpperCase()} | DIFICULTAD: ${difficulty.toUpperCase()}`);
-                    log(`🚀 Versión 2.2: ¡Multiverso Desatado!`);
-                    log(`📜 El Jefe es: ${board[30].label}. ¡Suerte!`);
+                    log(`📜 Jefe del mundo: ${board[30].label}. ¡Suerte!`);
                     playSfx('victory');
                 }
             };
@@ -581,7 +612,6 @@
             const handleRestart = () => { playSfx('click'); setGameState('menu'); setPlayers([]); setTempPlayers([]); setLogs([]); setWinner(null); };
 
             const getPotionMod = () => difficulty === 'facil' ? 1.5 : (difficulty === 'extremo' ? 0.5 : 1);
-            const getEnemyAtkMod = () => difficulty === 'facil' ? 0.5 : (difficulty === 'extremo' ? 1.5 : 1);
             const stopsAtEnemies = () => ['dificil', 'extremo'].includes(difficulty);
 
             const rollDiceWithAnimation = (callback) => {
@@ -621,9 +651,119 @@
                 return false;
             };
 
+            const resolveCombatRound = () => {
+                rollDiceWithAnimation((roll) => {
+                    let p = { ...players.find(x => x.id === pendingEvent.player.id) }; 
+                    let evt = { ...pendingEvent }; 
+                    let list = [...players]; 
+                    const pIdx = list.findIndex(x => x.id === p.id);
+                    evt.rollResult = roll; 
+                    setPendingEvent(evt);
+                    
+                    setTimeout(() => {
+                        let playerDmg = 0; 
+                        let msg = ""; 
+                        const isHardMode = ['dificil', 'extremo'].includes(difficulty);
+                        const penalty = isHardMode ? 10 : 5;
+                        const critBonus = isHardMode ? 5 : 10;
+                        
+                        // Evaluar Daño del Jugador (Reglas estrictas del dado)
+                        switch(roll) {
+                            case 1: 
+                                msg = `🎲 1: ¡Fallas y te causas 5 de daño!`; 
+                                p.hp -= 5; 
+                                p.ledger.push({ action: `💥 Error`, val: `-5 ❤️` });
+                                triggerDamageEffects(); 
+                                break;
+                            case 2: 
+                                msg = `🎲 2: Fallas el golpe. Sin daño.`; 
+                                break;
+                            case 3: 
+                                playerDmg = Math.floor(p.atk / 2); 
+                                msg = `🎲 3: Golpe dividido. Daño: ${playerDmg}.`; 
+                                playSfx('hit'); 
+                                break;
+                            case 4: 
+                                playerDmg = Math.max(1, p.atk - penalty); 
+                                msg = `🎲 4: Golpe penalizado (-${penalty}). Daño: ${playerDmg}.`; 
+                                playSfx('hit'); 
+                                break;
+                            case 5: 
+                                playerDmg = p.atk; 
+                                msg = `🎲 5: ¡Impacto directo! Daño: ${playerDmg}.`; 
+                                playSfx('hit'); 
+                                break;
+                            case 6: 
+                                playerDmg = p.atk + critBonus; 
+                                msg = `🎲 6: ¡CRÍTICO! (+${critBonus}). Daño: ${playerDmg}.`; 
+                                playSfx('powerup'); 
+                                break;
+                        }
+                        
+                        log(`⚔️ ${p.name}: ${msg}`);
+                        
+                        // Aplicar Daño al Enemigo
+                        if (playerDmg > 0) { 
+                            evt.enemyHp = Math.max(0, evt.enemyHp - playerDmg); 
+                            log(`💥 ${evt.enemyName} recibe ${playerDmg} de daño.`); 
+                        }
+                        
+                        // Verificar Muerte del Enemigo
+                        if (evt.enemyHp === 0) {
+                            if (evt.isBoss) {
+                                log(`👑 ¡${p.name} HA DERROTADO AL JEFE DEL MUNDO!`);
+                                p.ledger.push({ action: '👑 Victoria', val: 'Jefe' });
+                                
+                                const worldIndex = WORLDS.findIndex(w => w.id === selectedWorld);
+                                if (worldIndex + 1 >= progress.unlockedWorlds && worldIndex + 1 < WORLDS.length) {
+                                    const nextWorldId = WORLDS[worldIndex + 1].id;
+                                    const newProgress = { unlockedWorlds: nextWorldId };
+                                    setProgress(newProgress);
+                                    localStorage.setItem('laHistoriaProgress', JSON.stringify(newProgress));
+                                    log(`🌟 ¡MUNDO ${nextWorldId} DESBLOQUEADO!`);
+                                }
+                                
+                                list[pIdx] = p; setPlayers(list);
+                                setGameState('boss_defeated'); setWinner(p); setPendingEvent(null); playSfx('victory'); 
+                                return;
+                            }
+                            
+                            log(`🏆 ¡Venciste a ${evt.enemyName}!`); 
+                            if (evt.cell.rewardAtk) { p.atk += evt.cell.rewardAtk; p.ledger.push({ action: `⚔️ Botín`, val: `+${evt.cell.rewardAtk} ⚔️` }); }
+                            p.defeatedEnemies.push(evt.pos); 
+                            
+                            list[pIdx] = p; setPlayers(list);
+                            setPendingEvent(null); nextTurn(list); 
+                            return;
+                        }
+                        
+                        // Contraataque del Enemigo (Si sigue vivo, SIEMPRE ataca)
+                        p.hp -= evt.enemyAtk; 
+                        p.ledger.push({ action: `💥 Combate`, val: `-${evt.enemyAtk} ❤️` }); 
+                        log(`👹 ${evt.enemyName} ataca con ${evt.enemyAtk} de daño.`); 
+                        triggerDamageEffects(); 
+                        
+                        // FIX CRITICO: Guardar todo para que la UI se actualice AL INSTANTE
+                        list[pIdx] = p; 
+                        setPlayers(list);
+                        
+                        // ACTUALIZAR PLAYER EN EL EVENTO PARA EL MODAL
+                        evt.player = p;
+                        
+                        if (checkDeath(p, list)) { 
+                            setPendingEvent(null); 
+                            if (list.some(x => !x.isDead)) nextTurn(list); else setGameState('gameover'); 
+                        } else { 
+                            evt.rollResult = null; 
+                            setPendingEvent(evt); 
+                        }
+                    }, 1200);
+                });
+            };
+
             const applyCellEffect = (p, pos, list) => {
                 const cell = board[pos]; let updatedPlayers = [...list]; const pIdx = updatedPlayers.findIndex(x => x.id === p.id);
-                const saveAndContinue = () => { updatedPlayers[pIdx] = p; if (!checkDeath(p, updatedPlayers) || updatedPlayers.some(x => !x.isDead)) nextTurn(updatedPlayers); else setGameState('gameover'); };
+                const saveAndContinue = () => { updatedPlayers[pIdx] = p; setPlayers(updatedPlayers); if (!checkDeath(p, updatedPlayers) || updatedPlayers.some(x => !x.isDead)) nextTurn(updatedPlayers); else setGameState('gameover'); };
 
                 if (!cell || cell.type === 'empty' || cell.type === 'start') return saveAndContinue();
 
@@ -633,7 +773,7 @@
                     case 'cliff': p.hp += cell.hp; p.ledger.push({ action: `🕳️ Hueco`, val: `${cell.hp} ❤️` }); log(`🕳️ ${p.name} cae por un acantilado: ${cell.hp} Vida.`); triggerDamageEffects(); saveAndContinue(); break;
                     case 'enemy': case 'boss':
                         if (p.defeatedEnemies.includes(pos)) { log(`🛡️ ${p.name} cruza los restos de un enemigo caído.`); saveAndContinue(); } 
-                        else { playSfx('click'); setPendingEvent({ type: 'combat', player: p, cell, pos, enemyHp: cell.maxHp, enemyMaxHp: cell.maxHp, enemyAtk: Math.floor(cell.atk * getEnemyAtkMod()), enemyName: cell.label, isBoss: cell.type === 'boss', rollResult: null }); }
+                        else { playSfx('click'); setPendingEvent({ type: 'combat', player: p, cell, pos, enemyHp: cell.maxHp, enemyMaxHp: cell.maxHp, enemyAtk: cell.atk, enemyName: cell.label, isBoss: cell.type === 'boss', rollResult: null }); }
                         break;
                     case 'jump': log(`🦘 ¡${p.name} atajo a ${cell.target}!`); p.ledger.push({ action: `🦘 Salto`, val: `A ${cell.target}` }); updatedPlayers[pIdx] = p; setPlayers(updatedPlayers); playSfx('powerup'); setTimeout(() => movePlayer(p, cell.target), 800); break;
                     case 'maze': p.skipTurns += cell.turns; p.ledger.push({ action: `🌀 Laberinto`, val: `-${cell.turns}T` }); log(`🌀 ${p.name} se pierde. Salta ${cell.turns} turnos.`); saveAndContinue(); break;
@@ -655,49 +795,8 @@
                             case 'heart': if (roll <= 3) { p.hp += 10; p.ledger.push({ action: `❤️ Sano`, val: `+10 ❤️` }); log("❤️ Corazón revitalizado: +10 Vida."); playSfx('powerup'); } else { p.hp -= 15; p.ledger.push({ action: `💔 Roto`, val: `-15 ❤️` }); log("💔 Dolor punzante: -15 Vida."); triggerDamageEffects(); } break;
                             case 'dice': if (roll <= 3) { p.hp = Math.max(0, p.hp - 20); p.atk = Math.max(0, p.atk - 20); p.ledger.push({ action: `🎲 Mala`, val: `-20 ❤️/⚔️` }); log("🎲 Maldición Divina."); triggerDamageEffects(); } else { p.hp += 20; p.atk += 20; p.ledger.push({ action: `🎲 Suerte`, val: `+20 ❤️/⚔️` }); log("🎲 ¡Bendición Divina! +20 en todo."); playSfx('powerup'); } break;
                         }
-                        list[pIdx] = p; if (checkDeath(p, list)) { setPendingEvent(null); if (list.some(x => !x.isDead)) nextTurn(list); else setGameState('gameover'); } else { setPlayers(list); setPendingEvent(null); nextTurn(list); }
-                    }, 1200);
-                });
-            };
-
-            const resolveCombatRound = () => {
-                rollDiceWithAnimation((roll) => {
-                    let p = { ...players.find(x => x.id === pendingEvent.player.id) }; let evt = { ...pendingEvent }; let list = [...players]; const pIdx = list.findIndex(x => x.id === p.id);
-                    evt.rollResult = roll; setPendingEvent(evt);
-                    setTimeout(() => {
-                        let dmg = 0; let msg = ""; let selfDmg = difficulty === 'extremo' ? 10 : 5; let pen = difficulty === 'facil' ? 0 : (difficulty === 'normal' ? 5 : 10); let bonus = difficulty === 'extremo' ? 3 : (difficulty === 'dificil' ? 5 : 10);
-                        switch(roll) {
-                            case 1: p.hp -= selfDmg; msg = `🎲 1: ¡Fallas y te causas ${selfDmg} de daño!`; triggerDamageEffects(); break;
-                            case 2: msg = `🎲 2: Fallas el golpe. Sin daño.`; break;
-                            case 3: dmg = Math.floor(p.atk / 2); msg = `🎲 3: Golpe débil. Daño: ${dmg}.`; playSfx('hit'); break;
-                            case 4: dmg = Math.max(1, p.atk - pen); msg = `🎲 4: Golpe penalizado (-${pen}). Daño: ${dmg}.`; playSfx('hit'); break;
-                            case 5: dmg = p.atk; msg = `🎲 5: ¡Impacto directo! Daño: ${dmg}.`; playSfx('hit'); break;
-                            case 6: dmg = p.atk + bonus; msg = `🎲 6: ¡CRÍTICO! (+${bonus}). Daño: ${dmg}.`; playSfx('powerup'); break;
-                        }
-                        log(`⚔️ ${p.name}: ${msg}`);
-                        if (dmg > 0) { evt.enemyHp = Math.max(0, evt.enemyHp - dmg); log(`💥 ${evt.enemyName} recibe ${dmg} daño.`); }
-                        if (evt.enemyHp === 0) {
-                            if (evt.isBoss) {
-                                log(`👑 ¡${p.name} HA DERROTADO AL JEFE DEL MUNDO!`);
-                                p.ledger.push({ action: '👑 Victoria', val: 'Jefe' });
-                                
-                                // LOGICA DE DESBLOQUEO DE MUNDOS
-                                const worldIndex = WORLDS.findIndex(w => w.id === selectedWorld);
-                                if (worldIndex + 1 >= progress.unlockedWorlds && worldIndex + 1 < WORLDS.length) {
-                                    const nextWorldId = worldIndex + 2;
-                                    const newProgress = { unlockedWorlds: nextWorldId };
-                                    setProgress(newProgress);
-                                    localStorage.setItem('laHistoriaProgress', JSON.stringify(newProgress));
-                                    log(`🌟 ¡MUNDO ${nextWorldId} DESBLOQUEADO!`);
-                                }
-                                
-                                setGameState('victory'); setWinner(p); setPendingEvent(null); playSfx('victory'); return;
-                            }
-                            log(`🏆 ¡Venciste a ${evt.enemyName}!`); if (evt.cell.rewardAtk) { p.atk += evt.cell.rewardAtk; p.ledger.push({ action: `⚔️ Botín`, val: `+${evt.cell.rewardAtk} ⚔️` }); }
-                            p.defeatedEnemies.push(evt.pos); list[pIdx] = p; setPlayers(list); setPendingEvent(null); nextTurn(list); return;
-                        }
-                        if (roll !== 1) { p.hp -= evt.enemyAtk; p.ledger.push({ action: `💥 Combate`, val: `-${evt.enemyAtk} ❤️` }); log(`👹 ${evt.enemyName} contraataca con ${evt.enemyAtk} daño.`); triggerDamageEffects(); } else { p.ledger.push({ action: `💥 Error`, val: `-${selfDmg} ❤️` }); }
-                        list[pIdx] = p; if (checkDeath(p, list)) { setPendingEvent(null); if (list.some(x => !x.isDead)) nextTurn(list); else setGameState('gameover'); } else { evt.rollResult = null; setPendingEvent(evt); }
+                        list[pIdx] = p; setPlayers(list);
+                        if (checkDeath(p, list)) { setPendingEvent(null); if (list.some(x => !x.isDead)) nextTurn(list); else setGameState('gameover'); } else { setPendingEvent(null); nextTurn(list); }
                     }, 1200);
                 });
             };
@@ -718,58 +817,30 @@
             const startHold = (e) => {
                 if (e.type === 'touchstart' && e.cancelable) e.preventDefault();
                 if (isHolding.current || players[currPlayerIdx]?.isBot || pendingEvent || isRolling) return;
-                
-                playSfx('tick');
-                isHolding.current = true;
-                setHoldProgress(0);
-                
+                playSfx('tick'); isHolding.current = true; setHoldProgress(0);
                 let progress = 0;
                 holdIntervalRef.current = setInterval(() => {
                     progress += 5;
-                    if (progress >= 100) {
-                        progress = 100;
-                        clearInterval(holdIntervalRef.current);
-                        playSfx('powerup');
-                        setPlayers(prev => {
-                            const list = [...prev];
-                            list[currPlayerIdx] = { ...list[currPlayerIdx], autoRolls: -1 };
-                            return list;
-                        });
-                        isHolding.current = false;
-                    }
+                    if (progress >= 100) { progress = 100; clearInterval(holdIntervalRef.current); playSfx('powerup'); setPlayers(prev => { const list = [...prev]; list[currPlayerIdx] = { ...list[currPlayerIdx], autoRolls: -1 }; return list; }); isHolding.current = false; }
                     setHoldProgress(progress);
-                }, 40); // Tarda menos de 1 segundo en llenar
+                }, 40);
             };
 
             const endHold = (e) => {
                 if (e.type === 'touchend' && e.cancelable) e.preventDefault();
-                if (!isHolding.current) {
-                    setHoldProgress(0);
-                    return; 
-                }
-                
-                clearInterval(holdIntervalRef.current);
-                isHolding.current = false;
-                
-                if (holdProgress < 100) {
-                    playSfx('click');
-                    setPlayers(prev => {
-                        const list = [...prev];
-                        if (list[currPlayerIdx].autoRolls === -1) {
-                            list[currPlayerIdx] = { ...list[currPlayerIdx], autoRolls: 0 };
-                        } else {
-                            list[currPlayerIdx] = { ...list[currPlayerIdx], autoRolls: list[currPlayerIdx].autoRolls + 1 };
-                        }
-                        return list;
-                    });
-                }
+                if (!isHolding.current) { setHoldProgress(0); return; }
+                clearInterval(holdIntervalRef.current); isHolding.current = false;
+                if (holdProgress < 100) { playSfx('click'); setPlayers(prev => { const list = [...prev]; if (list[currPlayerIdx].autoRolls === -1) list[currPlayerIdx] = { ...list[currPlayerIdx], autoRolls: 0 }; else list[currPlayerIdx] = { ...list[currPlayerIdx], autoRolls: list[currPlayerIdx].autoRolls + 1 }; return list; }); }
                 setHoldProgress(0);
             };
 
             const renderModals = () => {
                 if (!pendingEvent) return null; const { type, player, cell, rollResult } = pendingEvent;
                 if (type === 'combat') {
-                    const pPct = Math.max(0, Math.min(100, (player.hp / INITIAL_HP) * 100)); const ePct = Math.max(0, Math.min(100, (pendingEvent.enemyHp / pendingEvent.enemyMaxHp) * 100));
+                    // FIX UI: Tomar el jugador directamente del estado actual para que se actualice la vida
+                    const actualP = players.find(x => x.id === player.id) || player;
+                    const pPct = Math.max(0, Math.min(100, (actualP.hp / INITIAL_HP) * 100)); 
+                    const ePct = Math.max(0, Math.min(100, (pendingEvent.enemyHp / pendingEvent.enemyMaxHp) * 100));
                     return (
                         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-40 p-4">
                             <div className={`wood-panel max-w-lg w-full p-6 text-center animate-pop-in border-4 shadow-2xl ${pendingEvent.isBoss ? 'border-red-600 shadow-red-900/50' : 'border-game-900'}`}>
@@ -778,18 +849,18 @@
                                 <h3 className="text-2xl font-bold mb-4 text-game-100 uppercase">{pendingEvent.enemyName}</h3>
                                 <div className="grid grid-cols-2 gap-4 bg-game-900/50 p-4 rounded-xl border border-game-900 text-left mb-4 shadow-inner">
                                     <div>
-                                        <div className="flex items-center gap-1.5 font-bold truncate" style={{ color: player.colorHex }}><img src={player.avatarData} className="w-8 h-8 rounded-full border border-game-900 bg-stone-100 shadow-sm" /><span>{player.name} {player.isBot && '🤖'}</span></div>
-                                        <div className="w-full bg-stone-800 h-3 rounded-full mt-2 overflow-hidden border border-game-900 shadow-inner"><div className="bg-green-500 h-full transition-all duration-500" style={{ width: `${pPct}%` }}></div></div>
-                                        <p className="text-xs mt-1 text-game-300">❤️ {player.hp} | ⚔️ {player.atk}</p>
+                                        <div className="flex items-center gap-1.5 font-bold truncate" style={{ color: actualP.colorHex }}><img src={actualP.avatarData} className="w-8 h-8 rounded-full border border-game-900 bg-stone-100 shadow-sm" /><span>{actualP.name} {actualP.isBot && '🤖'}</span></div>
+                                        <div className="w-full bg-stone-800 h-3 rounded-full mt-2 overflow-hidden border border-game-900 shadow-inner"><div className="bg-green-500 h-full transition-all duration-300" style={{ width: `${pPct}%` }}></div></div>
+                                        <p className="text-xs mt-1 text-game-300">❤️ {actualP.hp} | ⚔️ {actualP.atk}</p>
                                     </div>
                                     <div className="text-right flex flex-col items-end">
                                         <div className="font-bold text-red-400">{pendingEvent.enemyName}</div>
-                                        <div className="w-full bg-stone-800 h-3 rounded-full mt-2 overflow-hidden border border-game-900 shadow-inner"><div className="bg-red-500 h-full transition-all duration-500" style={{ width: `${ePct}%` }}></div></div>
+                                        <div className="w-full bg-stone-800 h-3 rounded-full mt-2 overflow-hidden border border-game-900 shadow-inner"><div className="bg-red-500 h-full transition-all duration-300" style={{ width: `${ePct}%` }}></div></div>
                                         <p className="text-xs mt-1 text-game-300">❤️ {pendingEvent.enemyHp} | ⚔️ {pendingEvent.enemyAtk}</p>
                                     </div>
                                 </div>
                                 {isRolling || rollResult !== null ? ( <div className="mb-4 text-4xl font-black text-game-300 bg-game-900/90 py-3 px-6 rounded-xl border-2 border-game-500 inline-block shadow-lg"><span className={isRolling ? "inline-block rolling-dice" : "inline-block animate-bounce"}>🎲 {displayDice}</span></div>
-                                ) : ( <button id="btn-roll-combat" onClick={resolveCombatRound} className="w-full py-4 cartoon-btn text-xl">{player.isBot ? '🤖 IA Atacando...' : '🎲 Lanzar dado'}</button> )}
+                                ) : ( <button id="btn-roll-combat" onClick={resolveCombatRound} className="w-full py-4 cartoon-btn text-xl">{actualP.isBot ? '🤖 IA Atacando...' : '🎲 Lanzar dado'}</button> )}
                             </div>
                         </div>
                     );
@@ -822,11 +893,11 @@
                                     </button>
                                 </div>
                                 <div className="p-3 bg-game-900/40 rounded-xl border border-game-900 shadow-inner">
-                                    <p className="text-xs text-game-300/80 mb-1 font-bold">Cambios en v2.3:</p>
+                                    <p className="text-xs text-game-300/80 mb-1 font-bold">Cambios en v2.5:</p>
                                     <ul className="text-[10px] text-game-100 list-disc list-inside space-y-1">
-                                        <li>Botón NUEVO: Da clics para programar tiros automáticos.</li>
-                                        <li>Mantén presionado NUEVO para un Autoplay infinito.</li>
-                                        <li>El Autoplay se pausa en las batallas de Jefes.</li>
+                                        <li>Combate Arreglado: Los jefes y enemigos ahora siempre hacen daño al jugador.</li>
+                                        <li>La barra de vida en el modal de combate se actualiza al instante.</li>
+                                        <li>Reglas exactas del dado aplicadas (1: -5 HP, 2: 0, 3: mitad fuerza, etc).</li>
                                     </ul>
                                 </div>
                             </div>
@@ -840,12 +911,16 @@
                 return (
                     <div className="min-h-screen flex items-center justify-center p-4">
                         <AnimatedBackground /> {renderSettingsMenu()}
-                        <div className="wood-panel max-w-md w-full p-6 text-center flex flex-col gap-6 animate-pop-in z-10 shadow-2xl relative">
+                        {isTransitioning && <div className="white-overlay"></div>}
+                        
+                        <div className={`wood-panel max-w-md w-full p-6 text-center flex flex-col gap-6 z-10 shadow-2xl relative transition-all ${isTransitioning ? 'cracking-active' : 'animate-pop-in'}`}>
+                            {isTransitioning && <div className="crack-lines"></div>}
+                            
                             <button onClick={() => { playSfx('click'); setShowSettings(true); }} className="absolute top-3 right-3 w-10 h-10 wood-control-btn flex items-center justify-center text-sm shadow-lg z-20" title="Ajustes"><i className="fa-solid fa-gear"></i></button>
                             <div className="wood-banner py-3 px-4 rounded-xl border-4 border-game-900 my-2 shadow-lg mt-4">
                                 <h1 className="text-3xl md:text-4xl font-black text-game-900 tracking-wide uppercase drop-shadow-md">La Historia</h1>
                             </div>
-                            <p className="text-game-300 text-sm italic font-medium -mt-2">v2.3: Autoplay Estratégico</p>
+                            <p className="text-game-300 text-sm italic font-medium -mt-2">v2.5 - Daño en Combate Arreglado</p>
                             
                             <div className="bg-game-900/40 p-3 rounded-xl border border-game-900 flex flex-col items-center gap-2">
                                 <p className="text-xs font-bold text-game-100 uppercase">Mundo Seleccionado:</p>
@@ -854,10 +929,12 @@
                                     <div className="flex-1 text-center font-bold text-game-300 text-sm truncate flex flex-col">
                                         <span className="text-2xl">{WORLDS.find(w => w.id === selectedWorld)?.icon}</span>
                                         {WORLDS.find(w => w.id === selectedWorld)?.name} 
-                                        {!progress.unlockedWorlds || progress.unlockedWorlds < selectedWorld ? <span className="text-red-400 text-xs mt-1"><i className="fa-solid fa-lock"></i> Bloqueado</span> : null}
                                     </div>
-                                    <button onClick={() => { playSfx('click'); setSelectedWorld(Math.min(WORLDS.length, selectedWorld + 1)); }} disabled={selectedWorld === WORLDS.length} className="wood-control-btn w-8 h-8 flex items-center justify-center"><i className="fa-solid fa-chevron-right"></i></button>
+                                    <button onClick={() => { playSfx('click'); setSelectedWorld(Math.min(WORLDS.length, selectedWorld + 1)); }} disabled={selectedWorld >= progress.unlockedWorlds || selectedWorld === WORLDS.length} className="wood-control-btn w-8 h-8 flex items-center justify-center"><i className="fa-solid fa-chevron-right"></i></button>
                                 </div>
+                                {progress.unlockedWorlds < WORLDS.length && (
+                                    <p className="text-[10px] text-stone-400 mt-1 italic font-mono">* Derrota al jefe actual para avanzar</p>
+                                )}
                             </div>
 
                             <div className="flex flex-col gap-4 mt-2 text-left pointer-events-auto">
@@ -868,7 +945,7 @@
                                         <div className="flex-1 text-center font-black text-game-100">{localPlayerCount} <span className="text-xs font-normal">Jugadores</span></div>
                                         <button onClick={() => { playSfx('tick'); setLocalPlayerCount(Math.min(16, localPlayerCount + 1)); }} className="wood-control-btn w-8 h-8">+</button>
                                     </div>
-                                    <button onClick={() => initSetup('local', localPlayerCount)} disabled={progress.unlockedWorlds < selectedWorld} className="w-full mt-3 py-2 cartoon-btn text-xs">Jugar Local</button>
+                                    <button onClick={() => initSetup('local', localPlayerCount)} className="w-full mt-3 py-2 cartoon-btn text-xs">Jugar Local</button>
                                 </div>
 
                                 <div className="bg-game-900/30 p-3 rounded-xl border border-game-900 border-dashed">
@@ -878,7 +955,7 @@
                                         <div className="flex-1 text-center font-black text-blue-100">1 vs {onlinePlayerCount - 1} <span className="text-xs font-normal">Bots</span></div>
                                         <button onClick={() => { playSfx('tick'); setOnlinePlayerCount(Math.min(16, onlinePlayerCount + 1)); }} className="wood-control-btn w-8 h-8 !bg-blue-800">+</button>
                                     </div>
-                                    <button onClick={() => initSetup('online', onlinePlayerCount)} disabled={progress.unlockedWorlds < selectedWorld} className="w-full mt-3 py-2 cartoon-btn text-xs !bg-blue-100 !text-blue-900 hover:!bg-blue-200">Jugar Online</button>
+                                    <button onClick={() => initSetup('online', onlinePlayerCount)} className="w-full mt-3 py-2 cartoon-btn text-xs !bg-blue-100 !text-blue-900 hover:!bg-blue-200">Jugar Online</button>
                                 </div>
                             </div>
                         </div>
@@ -939,23 +1016,41 @@
                 );
             }
 
-            if (gameState === 'gameover' || gameState === 'victory') {
-                const isVic = gameState === 'victory';
+            if (gameState === 'boss_defeated') {
                 return (
                     <div className="min-h-screen flex flex-col items-center justify-center p-4">
-                        <AnimatedBackground /> {isVic && <Confetti />}
-                        <div className={`wood-panel max-w-md w-full p-8 text-center flex flex-col items-center gap-4 border-4 animate-pop-in z-10 shadow-2xl ${isVic ? 'border-yellow-500 shadow-yellow-500/30' : 'border-red-900 shadow-red-900/30'}`}>
-                            <div className={`text-8xl drop-shadow-lg ${isVic ? 'animate-bounce' : 'animate-pulse'}`}>{isVic ? '👑' : '💀'}</div>
-                            <h1 className={`text-4xl md:text-5xl font-black tracking-tight uppercase drop-shadow-md ${isVic ? 'text-yellow-400' : 'text-red-500'}`}>
-                                {isVic ? '¡VICTORIA ÉPICA!' : 'GAME OVER'}
+                        <AnimatedBackground /> <Confetti />
+                        <div className="wood-panel max-w-md w-full p-8 text-center flex flex-col items-center gap-4 border-4 border-yellow-500 shadow-[0_0_50px_rgba(234,179,8,0.5)] animate-pop-in z-10">
+                            <div className="text-8xl drop-shadow-lg animate-bounce">👑</div>
+                            <h1 className="text-4xl md:text-5xl font-black tracking-tight uppercase text-yellow-400 drop-shadow-md">
+                                ¡JEFE DERROTADO!
                             </h1>
-                            {isVic && winner && (
+                            {winner && (
                                 <div className="my-4 p-4 grid-paper rounded-2xl flex flex-col items-center gap-3 w-full">
                                     <img src={winner.avatarData} className="w-24 h-24 rounded-2xl border-4 border-game-900 bg-stone-50 shadow-md" />
                                     <h3 className="text-2xl font-bold" style={{ color: winner.colorHex }}>{winner.name} {winner.isBot && '🤖'}</h3>
-                                    <p className="text-sm font-bold text-stone-700">Derrotó a {board[30].label} en dificultad {difficulty.toUpperCase()}.</p>
+                                    <p className="text-sm font-bold text-stone-700 text-center">¡El mal ha caído!<br/>Has liberado el mundo.</p>
                                 </div>
                             )}
+                            <button onClick={() => {
+                                playSfx('click');
+                                setGameState('menu');
+                                setIsTransitioning(true); // Iniciar transición mágica
+                            }} className="w-full py-4 cartoon-btn text-lg mt-4">Continuar Aventura <i className="fa-solid fa-arrow-right ml-2"></i></button>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gameState === 'gameover') {
+                return (
+                    <div className="min-h-screen flex flex-col items-center justify-center p-4">
+                        <AnimatedBackground />
+                        <div className="wood-panel max-w-md w-full p-8 text-center flex flex-col items-center gap-4 border-4 animate-pop-in z-10 shadow-2xl border-red-900 shadow-red-900/30">
+                            <div className="text-8xl drop-shadow-lg animate-pulse">💀</div>
+                            <h1 className="text-4xl md:text-5xl font-black tracking-tight uppercase drop-shadow-md text-red-500">
+                                GAME OVER
+                            </h1>
                             <button onClick={handleRestart} className="w-full py-4 cartoon-btn text-lg mt-4">Menú Principal</button>
                         </div>
                     </div>
