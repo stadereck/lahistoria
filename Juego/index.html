@@ -523,6 +523,16 @@
                 }
             };
 
+            const triggerDamageEffects = () => {
+                playSfx('hurt');
+                setScreenShake(true);
+                setFlashRed(true);
+                setTimeout(() => {
+                    setScreenShake(false);
+                    setFlashRed(false);
+                }, 500); // 500ms para coincidir con la animación CSS
+            };
+
             React.useEffect(() => {
                 if (gameState !== 'playing' || players.length === 0 || isRolling) return;
                 
@@ -949,6 +959,7 @@
                 return (
                     <div className="min-h-screen flex items-center justify-center p-4">
                         <AnimatedBackground />
+                        {renderSettingsMenu()}
                         <div className="wood-panel max-w-sm w-full p-6 text-center flex flex-col gap-6 animate-pop-in z-10 shadow-2xl relative">
                             <button onClick={() => { playSfx('click'); setShowSettings(true); }} className="absolute top-3 right-3 w-10 h-10 wood-control-btn flex items-center justify-center text-sm shadow-lg z-20" title="Ajustes">
                                 <i className="fa-solid fa-gear"></i>
