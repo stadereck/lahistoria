@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>La Historia v2.7 - Fondo Animado</title>
+    <title>La Historia v2.8 - Mundos Expandidos y Autoguardado</title>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
     
@@ -240,7 +240,12 @@
             { id: 12, name: 'Dimensión Cristal', icon: '💎', bossId: 12, theme: { g900: '#831843', g700: '#be185d', g500: '#ec4899', g300: '#f9a8d4', g100: '#fdf2f8', bg: '#500724', dot: 'rgba(236, 72, 153, 0.15)' } },
             { id: 13, name: 'Purgatorio Sombras', icon: '🌑', bossId: 13, theme: { g900: '#27272a', g700: '#3f3f46', g500: '#71717a', g300: '#d4d4d8', g100: '#fafafa', bg: '#18181b', dot: 'rgba(113, 113, 122, 0.15)' } },
             { id: 14, name: 'Galaxia Perdida', icon: '🌌', bossId: 14, theme: { g900: '#2e1065', g700: '#5b21b6', g500: '#8b5cf6', g300: '#c4b5fd', g100: '#f5f3ff', bg: '#1c0a3e', dot: 'rgba(139, 92, 246, 0.15)' } },
-            { id: 15, name: 'El Vacío', icon: '👁️', bossId: 15, theme: { g900: '#000000', g700: '#111111', g500: '#333333', g300: '#888888', g100: '#ffffff', bg: '#050505', dot: 'rgba(255, 255, 255, 0.1)' } }
+            { id: 15, name: 'Bosque Encantado', icon: '🍄', bossId: 15, theme: { g900: '#3f2e4f', g700: '#583e75', g500: '#8b5cf6', g300: '#c4b5fd', g100: '#f3e8ff', bg: '#2b1a3a', dot: 'rgba(139, 92, 246, 0.15)' } },
+            { id: 16, name: 'Cementerio Maldito', icon: '🪦', bossId: 16, theme: { g900: '#1c1917', g700: '#292524', g500: '#44403c', g300: '#a8a29e', g100: '#f5f5f4', bg: '#0c0a09', dot: 'rgba(168, 162, 158, 0.15)' } },
+            { id: 17, name: 'Reino de Dulces', icon: '🍭', bossId: 17, theme: { g900: '#831843', g700: '#be185d', g500: '#f43f5e', g300: '#fda4af', g100: '#fff1f2', bg: '#4c0519', dot: 'rgba(244, 63, 94, 0.15)' } },
+            { id: 18, name: 'Ciberespacio', icon: '💻', bossId: 18, theme: { g900: '#064e3b', g700: '#047857', g500: '#10b981', g300: '#6ee7b7', g100: '#ecfdf5', bg: '#022c22', dot: 'rgba(16, 185, 129, 0.15)' } },
+            { id: 19, name: 'Dimensión Espejo', icon: '🪞', bossId: 19, theme: { g900: '#1e3a8a', g700: '#1d4ed8', g500: '#3b82f6', g300: '#93c5fd', g100: '#eff6ff', bg: '#172554', dot: 'rgba(59, 130, 246, 0.15)' } },
+            { id: 20, name: 'El Vacío', icon: '👁️', bossId: 20, theme: { g900: '#000000', g700: '#111111', g500: '#333333', g300: '#888888', g100: '#ffffff', bg: '#050505', dot: 'rgba(255, 255, 255, 0.1)' } }
         ];
 
         const BOSS_POOL = [
@@ -258,7 +263,12 @@
             { id: 12, maxHp: 150, atk: 30, label: 'GOLEM CRISTAL', icon: '💎', desc: '¡Refleja y corta como cuchillas!' },
             { id: 13, maxHp: 180, atk: 28, label: 'SOMBRA MAYOR', icon: '🌑', desc: '¡No puedes golpear lo que no ves!' },
             { id: 14, maxHp: 400, atk: 20, label: 'AGUJERO NEGRO', icon: '🌌', desc: '¡Consume toda la esperanza!' },
-            { id: 15, maxHp: 999, atk: 40, label: 'DIOS DEL VACÍO', icon: '👁️', desc: '¡El creador y destructor de todo!' }
+            { id: 15, maxHp: 160, atk: 18, label: 'HONGO TÓXICO', icon: '🍄', desc: '¡Esporas mortales!' },
+            { id: 16, maxHp: 200, atk: 25, label: 'CONDE VAMPIRO', icon: '🧛', desc: '¡Chupa tu sangre y tu vida!' },
+            { id: 17, maxHp: 300, atk: 15, label: 'REY CARAMELO', icon: '🍬', desc: '¡Dulce pero letal!' },
+            { id: 18, maxHp: 250, atk: 30, label: 'VIRUS MAESTRO', icon: '👾', desc: '¡Corrompe tu partida!' },
+            { id: 19, maxHp: 350, atk: 25, label: 'CLON OSCURO', icon: '👤', desc: '¡Conoce todos tus movimientos!' },
+            { id: 20, maxHp: 999, atk: 40, label: 'DIOS DEL VACÍO', icon: '👁️', desc: '¡El creador y destructor de todo!' }
         ];
 
         const BOT_NAMES = ['Shadow', 'ProGamer', 'Noob', 'Dark_Knight', 'Faker', 'IALord', 'Ninja', 'Cyber', 'Ghost', 'Viper', 'Titan', 'Reaper', 'Specter', 'Wraith', 'Phantom', 'Doom'];
@@ -383,19 +393,32 @@
             return canvas.toDataURL();
         };
 
-        const AnimatedBackground = React.memo(() => {
-            const [particles] = React.useState(() => 
-                Array.from({ length: 25 }).map((_, i) => ({
-                    id: i, left: `${Math.random() * 100}vw`, size: `${Math.random() * 8 + 4}px`,
+        const AnimatedBackground = React.memo(({ worldId }) => {
+            const particles = React.useMemo(() => {
+                const map = {
+                    1: ['🍃', '🍂', '✨'], 2: ['🦇', '🪨', '💨'], 3: ['🔥', '🌋', '💨'],
+                    4: ['☁️', '🕊️', '✨'], 5: ['☀️', '🏜️', '✨'], 6: ['🫧', '🦟', '🦠'],
+                    7: ['⚙️', '🔩', '⚡'], 8: ['❄️', '🧊', '🌬️'], 9: ['🌿', '🦖', '🌴'],
+                    10: ['🫧', '🐟', '🌊'], 11: ['🏛️', '📜', '✨'], 12: ['💎', '✨', '🔮'],
+                    13: ['🌑', '🦇', '💨'], 14: ['⭐', '🪐', '☄️'], 
+                    15: ['🍄', '✨', '🍃'], 16: ['🦇', '🦴', '💨'], 17: ['🍬', '🍭', '✨'],
+                    18: ['0', '1', '💻'], 19: ['🪞', '✨', '👤'], 20: ['👁️', '🌌', '✨']
+                };
+                const elements = map[worldId] || map[1];
+                return Array.from({ length: 25 }).map((_, i) => ({
+                    id: i, left: `${Math.random() * 100}vw`, size: `${Math.random() * 1.5 + 0.8}rem`,
                     animDur: `${Math.random() * 15 + 12}s`, animDel: `-${Math.random() * 20}s`,
-                    color: Math.random() > 0.5 ? 'var(--game-300)' : 'var(--game-500)'
-                }))
-            );
+                    content: elements[Math.floor(Math.random() * elements.length)]
+                }));
+            }, [worldId]);
+
             return (
                 <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
                     {particles.map(p => (
-                        <div key={p.id} className="particle"
-                             style={{ left: p.left, width: p.size, height: p.size, animationDuration: p.animDur, animationDelay: p.animDel, backgroundColor: p.color }} />
+                        <div key={p.id} className="particle flex items-center justify-center opacity-50 drop-shadow-lg"
+                             style={{ left: p.left, fontSize: p.size, animationDuration: p.animDur, animationDelay: p.animDel }}>
+                             {p.content}
+                        </div>
                     ))}
                 </div>
             );
@@ -456,29 +479,43 @@
             );
         }
 
+        // Función para cargar los datos guardados
+        const loadInitialData = () => {
+            try {
+                const save = localStorage.getItem('laHistoriaSaveData');
+                if (save) return JSON.parse(save);
+                
+                // Migración si existía progreso viejo
+                const oldProg = localStorage.getItem('laHistoriaProgress');
+                if (oldProg) return { progress: JSON.parse(oldProg) };
+            } catch (e) { console.error(e); }
+            return null;
+        };
+
         function App() {
-            // Estado Principal
-            const [progress, setProgress] = React.useState(() => {
-                const saved = localStorage.getItem('laHistoriaProgress');
-                return saved ? JSON.parse(saved) : { unlockedWorlds: 1 };
-            });
+            // Estado Principal - Ahora cargando desde el Autoguardado
+            const initData = React.useMemo(loadInitialData, []);
 
-            const [gameState, setGameState] = React.useState('menu');
-            const [gameMode, setGameMode] = React.useState('local');
-            const [difficulty, setDifficulty] = React.useState('normal');
-            const [selectedWorld, setSelectedWorld] = React.useState(progress.unlockedWorlds);
+            const [progress, setProgress] = React.useState(initData?.progress || { unlockedWorlds: 1 });
+            const [gameState, setGameState] = React.useState(initData?.gameState || 'menu');
+            const [gameMode, setGameMode] = React.useState(initData?.gameMode || 'local');
+            const [difficulty, setDifficulty] = React.useState(initData?.difficulty || 'normal');
+            const [selectedWorld, setSelectedWorld] = React.useState(initData?.selectedWorld || initData?.progress?.unlockedWorlds || 1);
             
-            const [localPlayerCount, setLocalPlayerCount] = React.useState(1);
-            const [onlinePlayerCount, setOnlinePlayerCount] = React.useState(2);
+            const [localPlayerCount, setLocalPlayerCount] = React.useState(initData?.localPlayerCount || 1);
+            const [onlinePlayerCount, setOnlinePlayerCount] = React.useState(initData?.onlinePlayerCount || 2);
 
-            const [board, setBoard] = React.useState(DEFAULT_BOARD);
-            const [players, setPlayers] = React.useState([]);
-            const [currPlayerIdx, setCurrPlayerIdx] = React.useState(0);
-            const [logs, setLogs] = React.useState([]);
-            const [pendingEvent, setPendingEvent] = React.useState(null);
-            const [winner, setWinner] = React.useState(null);
-            const [drawingIndex, setDrawingIndex] = React.useState(0);
-            const [tempPlayers, setTempPlayers] = React.useState([]);
+            const [board, setBoard] = React.useState(initData?.board || DEFAULT_BOARD);
+            const [players, setPlayers] = React.useState(initData?.players || []);
+            const [currPlayerIdx, setCurrPlayerIdx] = React.useState(initData?.currPlayerIdx || 0);
+            const [logs, setLogs] = React.useState(initData?.logs || []);
+            const [pendingEvent, setPendingEvent] = React.useState(initData?.pendingEvent || null);
+            const [winner, setWinner] = React.useState(initData?.winner || null);
+            const [drawingIndex, setDrawingIndex] = React.useState(initData?.drawingIndex || 0);
+            const [tempPlayers, setTempPlayers] = React.useState(initData?.tempPlayers || []);
+            
+            const [displayDice, setDisplayDice] = React.useState(initData?.displayDice || null);
+            const [isSaving, setIsSaving] = React.useState(false);
             
             const [showSettings, setShowSettings] = React.useState(false);
             const [soundEnabled, setSoundEnabled] = React.useState(true);
@@ -488,7 +525,6 @@
             const [focusedCell, setFocusedCell] = React.useState(null);
 
             const [isRolling, setIsRolling] = React.useState(false);
-            const [displayDice, setDisplayDice] = React.useState(null);
             const [screenShake, setScreenShake] = React.useState(false);
             const [flashRed, setFlashRed] = React.useState(false);
 
@@ -497,6 +533,26 @@
             const holdIntervalRef = React.useRef(null);
             const isHolding = React.useRef(false);
             const [isTransitioning, setIsTransitioning] = React.useState(false);
+
+            // Nuevos estados para Modo Desarrollador
+            const [devInputMode, setDevInputMode] = React.useState(false);
+            const [devCode, setDevCode] = React.useState('');
+
+            // Lógica del Autoguardado (Se ejecuta cada 5 segundos)
+            React.useEffect(() => {
+                const timer = setInterval(() => {
+                    setIsSaving(true);
+                    const dataToSave = {
+                        progress, gameState, gameMode, difficulty, selectedWorld,
+                        localPlayerCount, onlinePlayerCount, board, players,
+                        currPlayerIdx, logs, pendingEvent, winner, drawingIndex, tempPlayers, displayDice
+                    };
+                    localStorage.setItem('laHistoriaSaveData', JSON.stringify(dataToSave));
+                    
+                    setTimeout(() => setIsSaving(false), 1500); // Ocultar icono de guardado después de un rato
+                }, 5000);
+                return () => clearInterval(timer);
+            }, [progress, gameState, gameMode, difficulty, selectedWorld, localPlayerCount, onlinePlayerCount, board, players, currPlayerIdx, logs, pendingEvent, winner, drawingIndex, tempPlayers, displayDice]);
 
             React.useEffect(() => { applyTheme(selectedWorld); }, [selectedWorld]);
 
@@ -745,7 +801,11 @@
                                     const nextWorldId = WORLDS[worldIndex + 1].id;
                                     const newProgress = { unlockedWorlds: nextWorldId };
                                     setProgress(newProgress);
-                                    localStorage.setItem('laHistoriaProgress', JSON.stringify(newProgress));
+                                    
+                                    // Forzar guardado de progreso al ganar
+                                    const currSave = JSON.parse(localStorage.getItem('laHistoriaSaveData') || '{}');
+                                    localStorage.setItem('laHistoriaSaveData', JSON.stringify({ ...currSave, progress: newProgress }));
+                                    
                                     log(`🌟 ¡MUNDO ${nextWorldId} DESBLOQUEADO!`);
                                 }
                                 
@@ -934,10 +994,46 @@
                                         <li>Fondo con animaciones de partículas optimizadas por hardware (GPU).</li>
                                         <li>Se simplificó el texto de versión para un menú más estético y limpio.</li>
                                         <li>Flujo de transición de victoria perfeccionado.</li>
+                                        <li>Fondo animado dinámico para cada mundo.</li>
                                     </ul>
                                 </div>
+
+                                {/* Modo Desarrollador */}
+                                <div className="mt-2 pt-3 border-t-2 border-game-900/30">
+                                    {!devInputMode ? (
+                                        <button onClick={() => { playSfx('click'); setDevInputMode(true); }} className="text-[10px] text-game-300/50 hover:text-game-300 transition-colors font-bold flex items-center justify-center w-full gap-2">
+                                            <i className="fa-solid fa-code"></i> Modo Desarrollador
+                                        </button>
+                                    ) : (
+                                        <div className="flex flex-col gap-2 animate-pop-in">
+                                            <p className="text-[10px] text-game-300 font-bold uppercase">Código de Acceso:</p>
+                                            <div className="flex gap-2">
+                                                <input 
+                                                    type="password" maxLength={4} value={devCode} 
+                                                    onChange={(e) => {
+                                                        const val = e.target.value; setDevCode(val);
+                                                        if (val === '0103') {
+                                                            playSfx('powerup');
+                                                            const newProgress = { unlockedWorlds: 20 };
+                                                            setProgress(newProgress);
+                                                            
+                                                            const currSave = JSON.parse(localStorage.getItem('laHistoriaSaveData') || '{}');
+                                                            localStorage.setItem('laHistoriaSaveData', JSON.stringify({ ...currSave, progress: newProgress }));
+                                                            
+                                                            setDevInputMode(false); setDevCode('');
+                                                            log("🛠️ DevMode: Todos los mundos desbloqueados.");
+                                                        }
+                                                    }}
+                                                    className="w-full bg-game-900/60 border border-game-900 text-game-100 rounded-lg px-2 py-1 text-center font-mono tracking-widest outline-none focus:ring-2 ring-game-300"
+                                                    placeholder="****"
+                                                />
+                                                <button onClick={() => { setDevInputMode(false); setDevCode(''); playSfx('click'); }} className="wood-control-btn px-3 rounded-lg text-xs">✖</button>
+                                            </div>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
-                            <button onClick={() => { playSfx('click'); setShowSettings(false); }} className="w-full py-3 mt-6 cartoon-btn text-sm">Guardar y Cerrar <i className="fa-solid fa-check ml-1"></i></button>
+                            <button onClick={() => { playSfx('click'); setShowSettings(false); setDevInputMode(false); setDevCode(''); }} className="w-full py-3 mt-6 cartoon-btn text-sm">Guardar y Cerrar <i className="fa-solid fa-check ml-1"></i></button>
                         </div>
                     </div>
                 );
@@ -946,7 +1042,7 @@
             if (gameState === 'menu') {
                 return (
                     <div className="min-h-screen flex items-center justify-center p-4">
-                        <AnimatedBackground /> {renderSettingsMenu()}
+                        <AnimatedBackground worldId={selectedWorld} /> {renderSettingsMenu()}
                         {isTransitioning && <div className="white-overlay"></div>}
                         
                         <div className={`wood-panel max-w-md w-full p-6 text-center flex flex-col gap-6 z-10 shadow-2xl relative transition-all ${isTransitioning ? 'cracking-active' : 'animate-pop-in'}`}>
@@ -958,7 +1054,7 @@
                                 <h1 className="text-3xl md:text-4xl font-black text-game-900 tracking-wide uppercase drop-shadow-md">La Historia</h1>
                             </div>
                             
-                            <p className="text-game-300 text-sm italic font-medium -mt-4 z-10 relative">La Historia v2.7 - Fondo Animado</p>
+                            <p className="text-game-300 text-sm italic font-medium -mt-4 z-10 relative">La Historia v2.8 - Mundos Expandidos</p>
                             
                             <div className="bg-game-900/40 p-3 rounded-xl border border-game-900 flex flex-col items-center gap-2">
                                 <p className="text-xs font-bold text-game-100 uppercase">Mundo Seleccionado:</p>
@@ -1004,7 +1100,7 @@
             if (gameState === 'setup') {
                 return (
                     <div className="min-h-screen flex items-center justify-center p-4">
-                        <AnimatedBackground />
+                        <AnimatedBackground worldId={selectedWorld} />
                         <div className="wood-panel max-w-md w-full p-6 text-center flex flex-col gap-5 animate-pop-in z-10 shadow-2xl">
                             <span className="absolute -top-6 left-1/2 -translate-x-1/2 wood-banner text-game-900 px-8 py-1.5 rounded-xl text-lg font-black uppercase border-4 border-game-900 shadow-md">PREPARACIÓN</span>
                             <div className="mt-4 flex flex-col gap-3 text-left">
@@ -1041,7 +1137,7 @@
             if (gameState === 'drawing') {
                 return (
                     <div className="min-h-screen flex items-center justify-center p-4">
-                        <AnimatedBackground />
+                        <AnimatedBackground worldId={selectedWorld} />
                         <div className="wood-panel max-w-sm w-full p-6 text-center animate-pop-in z-10 shadow-2xl">
                             <span className="absolute -top-6 left-1/2 -translate-x-1/2 wood-banner text-game-900 px-6 py-1.5 rounded-xl text-md font-black uppercase border-4 border-game-900 shadow-md">PIZARRÓN</span>
                             <div className="mt-4">
@@ -1057,7 +1153,7 @@
             if (gameState === 'boss_defeated') {
                 return (
                     <div className="min-h-screen flex flex-col items-center justify-center p-4">
-                        <AnimatedBackground /> <Confetti />
+                        <AnimatedBackground worldId={selectedWorld} /> <Confetti />
                         <div className="wood-panel max-w-md w-full p-8 text-center flex flex-col items-center gap-4 border-4 border-yellow-500 shadow-[0_0_50px_rgba(234,179,8,0.5)] animate-pop-in z-10">
                             <div className="text-8xl drop-shadow-lg animate-bounce">👑</div>
                             <h1 className="text-4xl md:text-5xl font-black tracking-tight uppercase text-yellow-400 drop-shadow-md">
@@ -1083,7 +1179,7 @@
             if (gameState === 'gameover') {
                 return (
                     <div className="min-h-screen flex flex-col items-center justify-center p-4">
-                        <AnimatedBackground />
+                        <AnimatedBackground worldId={selectedWorld} />
                         <div className="wood-panel max-w-md w-full p-8 text-center flex flex-col items-center gap-4 border-4 animate-pop-in z-10 shadow-2xl border-red-900 shadow-red-900/30">
                             <div className="text-8xl drop-shadow-lg animate-pulse">💀</div>
                             <h1 className="text-4xl md:text-5xl font-black tracking-tight uppercase drop-shadow-md text-red-500">
@@ -1099,7 +1195,7 @@
 
             return (
                 <div className={`min-h-screen transition-colors duration-300 ${flashRed ? 'flash-red' : ''}`}>
-                    <AnimatedBackground />
+                    <AnimatedBackground worldId={selectedWorld} />
                     
                     <div className={`p-3 md:p-6 flex flex-col xl:flex-row gap-6 max-w-[1600px] mx-auto relative z-10 ${screenShake ? 'screen-shake' : ''}`}>
                         <div className="fixed top-3 right-3 md:top-6 md:right-6 flex gap-2 z-30">
@@ -1211,6 +1307,13 @@
                         </div>
 
                         {renderModals()} {renderSettingsMenu()}
+                        
+                        {/* Indicador de Autoguardado */}
+                        {isSaving && (
+                            <div className="fixed bottom-4 right-4 bg-game-900 text-game-100 text-[10px] md:text-xs font-bold px-3 py-1.5 rounded-full shadow-lg border border-game-500 flex items-center gap-2 z-50 animate-pop-in">
+                                <i className="fa-solid fa-floppy-disk animate-pulse text-game-300"></i> Autoguardando...
+                            </div>
+                        )}
                     </div>
                 </div>
             );
