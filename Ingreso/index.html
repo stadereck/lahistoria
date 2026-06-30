@@ -1,9 +1,12 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
 
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
 
     <title>Acceso</title>
 
@@ -15,58 +18,50 @@
 
 <div id="pantalla">
 
+    <!-- Loader -->
     <div id="loader">
 
         <div id="spinner"></div>
 
     </div>
 
+    <!-- Mano -->
     <div id="handContainer" class="hidden">
 
-        <svg id="hand" viewBox="0 0 512 512">
-
-            <path id="handPath"
-            d="M256 32
-            C230 32 214 50 214 76
-            L214 190
-            L192 160
-            C177 140 150 136 132 151
-            C114 166 110 193 125 212
-            L188 293
-            L188 390
-            C188 447 230 480 288 480
-            C351 480 390 439 390 378
-            L390 164
-            C390 140 372 122 348 122
-            C334 122 320 129 311 141
-            C304 121 287 108 268 108
-            C249 108 233 120 226 139
-            L226 76
-            C226 50 240 32 256 32Z"/>
-
-        </svg>
+        <div id="hand">
+            ✋
+        </div>
 
     </div>
+
+    <!-- Panel -->
 
     <div id="panel" class="hidden">
 
-        <h2>Espera...</h2>
+        <h1>Espera...</h1>
 
-        <p>Tú no tienes acceso, ¿o sí?</p>
+        <p>
+            Tú no tienes acceso,
+            ¿o sí?
+        </p>
 
         <input
-        id="codeInput"
-        type="password"
-        maxlength="4"
-        placeholder="Código">
+            id="codeInput"
+            type="password"
+            maxlength="4"
+            placeholder="Código">
 
         <button id="enterBtn">
-            Entrar
+
+            ACCEDER
+
         </button>
 
-        <span id="error"></span>
+        <div id="error"></div>
 
     </div>
+
+    <!-- Canvas de partículas -->
 
     <canvas id="particles"></canvas>
 
@@ -75,4 +70,5 @@
 <script src="script.js"></script>
 
 </body>
+
 </html>
