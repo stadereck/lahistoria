@@ -543,6 +543,14 @@
             const [devInputMode, setDevInputMode] = React.useState(false);
             const [devCode, setDevCode] = React.useState('');
 
+            const logsEndRef = React.useRef(null);
+
+            React.useEffect(() => {
+                if (logsEndRef.current) {
+                    logsEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }
+            }, [logs]);
+
             const [focusedCell, setFocusedCell] = React.useState(null);
             const [isRolling, setIsRolling] = React.useState(false);
             const [displayDice, setDisplayDice] = React.useState(null);
@@ -1293,7 +1301,7 @@
                             <span className="absolute -top-5 left-1/2 -translate-x-1/2 wood-banner text-game-900 px-6 py-0.5 rounded-xl text-xs font-black uppercase border-4 border-game-900 shadow-md">📜 CRÓNICA</span>
                             <div className="flex-1 overflow-y-auto mt-2 flex flex-col gap-2 text-xs font-mono text-game-300 text-left pr-1">
                                 {logs.map((logStr, i) => ( <div key={i} className="pb-1 border-b border-game-900/30 text-game-100/90 animate-pop-in origin-left"><span className="text-game-500 font-bold">&gt;</span> {logStr}</div> ))}
-                                <div id="log-end" className="h-1 flex-none" />
+                                <div ref={logsEndRef} id="log-end" className="h-1 flex-none" />
                             </div>
                         </div>
 
