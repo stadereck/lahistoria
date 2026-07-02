@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Historia v3.2.1 RC - ¡Evento en Vivo!</title>
+    <title>La Historia v3.2.4.1 RC - La Gran Tienda</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
     
     <script src="https://cdn.tailwindcss.com"></script>
@@ -112,6 +112,8 @@
         @keyframes gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
         ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: var(--game-900); } ::-webkit-scrollbar-thumb { background: var(--game-500); border-radius: 4px; border: 2px solid var(--game-900); }
+        
+        .store-tab-active { background-color: var(--game-300) !important; color: var(--game-900) !important; border-color: var(--game-100) !important; transform: scale(1.05); z-index: 10; }
     </style>
 </head>
 <body>
@@ -185,20 +187,47 @@
         ];
 
         const HERO_CLASSES = [
-            { name: 'Guerrero', hp: 50, atk: 12, icon: '⚔️', desc: 'Equilibrado y fuerte.' },
-            { name: 'Mago', hp: 30, atk: 20, icon: '🔮', desc: 'Poca vida, gran daño.' },
-            { name: 'Tanque', hp: 70, atk: 6, icon: '🛡️', desc: 'Resiste muchos golpes.' },
-            { name: 'Pícaro', hp: 40, atk: 15, icon: '🗡️', desc: 'Golpea rápido.' },
-            { name: 'Clérigo', hp: 60, atk: 8, icon: '✨', desc: 'Bendecido por la luz.' },
-            { name: 'Nigromante', hp: 35, atk: 18, icon: '💀', desc: 'Magia oscura.' }
+            { id: 'c_warrior', name: 'Guerrero', hp: 50, atk: 12, icon: '⚔️', desc: 'Equilibrado y fuerte.' },
+            { id: 'c_mage', name: 'Mago', hp: 30, atk: 20, icon: '🔮', desc: 'Poca vida, gran daño.' },
+            { id: 'c_tank', name: 'Tanque', hp: 70, atk: 6, icon: '🛡️', desc: 'Resiste muchos golpes.' },
+            { id: 'c_rogue', name: 'Pícaro', hp: 40, atk: 15, icon: '🗡️', desc: 'Golpea rápido.' },
+            { id: 'c_cleric', name: 'Clérigo', hp: 60, atk: 8, icon: '✨', desc: 'Bendecido por la luz.' },
+            { id: 'c_necro', name: 'Nigromante', hp: 35, atk: 18, icon: '💀', desc: 'Magia oscura.' },
+            { id: 'c_paladin', name: 'Paladín', hp: 65, atk: 10, icon: '⚜️', desc: 'Defensa sagrada.' },
+            { id: 'c_assassin', name: 'Asesino', hp: 25, atk: 25, icon: '🥷', desc: 'Mortal, pero frágil.' },
+            { id: 'c_hunter', name: 'Cazador', hp: 45, atk: 14, icon: '🏹', desc: 'Maestro de supervivencia.' },
+            { id: 'c_bard', name: 'Bardo', hp: 45, atk: 9, icon: '🎸', desc: 'Suerte impredecible.' }
         ];
 
-        // Misiones Diarias (Sistema Adictivo)
+        const PREMIUM_CLASSES = [
+            { id: 'p_samurai', name: 'Samurái', hp: 55, atk: 18, icon: '👺', desc: 'Cortes precisos y letales.', cost: 3500 },
+            { id: 'p_vampire', name: 'Vampiro', hp: 40, atk: 24, icon: '🧛', desc: 'Poder nocturno agresivo.', cost: 4500 },
+            { id: 'p_cyborg', name: 'Cyborg', hp: 60, atk: 20, icon: '🤖', desc: 'Mitad máquina, mitad dios.', cost: 7000 },
+            { id: 'p_demigod', name: 'Semi-Dios', hp: 80, atk: 25, icon: '⚡', desc: 'Estadísticas absurdas.', cost: 15000 }
+        ];
+
+        const PREMIUM_BGS = [
+            { id: 'bg_matrix', name: 'Matriz Digital', icon: '💻', cost: 5000, elements: ['0', '1', '🟩', '💻'] },
+            { id: 'bg_blood', name: 'Luna de Sangre', icon: '🩸', cost: 5000, elements: ['🦇', '🩸', '🌑', '🥀'] },
+            { id: 'bg_gold', name: 'Lluvia de Oro', icon: '💰', cost: 10000, elements: ['🪙', '✨', '💰', '💸'] },
+            { id: 'bg_void', name: 'Ojos del Vacío', icon: '👁️', cost: 15000, elements: ['👁️', '🌑', '🕳️', '🌀'] }
+        ];
+
         const DAILY_MISSIONS = [
             { id: 'rolls_50', title: 'Tira el dado 50 veces', type: 'rolls', target: 50, reward: 500, icon: '🎲' },
             { id: 'kills_10', title: 'Derrota 10 Enemigos', type: 'kills', target: 10, reward: 800, icon: '⚔️' },
             { id: 'games_3', title: 'Juega 3 Partidas', type: 'games', target: 3, reward: 1000, icon: '🎮' },
-            { id: 'rolls_200', title: 'Tira el dado 200 veces', type: 'rolls', target: 200, reward: 2500, icon: '🎲' }
+            { id: 'rolls_200', title: 'Tira el dado 200 veces', type: 'rolls', target: 200, reward: 2500, icon: '🎲' },
+            { id: 'kills_25', title: 'Derrota 25 Enemigos', type: 'kills', target: 25, reward: 2000, icon: '⚔️' },
+            { id: 'games_10', title: 'Juega 10 Partidas', type: 'games', target: 10, reward: 3000, icon: '🎮' }
+        ];
+
+        const BATTLE_PASS = [
+            { level: 1, xpReq: 100, reward: 500, premiumReward: 2000, title: 'Recluta' },
+            { level: 2, xpReq: 300, reward: 1000, premiumReward: 4000, title: 'Aventurero' },
+            { level: 3, xpReq: 600, reward: 2000, premiumReward: 8000, title: 'Veterano' },
+            { level: 4, xpReq: 1000, reward: 5000, premiumReward: 15000, title: 'Héroe' },
+            { level: 5, xpReq: 1500, reward: 10000, premiumReward: 30000, title: 'Leyenda' },
         ];
 
         const BOT_NAMES = ['Shadow', 'ProGamer', 'Noob', 'Dark_Knight', 'Faker', 'IALord', 'Ninja', 'Cyber', 'Ghost', 'Viper', 'Titan', 'Reaper', 'Specter', 'Wraith', 'Phantom'];
@@ -259,6 +288,27 @@
             42: { type: 'boss', maxHp: 999, atk: 55, label: 'EL CREADOR DEL VACÍO', icon: '🕳️', desc: '¡El principio y el fin!' }
         };
 
+        const generateRandomBoard = () => {
+            const b = { 1: { type: 'start', label: 'Inicio', icon: '🏁', desc: 'Inicio de la Aventura Libre.' } };
+            const types = ['empty', 'potion', 'trap', 'enemy', 'jump', 'maze', 'merchant', 'epic', 'mystery', 'dice', 'happy'];
+            for(let i=2; i<=29; i++) {
+                const t = types[Math.floor(Math.random() * types.length)];
+                if(t === 'empty') b[i] = { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura.' };
+                else if(t === 'potion') b[i] = { type: 'potion', hp: 10, label: '+10 Vida', icon: '🧪', desc: 'Poción aleatoria.' };
+                else if(t === 'trap') b[i] = { type: 'trap', hp: -15, label: 'Trampa', icon: '🪤', desc: 'Trampa aleatoria.' };
+                else if(t === 'enemy') b[i] = { type: 'enemy', maxHp: 40, atk: 10, rewardAtk: 5, label: 'Monstruo', icon: '👹', desc: 'Enemigo aleatorio.' };
+                else if(t === 'jump') b[i] = { type: 'jump', target: Math.min(30, i + 3), label: 'Salto', icon: '🦘', desc: 'Salto aleatorio.' };
+                else if(t === 'maze') b[i] = { type: 'maze', turns: 1, label: 'Laberinto', icon: '🌀', desc: 'Pierdes 1 turno.' };
+                else if(t === 'merchant') b[i] = { type: 'merchant', label: 'Mercader', icon: '🧙‍♂️', desc: 'Intercambio.' };
+                else if(t === 'epic') b[i] = { type: 'epic', label: 'Épico', icon: '🌟', desc: 'Cofre épico.' };
+                else if(t === 'mystery') b[i] = { type: 'mystery', label: 'Misterio', icon: '❓', desc: 'Efecto caos.' };
+                else if(t === 'dice') b[i] = { type: 'dice', label: 'Dado', icon: '🎲', desc: 'Suerte.' };
+                else if(t === 'happy') b[i] = { type: 'happy', label: 'Feliz', icon: '🙂', desc: 'Bendición.' };
+            }
+            b[30] = { type: 'boss', maxHp: 500, atk: 30, label: 'JEFE CAOS', icon: '🌀', desc: 'Jefe de Aventura Libre' };
+            return b;
+        };
+
         const VISUAL_ORDER_30 = [ 25, 26, 27, 28, 29, 30, 24, 23, 22, 21, 20, 19, 13, 14, 15, 16, 17, 18, 12, 11, 10, 9, 8, 7, 1, 2, 3, 4, 5, 6 ];
         const VISUAL_ORDER_42 = [ 37, 38, 39, 40, 41, 42, 36, 35, 34, 33, 32, 31, 25, 26, 27, 28, 29, 30, 24, 23, 22, 21, 20, 19, 13, 14, 15, 16, 17, 18, 12, 11, 10, 9, 8, 7, 1, 2, 3, 4, 5, 6 ];
 
@@ -290,6 +340,9 @@
                 } else if (type === 'powerup') {
                     osc.type = 'sine'; osc.frequency.setValueAtTime(300, now); osc.frequency.exponentialRampToValueAtTime(900, now + 0.4);
                     gain.gain.setValueAtTime(0.15, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.4); osc.start(now); osc.stop(now + 0.4);
+                } else if (type === 'buy') {
+                    osc.type = 'sine'; osc.frequency.setValueAtTime(500, now); osc.frequency.exponentialRampToValueAtTime(1200, now + 0.3);
+                    gain.gain.setValueAtTime(0.2, now); gain.gain.linearRampToValueAtTime(0.01, now + 0.3); osc.start(now); osc.stop(now + 0.3);
                 } else if (type === 'victory') {
                     const notes = [261.63, 329.63, 392.00, 523.25, 659.25, 783.99];
                     notes.forEach((freq, idx) => {
@@ -311,18 +364,18 @@
             ctx.beginPath(); ctx.moveTo(90, 150); ctx.lineTo(150, 150); ctx.stroke(); return canvas.toDataURL();
         };
 
-        const Confetti = () => {
+        const Confetti = React.memo(() => {
             const [pieces] = React.useState(() => Array.from({ length: 150 }).map((_, i) => ({ id: i, left: `${Math.random() * 100}vw`, animDur: `${Math.random() * 3 + 2}s`, animDel: `${Math.random() * 2}s`, color: PLAYER_PALETTES[Math.floor(Math.random() * 16)].hex })));
             return ( <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">{pieces.map(p => ( <div key={p.id} className="confetti w-3 h-3" style={{ left: p.left, backgroundColor: p.color, animation: `fall ${p.animDur} linear ${p.animDel} infinite` }} /> ))}</div> );
-        };
+        });
 
-        const ToggleBtn = ({ enabled, onClick }) => (
+        const ToggleBtn = React.memo(({ enabled, onClick }) => (
             <button onClick={onClick} className={`w-14 h-7 rounded-full p-1 transition-colors flex items-center flex-none ${enabled ? 'bg-green-500' : 'bg-stone-500'}`}>
                 <div className={`w-5 h-5 rounded-full bg-white shadow-md transform transition-transform ${enabled ? 'translate-x-7' : ''}`}></div>
             </button>
-        );
+        ));
 
-        function DrawingBoard({ colorHex, playerName, pClass, onSave }) {
+        function DrawingBoard({ colorHex, playerName, pClass, onSave, onCycleClass }) {
             const canvasRef = React.useRef(null); const [isDrawing, setIsDrawing] = React.useState(false); const [brushColor, setBrushColor] = React.useState('#1c1917'); const [brushSize, setBrushSize] = React.useState(5);
             React.useEffect(() => {
                 const canvas = canvasRef.current; if (!canvas) return; const ctx = canvas.getContext('2d');
@@ -342,8 +395,13 @@
                 <div className="flex flex-col items-center animate-pop-in">
                     <div className="mb-2 text-lg font-bold text-game-100 flex items-center gap-2">
                         <span className="w-3 h-3 rounded-full shadow-lg" style={{ backgroundColor: colorHex }}></span> Dibuja a <span style={{ color: colorHex }}>{playerName}</span>
-                        {pClass && <span className="text-sm bg-game-900/50 px-2 py-0.5 rounded-md border border-game-900 ml-1">{pClass.icon}</span>}
                     </div>
+                    {pClass && (
+                        <div className="flex items-center gap-2 mb-3 bg-game-900/50 p-2 rounded-xl border border-game-900 shadow-inner">
+                            <span className="text-sm">{pClass.icon} {pClass.name}</span>
+                            <button onClick={onCycleClass} className="bg-game-300 text-game-900 px-2 py-0.5 rounded-md text-xs font-black shadow hover:bg-game-100"><i className="fa-solid fa-arrows-rotate"></i> Cambiar</button>
+                        </div>
+                    )}
                     <div className="relative border-4 border-game-900 rounded-2xl overflow-hidden shadow-lg mb-4 transform transition-transform hover:scale-[1.02]">
                         <canvas ref={canvasRef} width={240} height={240} className="bg-stone-50 cursor-crosshair touch-none" onMouseDown={startDrawing} onMouseMove={draw} onMouseUp={() => setIsDrawing(false)} onMouseLeave={() => setIsDrawing(false)} onTouchStart={startDrawing} onTouchMove={draw} onTouchEnd={() => setIsDrawing(false)} />
                     </div>
@@ -370,13 +428,23 @@
             root.style.setProperty('--game-100', themeToApply.g100); root.style.setProperty('--game-bg', themeToApply.bg); root.style.setProperty('--game-dot', themeToApply.dot);
         };
 
-        const AnimatedBackground = React.memo(({ worldId, difficulty, gameState }) => {
+        const AnimatedBackground = React.memo(({ worldId, difficulty, gameState, equippedBg }) => {
             const particles = React.useMemo(() => {
-                const map = { 1: ['🍃', '🍂', '✨'], 2: ['🦇', '🪨', '💨'], 3: ['🔥', '🌋', '💨'], 4: ['☁️', '🕊️', '✨'], 5: ['☀️', '🏜️', '✨'], 6: ['🫧', '🦟', '🦠'], 7: ['⚙️', '🔩', '⚡'], 8: ['❄️', '🧊', '🌬️'], 9: ['🌿', '🦖', '🌴'], 10: ['🫧', '🐟', '🌊'], 11: ['🏛️', '📜', '✨'], 12: ['💎', '✨', '🔮'], 13: ['🌑', '🦇', '💨'], 14: ['⭐', '🪐', '☄️'], 15: ['🍄', '✨', '🍃'], 16: ['🦇', '🦴', '💨'], 17: ['🍬', '🍭', '✨'], 18: ['0', '1', '💻'], 19: ['🪞', '✨', '👤'], 20: ['🗿', '🍃', '✨'], 21: ['🥀', '🩸', '💨'], 22: ['⚡', '☁️', '🌧️'], 23: ['☢️', '🦠', '💨'], 24: ['🥚', '🔥', '✨'], 25: ['🌌', '✨', '🌀'], 26: ['🧊', '❄️', '🌬️'], 27: ['🎒', '✨', '🔮'], 28: ['👁️', '🦑', '💨'], 29: ['⏳', '🕰️', '✨'], 30: ['🕳️', '👁️', '🌑'] };
-                let elements = map[worldId] || map[1];
-                if (difficulty === 'hardcore' && worldId !== 30 && ['playing', 'combat', 'drawing', 'boss_defeated', 'gameover'].includes(gameState)) { elements = ['🔥', '💥', '☄️', '🌋']; }
+                let elements = [];
+                // Check if Premium BG is equipped
+                if (equippedBg) {
+                    const pb = PREMIUM_BGS.find(b => b.id === equippedBg);
+                    if (pb) elements = pb.elements;
+                }
+                
+                if (elements.length === 0) {
+                    const map = { 1: ['🍃', '🍂', '✨'], 2: ['🦇', '🪨', '💨'], 3: ['🔥', '🌋', '💨'], 4: ['☁️', '🕊️', '✨'], 5: ['☀️', '🏜️', '✨'], 6: ['🫧', '🦟', '🦠'], 7: ['⚙️', '🔩', '⚡'], 8: ['❄️', '🧊', '🌬️'], 9: ['🌿', '🦖', '🌴'], 10: ['🫧', '🐟', '🌊'], 11: ['🏛️', '📜', '✨'], 12: ['💎', '✨', '🔮'], 13: ['🌑', '🦇', '💨'], 14: ['⭐', '🪐', '☄️'], 15: ['🍄', '✨', '🍃'], 16: ['🦇', '🦴', '💨'], 17: ['🍬', '🍭', '✨'], 18: ['0', '1', '💻'], 19: ['🪞', '✨', '👤'], 20: ['🗿', '🍃', '✨'], 21: ['🥀', '🩸', '💨'], 22: ['⚡', '☁️', '🌧️'], 23: ['☢️', '🦠', '💨'], 24: ['🥚', '🔥', '✨'], 25: ['🌌', '✨', '🌀'], 26: ['🧊', '❄️', '🌬️'], 27: ['🎒', '✨', '🔮'], 28: ['👁️', '🦑', '💨'], 29: ['⏳', '🕰️', '✨'], 30: ['🕳️', '👁️', '🌑'] };
+                    elements = map[worldId] || map[1];
+                    if (difficulty === 'hardcore' && worldId !== 30 && ['playing', 'combat', 'drawing', 'boss_defeated', 'gameover'].includes(gameState)) { elements = ['🔥', '💥', '☄️', '🌋']; }
+                }
+
                 return Array.from({ length: 25 }).map((_, i) => ({ id: i, left: `${Math.random() * 100}vw`, size: `${Math.random() * 20 + 10}px`, animDur: `${Math.random() * 15 + 10}s`, animDel: `-${Math.random() * 15}s`, content: elements[Math.floor(Math.random() * elements.length)] }));
-            }, [worldId, difficulty, gameState]);
+            }, [worldId, difficulty, gameState, equippedBg]);
             return ( <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">{particles.map(p => ( <div key={p.id} className="particle text-opacity-50" style={{ left: p.left, fontSize: p.size, animation: `float-up ${p.animDur} linear ${p.animDel} infinite` }}>{p.content}</div> ))}</div> );
         });
 
@@ -390,8 +458,13 @@
                 if (saved) { const parsed = JSON.parse(saved); if (parsed && parsed.gameState) return { ...parsed, ...config }; }
             } catch (e) { console.error("Error loading save", e); }
             
-            const defProgress = { unlockedWorlds: 1, wins: 0, derals: 0, stats: { rolls: 0, kills: 0, games: 0 }, claimedMissions: [] };
-            return { progress: JSON.parse(localStorage.getItem('laHistoriaProgress')) || defProgress, gameState: 'warning', gameMode: 'local', ...config };
+            const defProgress = { 
+                unlockedWorlds: 1, wins: 0, derals: 0, stats: { rolls: 0, kills: 0, games: 0 }, 
+                claimedMissions: [], bpXp: 0, bpClaimed: [], bpPremiumClaimed: [], 
+                unlockedClasses: [], unlockedBgs: [], premiumPass: false, equippedBg: null
+            };
+            const loadedP = JSON.parse(localStorage.getItem('laHistoriaProgress'));
+            return { progress: { ...defProgress, ...loadedP }, gameState: 'warning', gameMode: 'local', playMode: 'historia', ...config };
         };
 
         function App() {
@@ -400,6 +473,7 @@
             const [progress, setProgress] = React.useState(initData.progress);
             const [gameState, setGameState] = React.useState(initData.gameState);
             const [gameMode, setGameMode] = React.useState(initData.gameMode || 'local');
+            const [playMode, setPlayMode] = React.useState(initData.playMode || 'historia');
             const [difficulty, setDifficulty] = React.useState(initData.difficulty || 'normal');
             const [selectedWorld, setSelectedWorld] = React.useState(initData.selectedWorld || 1);
             
@@ -416,9 +490,13 @@
             const [drawingIndex, setDrawingIndex] = React.useState(initData.drawingIndex || 0);
             const [tempPlayers, setTempPlayers] = React.useState([]);
             
-            // UI & Ajustes
+            // UI & Modals
             const [showSettings, setShowSettings] = React.useState(false);
             const [showMissions, setShowMissions] = React.useState(false);
+            const [showBattlePass, setShowBattlePass] = React.useState(false);
+            const [showStore, setShowStore] = React.useState(false);
+            const [storeTab, setStoreTab] = React.useState('niveles'); // 'niveles', 'pase', 'personajes', 'fondos'
+
             const [soundEnabled, setSoundEnabled] = React.useState(initData.soundEnabled);
             const [vibrationEnabled, setVibrationEnabled] = React.useState(initData.vibrationEnabled);
             const [fastAnimations, setFastAnimations] = React.useState(initData.fastAnimations);
@@ -429,7 +507,6 @@
             const [devCode, setDevCode] = React.useState('');
             const [toastMsg, setToastMsg] = React.useState('');
 
-            // Evento y Tiempos
             const [isEventActive, setIsEventActive] = React.useState(false);
             const [timeLeft, setTimeLeft] = React.useState('');
             const logsEndRef = React.useRef(null);
@@ -443,8 +520,7 @@
             const holdIntervalRef = React.useRef(null);
             const isHolding = React.useRef(false);
 
-            // Efectos Globales y Config
-            React.useEffect(() => { if (selectedWorld === 30) setDifficulty('hardcore'); }, [selectedWorld]);
+            React.useEffect(() => { if (selectedWorld === 30 && playMode === 'historia') setDifficulty('hardcore'); }, [selectedWorld, playMode]);
             React.useEffect(() => { applyTheme(selectedWorld, difficulty, gameState); }, [selectedWorld, difficulty, gameState]);
             
             React.useEffect(() => {
@@ -453,10 +529,8 @@
                 window.isSoundEnabled = soundEnabled;
             }, [soundEnabled, vibrationEnabled, fastAnimations, photosensitive]);
 
-            // Scroll Automático
             React.useEffect(() => { if (logsEndRef.current) { logsEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } }, [logs]);
 
-            // Evento en Vivo (Countdown)
             React.useEffect(() => {
                 const targetDate = new Date('July 2, 2026 01:00:00').getTime();
                 const updateCountdown = () => {
@@ -469,95 +543,88 @@
                 updateCountdown(); const interval = setInterval(updateCountdown, 1000); return () => clearInterval(interval);
             }, []);
 
-            // Splash Screens Timer (Warning -> Promo)
+            React.useEffect(() => {
+                const handleBeforeUnload = (e) => {
+                    if (gameState === 'playing' || gameState === 'combat') { e.preventDefault(); e.returnValue = '¿Seguro que quieres salir?'; return e.returnValue; }
+                };
+                window.addEventListener('beforeunload', handleBeforeUnload); return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+            }, [gameState]);
+
             React.useEffect(() => {
                 if (gameState === 'warning') {
-                    const t = setTimeout(() => {
-                        const wBox = document.getElementById('warning-box');
-                        if (wBox) wBox.classList.add('animate-fade-out');
-                        setTimeout(() => setGameState('promo'), 800);
-                    }, 8000);
+                    const t = setTimeout(() => { const wBox = document.getElementById('warning-box'); if (wBox) wBox.classList.add('animate-fade-out'); setTimeout(() => setGameState('promo'), 800); }, 8000);
                     return () => clearTimeout(t);
                 }
             }, [gameState]);
 
-            // Autoguardado
             React.useEffect(() => {
                 const interval = setInterval(() => {
                     if (['menu', 'playing', 'combat'].includes(gameState)) {
-                        const sd = { progress, gameState: gameState === 'playing' || gameState === 'combat' ? gameState : 'menu', gameMode, difficulty, selectedWorld, board, players, currPlayerIdx, logs, pendingEvent, winner, winReason, drawingIndex };
+                        const sd = { progress, gameState: gameState === 'playing' || gameState === 'combat' ? gameState : 'menu', gameMode, playMode, difficulty, selectedWorld, board, players, currPlayerIdx, logs, pendingEvent, winner, winReason, drawingIndex };
                         localStorage.setItem('laHistoriaSaveData', JSON.stringify(sd));
                     }
                 }, 5000);
                 return () => clearInterval(interval);
-            }, [progress, gameState, gameMode, difficulty, selectedWorld, board, players, currPlayerIdx, logs, pendingEvent, winner, winReason, drawingIndex]);
+            }, [progress, gameState, gameMode, playMode, difficulty, selectedWorld, board, players, currPlayerIdx, logs, pendingEvent, winner, winReason, drawingIndex]);
 
             const showToast = (msg) => { setToastMsg(msg); setTimeout(() => setToastMsg(''), 3000); };
             
             const handleExportSave = () => {
                 try {
-                    const saveObj = {
-                        progress: JSON.parse(localStorage.getItem('laHistoriaProgress') || '{}'),
-                        saveData: JSON.parse(localStorage.getItem('laHistoriaSaveData') || '{}')
-                    };
+                    const saveObj = { progress: JSON.parse(localStorage.getItem('laHistoriaProgress') || '{}'), saveData: JSON.parse(localStorage.getItem('laHistoriaSaveData') || '{}') };
                     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveObj));
-                    const dlNode = document.createElement('a');
-                    dlNode.setAttribute("href", dataStr);
-                    dlNode.setAttribute("download", "LaHistoria_Partida.save");
-                    document.body.appendChild(dlNode); dlNode.click(); dlNode.remove();
+                    const dlNode = document.createElement('a'); dlNode.setAttribute("href", dataStr); dlNode.setAttribute("download", "LaHistoria_Partida.save"); document.body.appendChild(dlNode); dlNode.click(); dlNode.remove();
                     showToast("¡Partida descargada exitosamente!"); playSfx('powerup');
-                } catch (e) { showToast("Error al exportar la partida."); }
+                } catch (e) { showToast("Error al exportar."); }
             };
 
             const handleImportClick = () => { document.getElementById('import-file-input').click(); playSfx('click'); };
-
             const handleImportFile = (event) => {
-                const file = event.target.files[0]; if (!file) return;
-                const reader = new FileReader();
+                const file = event.target.files[0]; if (!file) return; const reader = new FileReader();
                 reader.onload = (e) => {
                     try {
                         const parsed = JSON.parse(e.target.result);
                         if (parsed && parsed.progress) {
                             localStorage.setItem('laHistoriaProgress', JSON.stringify(parsed.progress));
                             if (parsed.saveData) localStorage.setItem('laHistoriaSaveData', JSON.stringify(parsed.saveData));
-                            alert("¡Partida cargada exitosamente! El juego se reiniciará para aplicarla.");
-                            window.location.reload();
-                        } else { showToast("Archivo inválido o corrupto."); }
-                    } catch (err) { showToast("Error leyendo el archivo."); }
+                            alert("¡Partida cargada exitosamente! Se reiniciará el juego."); window.location.reload();
+                        } else { showToast("Archivo inválido."); }
+                    } catch (err) { showToast("Error leyendo archivo."); }
                 };
                 reader.readAsText(file);
             };
 
             const log = (msg) => setLogs(prev => [...prev, msg]);
-            const addStat = (type, amount = 1) => {
-                setProgress(prev => {
-                    const ns = { ...prev.stats, [type]: (prev.stats?.[type] || 0) + amount };
-                    const np = { ...prev, stats: ns }; localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np;
-                });
-            };
+            const addStat = (type, amount = 1) => { setProgress(prev => { const ns = { ...prev.stats, [type]: (prev.stats?.[type] || 0) + amount }; const np = { ...prev, stats: ns }; localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np; }); };
 
             const rewardDerals = (amount, reason) => {
                 const checkActive = new Date().getTime() < new Date('July 2, 2026 01:00:00').getTime();
                 const finalAmount = checkActive ? amount * 2 : amount; const finalReason = checkActive ? `${reason} - ¡x2 Evento!` : reason;
-                setProgress(prev => {
-                    const np = { ...prev, derals: (prev.derals || 0) + finalAmount };
-                    localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np;
-                });
+                setProgress(prev => { const np = { ...prev, derals: (prev.derals || 0) + finalAmount }; localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np; });
                 log(`💰 +${finalAmount} Derals (${finalReason})`);
             };
 
-            const triggerFocus = (pos) => {
-                setFocusedCell(pos); setTimeout(() => { const el = document.getElementById(`cell-${pos}`); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); }, 50);
-                setTimeout(() => setFocusedCell(null), 2000);
+            const rewardXp = (amount) => {
+                setProgress(prev => { const np = { ...prev, bpXp: (prev.bpXp || 0) + amount }; localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np; });
+                log(`✨ +${amount} XP Pase de Batalla`);
             };
 
-            const triggerDamageEffects = () => {
-                playSfx('hurt'); 
-                if (!photosensitive) { setScreenShake(true); setFlashRed(true); setTimeout(() => { setScreenShake(false); setFlashRed(false); }, 500); }
-                if (vibrationEnabled && navigator.vibrate) navigator.vibrate([100, 50, 100]);
+            const spendDerals = (amount, reason) => {
+                let success = false;
+                setProgress(prev => { 
+                    if ((prev.derals || 0) >= amount) {
+                        const np = { ...prev, derals: prev.derals - amount }; 
+                        localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); 
+                        success = true; return np;
+                    } 
+                    return prev; 
+                });
+                return success;
             };
 
-            // Autoplay IA & Botón Nuevo
+            const triggerFocus = (pos) => { setFocusedCell(pos); setTimeout(() => { const el = document.getElementById(`cell-${pos}`); if (el) el.scrollIntoView({ behavior: 'smooth', block: 'center', inline: 'center' }); }, 50); setTimeout(() => setFocusedCell(null), 2000); };
+            const triggerDamageEffects = () => { playSfx('hurt'); if (!photosensitive) { setScreenShake(true); setFlashRed(true); setTimeout(() => { setScreenShake(false); setFlashRed(false); }, 500); } if (vibrationEnabled && navigator.vibrate) navigator.vibrate([100, 50, 100]); };
+
             React.useEffect(() => {
                 if (gameState !== 'playing' || players.length === 0 || isRolling) return;
                 const currP = players[currPlayerIdx]; if (!currP) return;
@@ -659,14 +726,14 @@
                     setTimeout(() => {
                         log(`🎲 Evento ${c.label}: ${roll}.`);
                         switch (pendingEvent.type) {
-                            case 'happy': if (roll <= 3) { p.atk += 5; log("🙂 +5 Fuerza."); playSfx('powerup'); } else { p.hp += 5; log("🙂 +5 Vida."); playSfx('powerup'); } rewardDerals(15, 'Suerte'); break;
-                            case 'gift': if (roll <= 3) { p.hp -= 5; log("🎁 Broma: -5 Vida."); triggerDamageEffects(); } else { p.hp += 5; p.atk += 5; log("🎁 ¡Regalo legendario!"); playSfx('powerup'); rewardDerals(25, 'Regalo'); } break;
+                            case 'happy': if (roll <= 3) { p.atk += 5; log("🙂 +5 Fuerza."); playSfx('powerup'); } else { p.hp += 5; log("🙂 +5 Vida."); playSfx('powerup'); } rewardDerals(15, 'Suerte'); rewardXp(10); break;
+                            case 'gift': if (roll <= 3) { p.hp -= 5; log("🎁 Broma: -5 Vida."); triggerDamageEffects(); } else { p.hp += 5; p.atk += 5; log("🎁 ¡Regalo legendario!"); playSfx('powerup'); rewardDerals(25, 'Regalo'); rewardXp(15); } break;
                             case 'strength': if (roll <= 3) { p.atk = Math.max(0, p.atk - 10); log("💪 Desgarro: -10 Fuerza."); triggerDamageEffects(); } else { p.atk += 15; log("💪 ¡Poder! +15 Fuerza."); playSfx('powerup'); } break;
                             case 'heart': if (roll <= 3) { p.hp += 10; log("❤️ +10 Vida."); playSfx('powerup'); } else { p.hp -= 15; log("💔 -15 Vida."); triggerDamageEffects(); } break;
-                            case 'dice': if (roll <= 3) { p.hp = Math.max(0, p.hp - 20); p.atk = Math.max(0, p.atk - 20); log("🎲 Maldición."); triggerDamageEffects(); } else { p.hp += 20; p.atk += 20; log("🎲 ¡Bendición! +20."); playSfx('powerup'); } break;
-                            case 'epic': if (roll <= 2) { p.hp -= 20; log("🌟 Mímico: -20 Vida."); triggerDamageEffects(); } else { p.atk += 20; log("🌟 Arma Legendaria! +20 Fuerza."); playSfx('powerup'); rewardDerals(50, 'Tesoro'); } break;
+                            case 'dice': if (roll <= 3) { p.hp = Math.max(0, p.hp - 20); p.atk = Math.max(0, p.atk - 20); log("🎲 Maldición."); triggerDamageEffects(); } else { p.hp += 20; p.atk += 20; log("🎲 ¡Bendición! +20."); playSfx('powerup'); rewardXp(20); } break;
+                            case 'epic': if (roll <= 2) { p.hp -= 20; log("🌟 Mímico: -20 Vida."); triggerDamageEffects(); } else { p.atk += 20; log("🌟 Arma Legendaria! +20 Fuerza."); playSfx('powerup'); rewardDerals(50, 'Tesoro'); rewardXp(30); } break;
                             case 'merchant': if (roll <= 3) { p.hp -= 15; p.atk += 10; log("🧙‍♂️ Pacto: -15 Vida, +10 Fuerza."); triggerDamageEffects(); } else { p.hp += 20; p.atk = Math.max(0, p.atk - 5); log("🧙‍♂️ Elixir: +20 Vida, -5 Fuerza."); playSfx('powerup'); } break;
-                            case 'mystery': if (roll === 1) { p.hp = Math.max(1, p.hp - 30); log("❓ Desastre! -30 Vida."); triggerDamageEffects(); } else if (roll === 6) { p.hp += 30; p.atk += 30; log("❓ ¡Milagro! +30 Vida/Fuerza."); playSfx('powerup'); } else { p.skipTurns += 1; log("❓ Parálisis 1T."); triggerDamageEffects(); } break;
+                            case 'mystery': if (roll === 1) { p.hp = Math.max(1, p.hp - 30); log("❓ Desastre! -30 Vida."); triggerDamageEffects(); } else if (roll === 6) { p.hp += 30; p.atk += 30; log("❓ ¡Milagro! +30 Vida/Fuerza."); playSfx('powerup'); rewardXp(50); } else { p.skipTurns += 1; log("❓ Parálisis 1T."); triggerDamageEffects(); } break;
                         }
                         list[pIdx] = p; setPlayers(list);
                         if (checkDeath(p, list)) { setPendingEvent(null); if (list.length === 2) { } else if (list.some(x => !x.isDead)) nextTurn(list); else setGameState('gameover'); } else { setPendingEvent(null); nextTurn(list); }
@@ -695,17 +762,21 @@
                             if (evt.isBoss) {
                                 log(`👑 ¡JEFE DERROTADO!`); p.ledger.push({ action: '👑 Victoria', val: 'Jefe' });
                                 const deralsEarned = 500 * (difficulty === 'hardcore' ? 3 : (difficulty === 'extremo' ? 2 : (difficulty === 'dificil' ? 1.5 : 1))); rewardDerals(deralsEarned, 'Jefe');
+                                rewardXp(200);
                                 
                                 setProgress(prev => {
                                     let np = { ...prev, wins: (prev.wins || 0) + 1 };
-                                    const wIdx = WORLDS.findIndex(w => w.id === selectedWorld);
-                                    if (wIdx + 1 >= np.unlockedWorlds && wIdx + 1 < WORLDS.length) { np.unlockedWorlds = WORLDS[wIdx + 1].id; log(`🌟 ¡NUEVO MUNDO DESBLOQUEADO!`); }
+                                    if (playMode === 'historia') {
+                                        const wIdx = WORLDS.findIndex(w => w.id === selectedWorld);
+                                        if (wIdx + 1 >= np.unlockedWorlds && wIdx + 1 < WORLDS.length) { np.unlockedWorlds = WORLDS[wIdx + 1].id; log(`🌟 ¡NUEVO MUNDO DESBLOQUEADO!`); }
+                                    }
                                     localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np;
                                 });
                                 addStat('games'); list[pIdx] = p; setPlayers(list); setWinReason('boss'); setGameState('boss_defeated'); setWinner(p); setPendingEvent(null); playSfx('victory'); return;
                             }
                             log(`🏆 ¡Venciste!`); if (evt.cell.rewardAtk) p.atk += evt.cell.rewardAtk; 
                             rewardDerals(25 * (difficulty === 'hardcore' ? 3 : (difficulty === 'extremo' ? 2 : (difficulty === 'dificil' ? 1.5 : 1))), 'Combate');
+                            rewardXp(25);
                             p.defeatedEnemies.push(evt.pos); list[pIdx] = p; setPlayers(list); setPendingEvent(null); nextTurn(list); return;
                         }
                         
@@ -723,49 +794,227 @@
                 }
             };
 
-            // Controles Holding
+            const claimBpReward = (lvl, reward, isPremium = false) => {
+                playSfx('powerup'); rewardDerals(reward, isPremium ? 'Pase Premium' : 'Pase de Batalla');
+                setProgress(prev => { 
+                    const np = { ...prev };
+                    if (isPremium) np.bpPremiumClaimed = [...(prev.bpPremiumClaimed || []), lvl];
+                    else np.bpClaimed = [...(prev.bpClaimed || []), lvl];
+                    localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np; 
+                });
+            };
+
+            const buyStoreItem = (type, item) => {
+                if (spendDerals(item.cost, `Compra Tienda`)) {
+                    playSfx('buy'); showToast(`¡${item.name} Comprado!`);
+                    setProgress(prev => {
+                        const np = { ...prev };
+                        if (type === 'class') np.unlockedClasses = [...(prev.unlockedClasses || []), item.id];
+                        if (type === 'bg') np.unlockedBgs = [...(prev.unlockedBgs || []), item.id];
+                        if (type === 'pass') np.premiumPass = true;
+                        localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np;
+                    });
+                } else { playSfx('hurt'); showToast("Derals Insuficientes"); }
+            };
+
+            const equipBg = (id) => { playSfx('click'); setProgress(prev => { const np = { ...prev, equippedBg: prev.equippedBg === id ? null : id }; localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np; }); };
+
+            const initSetup = (mode, count) => {
+                playSfx('click'); setGameMode(mode); let usedBotNames = [...BOT_NAMES].sort(() => 0.5 - Math.random());
+                const initialTemp = Array.from({ length: count }).map((_, i) => {
+                    const isBot = mode === 'online' && i > 0;
+                    return { id: i, name: isBot ? usedBotNames.pop() : `J${i+1} ${PLAYER_PALETTES[i%PLAYER_PALETTES.length].name}`, colorHex: PLAYER_PALETTES[i%PLAYER_PALETTES.length].hex, isBot: isBot };
+                });
+                setTempPlayers(initialTemp); setGameState('setup');
+            };
+
+            const cycleClassInSetup = (idx) => {
+                playSfx('click');
+                const p = tempPlayers[idx];
+                const available = [...HERO_CLASSES, ...PREMIUM_CLASSES.filter(c => (progress.unlockedClasses || []).includes(c.id))];
+                let currIdx = available.findIndex(c => c.id === p.heroClass?.id);
+                const nextClass = available[(currIdx + 1) % available.length];
+                const n = [...tempPlayers]; n[idx].heroClass = nextClass; setTempPlayers(n);
+            };
+
+            const startDrawingPhase = () => {
+                playSfx('click');
+                let newBoard;
+                if (playMode === 'aventura') {
+                    newBoard = generateRandomBoard();
+                } else {
+                    const bossData = BOSS_POOL.find(b => b.id === WORLDS.find(w => w.id === selectedWorld).bossId) || BOSS_POOL[0];
+                    newBoard = selectedWorld === 30 ? { ...EXTENDED_BOARD } : { ...DEFAULT_BOARD }; 
+                    if (selectedWorld !== 30) newBoard[30] = { type: 'boss', ...bossData };
+                }
+                setBoard(newBoard);
+                
+                const updatedTemp = [...tempPlayers].map(p => {
+                    if (p.isBot) return { ...p, pos: 1, hp: p.heroClass?.hp || 40, atk: p.heroClass?.atk || 10, skipTurns: 0, isDead: false, autoRolls: 0, defeatedEnemies: [], avatarData: generateBotAvatar(p.colorHex, p.name), ledger: [{ action: 'Inicio', val: 'Clase IA' }] };
+                    return p;
+                });
+                setTempPlayers(updatedTemp); setDrawingIndex(0); setGameState('drawing');
+            };
+
+            const handleRestart = () => { playSfx('click'); setGameState('menu'); setPlayers([]); setTempPlayers([]); setLogs([]); setWinner(null); };
+
             const startH = (e) => { if (e.type === 'touchstart' && e.cancelable) e.preventDefault(); if (isHolding.current || players[currPlayerIdx]?.isBot || pendingEvent || isRolling) return; playSfx('tick'); isHolding.current = true; setHoldProgress(0); let pg = 0; holdIntervalRef.current = setInterval(() => { pg += 5; if (pg >= 100) { pg = 100; clearInterval(holdIntervalRef.current); playSfx('powerup'); setPlayers(prev => { const l = [...prev]; l[currPlayerIdx].autoRolls = -1; return l; }); isHolding.current = false; } setHoldProgress(pg); }, 40); };
             const endH = (e) => { if (e.type === 'touchend' && e.cancelable) e.preventDefault(); if (!isHolding.current) return setHoldProgress(0); clearInterval(holdIntervalRef.current); isHolding.current = false; if (holdProgress < 100) { playSfx('click'); setPlayers(prev => { const l = [...prev]; l[currPlayerIdx].autoRolls = l[currPlayerIdx].autoRolls === -1 ? 0 : l[currPlayerIdx].autoRolls + 1; return l; }); } setHoldProgress(0); };
 
-            if (gameState === 'warning') {
+            const renderStore = () => {
+                if (!showStore) return null;
+                const d = progress.derals || 0;
                 return (
-                    <div className="min-h-screen flex items-center justify-center p-4 bg-black z-[100] animate-fade-in relative overflow-hidden">
-                        <div id="warning-box" className="wood-panel max-w-lg w-full p-8 text-center flex flex-col gap-6 z-10 shadow-2xl border-4 border-red-900 shadow-[0_0_50px_rgba(220,38,38,0.3)]">
-                            <div className="text-6xl animate-pulse drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]">⚠️</div>
-                            <h1 className="text-3xl md:text-4xl font-black text-red-500 uppercase tracking-widest drop-shadow-md">Advertencia</h1>
-                            <div className="text-sm font-bold text-game-100 bg-black/60 p-5 rounded-xl border border-red-900/50 text-left flex flex-col gap-3 shadow-inner">
-                                <p className="text-red-400 font-black text-center text-base border-b border-red-900/50 pb-2 mb-1">CLASIFICACIÓN: ADOLESCENTES / +13</p>
-                                <p><span className="text-game-300"><i className="fa-solid fa-dice mr-2 w-4 text-center"></i>Juego de Azar:</span> Contiene mecánicas de suerte y moneda virtual.</p>
-                                <p><span className="text-game-300"><i className="fa-solid fa-khanda mr-2 w-4 text-center"></i>Violencia Baja:</span> Elementos de combate de fantasía.</p>
-                                <p><span className="text-game-300"><i className="fa-solid fa-bolt mr-2 w-4 text-center"></i>Fotosensibilidad:</span> Contiene destellos rojos y sacudidas de pantalla.</p>
+                    <div className="fixed inset-0 bg-black/90 backdrop-blur-md flex items-center justify-center z-[80] p-4">
+                        <div className="wood-panel max-w-2xl w-full p-4 md:p-6 text-center animate-pop-in border-4 border-amber-500 shadow-[0_0_40px_rgba(245,158,11,0.4)] flex flex-col h-[90vh]">
+                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 bg-amber-500 text-amber-950 px-8 py-1.5 rounded-xl text-xl font-black uppercase border-4 border-amber-950 shadow-md flex items-center gap-2"><i className="fa-solid fa-store"></i> LA GRAN TIENDA</span>
+                            
+                            <div className="flex justify-between items-center bg-game-900/60 p-3 rounded-xl border border-game-900 shadow-inner mt-4 mb-3">
+                                <div className="text-amber-400 font-black text-xl flex items-center gap-2"><i className="fa-solid fa-coins"></i> {d}</div>
+                                <button onClick={() => { playSfx('click'); setShowStore(false); }} className="w-10 h-10 bg-red-900 text-white rounded-xl font-black border-2 border-red-950 shadow hover:bg-red-800"><i className="fa-solid fa-xmark"></i></button>
                             </div>
-                            <p className="text-xs text-game-300/80 font-bold px-2">Puedes desactivar los destellos en los <i className="fa-solid fa-gear"></i> Ajustes (Modo Fotosensible).</p>
-                            <button onClick={() => { playSfx('powerup'); const bx = document.getElementById('warning-box'); if (bx) bx.classList.add('animate-fade-out'); setTimeout(() => setGameState('promo'), 800); }} className="w-full py-4 cartoon-btn text-lg mt-2 !bg-red-950 !text-white !border-red-900">Omitir &gt;&gt;</button>
+
+                            <div className="flex gap-2 overflow-x-auto pb-2 flex-none mb-2 snap-x snap-mandatory hide-scrollbar">
+                                {['niveles', 'pase', 'personajes', 'fondos'].map(tab => (
+                                    <button key={tab} onClick={() => { playSfx('tick'); setStoreTab(tab); }} className={`snap-center flex-1 min-w-[100px] py-2 px-3 rounded-xl font-black text-xs md:text-sm border-2 transition-all uppercase flex items-center justify-center gap-2 ${storeTab === tab ? 'bg-amber-400 text-amber-950 border-white shadow-[0_0_15px_rgba(251,191,36,0.6)] scale-105' : 'bg-game-900/60 text-amber-500 border-game-900 hover:bg-game-900/80'}`}>
+                                        {tab === 'niveles' ? '🌍 Mundos' : tab === 'pase' ? '🎟️ Pase' : tab === 'personajes' ? '🦸‍♂️ Clases' : '🌌 Fondos'}
+                                    </button>
+                                ))}
+                            </div>
+
+                            <div className="flex-1 overflow-y-auto bg-game-900/40 rounded-xl border border-game-900 p-2 md:p-3 shadow-inner">
+                                
+                                {storeTab === 'niveles' && (
+                                    <div className="flex flex-col gap-3">
+                                        <div className="bg-game-900/80 p-4 rounded-xl border-2 border-game-700 text-center">
+                                            <i className="fa-solid fa-globe text-4xl text-blue-400 mb-2"></i>
+                                            <h3 className="text-game-100 font-black text-lg">Desbloquear Siguiente Mundo</h3>
+                                            <p className="text-game-300 text-xs mb-3">Compra el acceso instantáneo al próximo nivel sin tener que vencer al Jefe actual.</p>
+                                            
+                                            {progress.unlockedWorlds >= WORLDS.length ? (
+                                                <div className="py-2 bg-green-900/50 text-green-300 font-bold rounded-xl border border-green-900">¡Has desbloqueado todos los mundos!</div>
+                                            ) : (
+                                                <button onClick={() => { 
+                                                    const cost = progress.unlockedWorlds * 150; 
+                                                    if (spendDerals(cost, 'Desbloqueo Mundo')) { playSfx('buy'); setProgress(prev => { const np={...prev, unlockedWorlds: prev.unlockedWorlds + 1}; localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np; }); showToast(`¡Mundo ${progress.unlockedWorlds + 1} desbloqueado!`); } else { playSfx('hurt'); showToast("Derals Insuficientes"); }
+                                                }} className="w-full py-3 cartoon-btn !bg-blue-100 !text-blue-950 !border-blue-900 hover:!bg-blue-200">
+                                                    Desbloquear por {progress.unlockedWorlds * 150} <i className="fa-solid fa-coins text-amber-600"></i>
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {storeTab === 'pase' && (
+                                    <div className="flex flex-col gap-3">
+                                        <div className={`p-4 rounded-xl border-2 text-center transition-all ${progress.premiumPass ? 'bg-amber-900/40 border-amber-500' : 'bg-game-900/80 border-game-700'}`}>
+                                            <i className="fa-solid fa-crown text-4xl text-amber-400 mb-2 animate-bounce"></i>
+                                            <h3 className="text-game-100 font-black text-lg">Pase de Batalla Premium</h3>
+                                            <p className="text-game-300 text-xs mb-3">Desbloquea la fila inferior del Pase de Batalla con recompensas masivas (x3 Derals).</p>
+                                            {progress.premiumPass ? (
+                                                <div className="py-2 bg-amber-900/50 text-amber-400 font-black rounded-xl border border-amber-900 uppercase">¡Adquirido!</div>
+                                            ) : (
+                                                <button onClick={() => buyStoreItem('pass', { name: 'Pase Premium', cost: 10000 })} className="w-full py-3 cartoon-btn !bg-amber-400 !text-amber-950 !border-amber-900 hover:!bg-amber-300 shadow-[0_0_15px_rgba(251,191,36,0.5)]">Comprar por 10,000 <i className="fa-solid fa-coins"></i></button>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+
+                                {storeTab === 'personajes' && (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {PREMIUM_CLASSES.map(c => {
+                                            const unlocked = (progress.unlockedClasses || []).includes(c.id);
+                                            return (
+                                                <div key={c.id} className={`p-3 rounded-xl border-2 flex flex-col gap-2 transition-all ${unlocked ? 'bg-game-900/60 border-green-500' : 'bg-game-900/80 border-game-700'}`}>
+                                                    <div className="flex gap-3 items-center">
+                                                        <div className="text-4xl filter drop-shadow-md">{c.icon}</div>
+                                                        <div className="text-left flex-1">
+                                                            <h4 className="font-black text-game-100">{c.name}</h4>
+                                                            <p className="text-[10px] text-game-300 font-mono">❤️ {c.hp} | ⚔️ {c.atk}</p>
+                                                        </div>
+                                                    </div>
+                                                    <p className="text-[10px] text-game-300/80 italic text-left">{c.desc}</p>
+                                                    {unlocked ? ( <div className="text-xs font-black text-green-400 bg-green-900/30 py-1.5 rounded-lg border border-green-900 uppercase">Desbloqueado</div> ) : ( <button onClick={() => buyStoreItem('class', c)} className="w-full py-2 cartoon-btn text-xs !bg-game-300 !text-game-900">{c.cost} <i className="fa-solid fa-coins"></i> Comprar</button> )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                                {storeTab === 'fondos' && (
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                        {PREMIUM_BGS.map(bg => {
+                                            const unlocked = (progress.unlockedBgs || []).includes(bg.id);
+                                            const equipped = progress.equippedBg === bg.id;
+                                            return (
+                                                <div key={bg.id} className={`p-3 rounded-xl border-2 flex flex-col gap-2 transition-all ${equipped ? 'bg-blue-900/40 border-blue-400 shadow-[0_0_15px_rgba(96,165,250,0.3)]' : (unlocked ? 'bg-game-900/60 border-game-500' : 'bg-game-900/80 border-game-700')}`}>
+                                                    <div className="flex gap-3 items-center">
+                                                        <div className="text-4xl filter drop-shadow-md">{bg.icon}</div>
+                                                        <div className="text-left flex-1"><h4 className="font-black text-game-100">{bg.name}</h4><p className="text-[10px] text-game-300">Fondo Animado Global</p></div>
+                                                    </div>
+                                                    {unlocked ? ( <button onClick={() => equipBg(bg.id)} className={`w-full py-2 cartoon-btn text-xs ${equipped ? '!bg-blue-500 !text-white !border-blue-900' : ''}`}>{equipped ? 'Equipado ✅' : 'Equipar'}</button> ) : ( <button onClick={() => buyStoreItem('bg', bg)} className="w-full py-2 cartoon-btn text-xs !bg-game-300 !text-game-900">{bg.cost} <i className="fa-solid fa-coins"></i> Comprar</button> )}
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+
+                            </div>
                         </div>
                     </div>
                 );
-            }
+            };
 
-            if (gameState === 'promo') {
+            const renderBattlePass = () => {
+                if (!showBattlePass) return null;
+                const currentXp = progress.bpXp || 0;
                 return (
-                    <div className="min-h-screen flex items-center justify-center p-4 bg-purple-950 z-[90] animate-fade-in relative overflow-hidden">
-                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 animation-pulse"></div>
-                        <div className="wood-panel max-w-lg w-full p-8 text-center flex flex-col gap-4 z-10 shadow-2xl border-4 border-fuchsia-500 shadow-[0_0_50px_rgba(217,70,239,0.5)] animate-pop-in">
-                            <div className="text-5xl animate-bounce">🎉🚀</div>
-                            <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-widest drop-shadow-[0_0_10px_rgba(217,70,239,1)]">¡EVENTO EN VIVO!</h1>
-                            <h2 className="text-xl font-bold text-fuchsia-300 bg-black/40 p-2 rounded-xl">🌟 VERSIÓN 3.2 RC 🌟</h2>
-                            <div className="text-sm font-bold text-game-100 text-left bg-black/40 p-4 rounded-xl border border-fuchsia-500/50 shadow-inner space-y-2">
-                                <p>🔥 La nueva actualización ya está disponible y el evento x2 Derals está en vivo.</p>
-                                <p className="text-fuchsia-300">✨ ¿Qué te espera?</p>
-                                <ul className="pl-4 space-y-1"><li>⚡ Nuevo contenido y clases</li><li>🛠️ Misiones diarias adictivas</li><li>🎯 Rendimiento súper optimizado</li><li>🎉 Sorpresas en el tablero</li></ul>
+                    <div className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[70] p-4">
+                        <div className="wood-panel max-w-md w-full p-6 text-center animate-pop-in border-4 border-game-900 shadow-2xl">
+                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 wood-banner text-game-900 px-6 py-1 rounded-xl text-lg font-black uppercase border-4 border-game-900 shadow-md">🎟️ PASE BATALLA</span>
+                            <div className="mt-4 flex flex-col gap-3 max-h-[60vh] overflow-y-auto pr-2">
+                                <div className="bg-game-900/80 p-3 rounded-xl border border-game-500 mb-2 shadow-inner">
+                                    <p className="text-game-100 font-black text-lg">Tu Experiencia</p>
+                                    <p className="text-game-300 font-mono text-xl">✨ {currentXp} XP</p>
+                                </div>
+                                {!progress.premiumPass && (
+                                    <button onClick={() => { setShowBattlePass(false); setShowStore(true); setStoreTab('pase'); }} className="w-full mb-2 py-2 cartoon-btn text-xs !bg-amber-400 !text-amber-950 !border-amber-900 shadow-lg animate-pulse">Desbloquear Pase Premium <i className="fa-solid fa-crown ml-1"></i></button>
+                                )}
+                                {BATTLE_PASS.map(bp => {
+                                    const isUnlocked = currentXp >= bp.xpReq;
+                                    const isClaimedFree = (progress.bpClaimed || []).includes(bp.level);
+                                    const isClaimedPrem = (progress.bpPremiumClaimed || []).includes(bp.level);
+                                    
+                                    return (
+                                        <div key={bp.level} className={`p-3 rounded-xl border-2 flex flex-col gap-2 transition-all ${isUnlocked ? 'bg-blue-900/40 border-blue-500' : 'bg-game-900/80 border-game-700'}`}>
+                                            <div className="flex justify-between items-center text-left">
+                                                <div className="flex items-center gap-3"><span className="text-2xl">🏆</span><div><p className={`text-sm font-bold ${isUnlocked ? 'text-blue-300' : 'text-game-100'}`}>Nivel {bp.level}</p></div></div>
+                                                <div className="text-xs font-mono font-black text-game-300 bg-black/40 px-2 py-1 rounded-md">{Math.min(currentXp, bp.xpReq)} / {bp.xpReq}</div>
+                                            </div>
+                                            <div className="w-full bg-black/50 h-2 rounded-full overflow-hidden mb-1"><div className="bg-blue-500 h-full transition-all duration-500" style={{width: `${Math.min(100, (currentXp/bp.xpReq)*100)}%`}}></div></div>
+                                            
+                                            <div className="flex gap-2">
+                                                <div className={`flex-1 p-2 rounded-lg border text-center ${isClaimedFree ? 'bg-game-900/50 border-game-900 opacity-60' : 'bg-game-900/80 border-game-500'}`}>
+                                                    <p className="text-[10px] text-game-300 uppercase font-bold">Gratis</p>
+                                                    <p className="text-xs text-yellow-400 font-bold mb-1">+{bp.reward}</p>
+                                                    {isUnlocked && !isClaimedFree && <button onClick={() => claimBpReward(bp.level, bp.reward, false)} className="w-full py-1 cartoon-btn text-[10px] !bg-blue-500 !text-white !border-blue-900">Reclamar</button>}
+                                                </div>
+                                                
+                                                <div className={`flex-1 p-2 rounded-lg border text-center ${progress.premiumPass ? (isClaimedPrem ? 'bg-amber-900/30 border-amber-900 opacity-60' : 'bg-amber-900/60 border-amber-500') : 'bg-black/50 border-game-900 opacity-50 grayscale'}`}>
+                                                    <p className="text-[10px] text-amber-300 uppercase font-bold"><i className="fa-solid fa-crown"></i> Premium</p>
+                                                    <p className="text-xs text-amber-400 font-bold mb-1">+{bp.premiumReward}</p>
+                                                    {isUnlocked && !isClaimedPrem && progress.premiumPass && <button onClick={() => claimBpReward(bp.level, bp.premiumReward, true)} className="w-full py-1 cartoon-btn text-[10px] !bg-amber-500 !text-amber-950 !border-amber-900">Reclamar</button>}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    );
+                                })}
                             </div>
-                            <button onClick={() => { playSfx('victory'); setGameState('menu'); }} className="w-full py-4 mt-4 cartoon-btn text-xl !bg-fuchsia-600 !text-white !border-fuchsia-900 shadow-[0_0_20px_rgba(217,70,239,0.8)] hover:!bg-fuchsia-500 animate-pulse">¡ENTRAR YA! 🚀</button>
+                            <button onClick={() => { playSfx('click'); setShowBattlePass(false); }} className="w-full py-3 mt-4 cartoon-btn text-sm">Cerrar</button>
                         </div>
                     </div>
                 );
-            }
-
-            const unreadMissions = DAILY_MISSIONS.filter(m => (progress.stats?.[m.type] || 0) >= m.target && !(progress.claimedMissions || []).includes(m.id)).length;
+            };
 
             const renderMissions = () => {
                 if (!showMissions) return null;
@@ -779,17 +1028,10 @@
                                     return (
                                         <div key={m.id} className={`p-3 rounded-xl border-2 flex flex-col gap-2 transition-all ${isClaimed ? 'bg-game-900/50 border-game-900 opacity-60' : (isDone ? 'bg-green-900/40 border-green-500 shadow-[0_0_15px_rgba(34,197,94,0.3)]' : 'bg-game-900/80 border-game-700')}`}>
                                             <div className="flex justify-between items-center text-left">
-                                                <div className="flex items-center gap-3">
-                                                    <span className="text-2xl">{m.icon}</span>
-                                                    <div><p className={`text-sm font-bold ${isDone && !isClaimed ? 'text-green-300' : 'text-game-100'}`}>{m.title}</p><p className="text-xs text-yellow-400 font-bold">💰 +{m.reward} Derals</p></div>
-                                                </div>
+                                                <div className="flex items-center gap-3"><span className="text-2xl">{m.icon}</span><div><p className={`text-sm font-bold ${isDone && !isClaimed ? 'text-green-300' : 'text-game-100'}`}>{m.title}</p><p className="text-xs text-yellow-400 font-bold">💰 +{m.reward} Derals</p></div></div>
                                                 {!isClaimed && ( <div className="text-xs font-mono font-black text-game-300 bg-black/40 px-2 py-1 rounded-md">{Math.min(curr, m.target)} / {m.target}</div> )}
                                             </div>
-                                            {!isClaimed && (
-                                                <div className="w-full bg-black/50 h-2 rounded-full overflow-hidden">
-                                                    <div className="bg-green-500 h-full transition-all duration-500" style={{width: `${Math.min(100, (curr/m.target)*100)}%`}}></div>
-                                                </div>
-                                            )}
+                                            {!isClaimed && ( <div className="w-full bg-black/50 h-2 rounded-full overflow-hidden"><div className="bg-green-500 h-full transition-all duration-500" style={{width: `${Math.min(100, (curr/m.target)*100)}%`}}></div></div> )}
                                             {isDone && !isClaimed && ( <button onClick={() => claimMission(m)} className="w-full py-2 cartoon-btn text-xs !bg-green-500 !text-white !border-green-900 hover:!bg-green-400">Reclamar Recompensa</button> )}
                                         </div>
                                     );
@@ -826,7 +1068,7 @@
                                 </div>
 
                                 <div className="mt-2 pt-3 border-t-2 border-game-900/30">
-                                    <label className="text-[10px] font-black text-game-300 uppercase block mb-2 flex items-center justify-center gap-2 bg-black/20 py-1 rounded-lg border border-game-900/50"><i className="fa-solid fa-cloud-arrow-down"></i> Traspasar Partida (v3.2.1)</label>
+                                    <label className="text-[10px] font-black text-game-300 uppercase block mb-2 flex items-center justify-center gap-2 bg-black/20 py-1 rounded-lg border border-game-900/50"><i className="fa-solid fa-cloud-arrow-down"></i> Traspasar Partida (v3.2.4.1)</label>
                                     <div className="flex gap-2 mb-4">
                                         <button onClick={handleExportSave} className="flex-1 py-2 bg-blue-900 text-blue-100 hover:bg-blue-800 rounded-xl text-xs font-bold border border-blue-700 shadow-md flex justify-center items-center gap-1 transition-colors"><i className="fa-solid fa-download"></i> .save</button>
                                         <button onClick={handleImportClick} className="flex-1 py-2 bg-green-900 text-green-100 hover:bg-green-800 rounded-xl text-xs font-bold border border-green-700 shadow-md flex justify-center items-center gap-1 transition-colors"><i className="fa-solid fa-upload"></i> Cargar</button>
@@ -850,8 +1092,8 @@
                                                 const val = e.target.value; setDevCode(val);
                                                 if (val === '0103') {
                                                     playSfx('powerup');
-                                                    setProgress(prev => { const np = { ...prev, unlockedWorlds: 30, derals: (prev.derals||0) + 50000 }; localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np; });
-                                                    showToast("¡Desbloqueo Maestro! (+50k Derals)"); setDevInputMode(false); setDevCode('');
+                                                    setProgress(prev => { const np = { ...prev, unlockedWorlds: 30, derals: (prev.derals||0) + 100000 }; localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np; });
+                                                    showToast("¡Desbloqueo Maestro! (+100k Derals)"); setDevInputMode(false); setDevCode('');
                                                 }
                                             }} className="flex-1 px-3 py-1 text-sm rounded-xl font-bold border border-game-900 bg-game-900 text-game-100 outline-none text-center" />
                                             <button onClick={() => { setDevInputMode(false); setDevCode(''); }} className="px-3 py-1 bg-stone-600 text-white rounded-xl text-xs font-bold border border-stone-900"><i className="fa-solid fa-xmark"></i></button>
@@ -907,15 +1149,52 @@
                 );
             };
 
-            // Menús Globales
+            if (gameState === 'warning') {
+                return (
+                    <div className="min-h-screen flex items-center justify-center p-4 bg-black z-[100] animate-fade-in relative overflow-hidden">
+                        <div id="warning-box" className="wood-panel max-w-lg w-full p-8 text-center flex flex-col gap-6 z-10 shadow-2xl border-4 border-red-900 shadow-[0_0_50px_rgba(220,38,38,0.3)]">
+                            <div className="text-6xl animate-pulse drop-shadow-[0_0_15px_rgba(239,68,68,0.8)]">⚠️</div>
+                            <h1 className="text-3xl md:text-4xl font-black text-red-500 uppercase tracking-widest drop-shadow-md">Advertencia</h1>
+                            <div className="text-sm font-bold text-game-100 bg-black/60 p-5 rounded-xl border border-red-900/50 text-left flex flex-col gap-3 shadow-inner">
+                                <p className="text-red-400 font-black text-center text-base border-b border-red-900/50 pb-2 mb-1">CLASIFICACIÓN: ADOLESCENTES / +13</p>
+                                <p><span className="text-game-300"><i className="fa-solid fa-dice mr-2 w-4 text-center"></i>Juego de Azar:</span> Contiene mecánicas de suerte y moneda virtual.</p>
+                                <p><span className="text-game-300"><i className="fa-solid fa-khanda mr-2 w-4 text-center"></i>Violencia Baja:</span> Elementos de combate de fantasía.</p>
+                                <p><span className="text-game-300"><i className="fa-solid fa-bolt mr-2 w-4 text-center"></i>Fotosensibilidad:</span> Contiene destellos rojos y sacudidas de pantalla.</p>
+                            </div>
+                            <p className="text-xs text-game-300/80 font-bold px-2">Puedes desactivar los destellos en los <i className="fa-solid fa-gear"></i> Ajustes (Modo Fotosensible).</p>
+                            <button onClick={() => { playSfx('powerup'); const bx = document.getElementById('warning-box'); if (bx) bx.classList.add('animate-fade-out'); setTimeout(() => setGameState('promo'), 800); }} className="w-full py-4 cartoon-btn text-lg mt-2 !bg-red-950 !text-white !border-red-900">Omitir &gt;&gt;</button>
+                        </div>
+                    </div>
+                );
+            }
+
+            if (gameState === 'promo') {
+                return (
+                    <div className="min-h-screen flex items-center justify-center p-4 bg-purple-950 z-[90] animate-fade-in relative overflow-hidden">
+                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 animation-pulse"></div>
+                        <div className="wood-panel max-w-lg w-full p-8 text-center flex flex-col gap-4 z-10 shadow-2xl border-4 border-fuchsia-500 shadow-[0_0_50px_rgba(217,70,239,0.5)] animate-pop-in">
+                            <div className="text-5xl animate-bounce">🎉🛒</div>
+                            <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-widest drop-shadow-[0_0_10px_rgba(217,70,239,1)]">¡LA GRAN TIENDA!</h1>
+                            <h2 className="text-xl font-bold text-fuchsia-300 bg-black/40 p-2 rounded-xl">🌟 VERSIÓN 3.2.4.1 RC 🌟</h2>
+                            <div className="text-sm font-bold text-game-100 text-left bg-black/40 p-4 rounded-xl border border-fuchsia-500/50 shadow-inner space-y-2">
+                                <p>🔥 Gasta tus Derals en la nueva y enorme Tienda Global.</p>
+                                <ul className="pl-4 space-y-1"><li>🎟️ Nuevo Pase de Batalla Premium</li><li>🦸‍♂️ Clases exclusivas (Vampiro, Cyborg...)</li><li>🌌 Fondos Animados Globales</li><li>🌍 Desbloqueo de mundos reubicado</li></ul>
+                            </div>
+                            <button onClick={() => { playSfx('victory'); setGameState('menu'); }} className="w-full py-4 mt-4 cartoon-btn text-xl !bg-fuchsia-600 !text-white !border-fuchsia-900 shadow-[0_0_20px_rgba(217,70,239,0.8)] hover:!bg-fuchsia-500 animate-pulse">¡ENTRAR YA! 🚀</button>
+                        </div>
+                    </div>
+                );
+            }
+
+            const unreadMissions = DAILY_MISSIONS.filter(m => (progress.stats?.[m.type] || 0) >= m.target && !(progress.claimedMissions || []).includes(m.id)).length;
+
             if (gameState === 'menu') {
                 const currentUnlocked = progress.unlockedWorlds || 1; const isUnlocked = selectedWorld <= currentUnlocked;
-                const unlockCost = selectedWorld * 150;
-                const handleUnlock = () => { if ((progress.derals || 0) >= unlockCost) { playSfx('powerup'); setProgress(prev => { const np = { ...prev, derals: prev.derals - unlockCost, unlockedWorlds: selectedWorld }; localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np; }); log(`🔓 ¡Mundo ${selectedWorld} desbloqueado!`); } else playSfx('hurt'); };
 
                 return (
                     <div className="min-h-screen flex flex-col items-center justify-center p-4 relative">
-                        <AnimatedBackground worldId={selectedWorld} difficulty={difficulty} gameState={gameState} /> {renderSettingsMenu()} {renderMissions()}
+                        <AnimatedBackground worldId={selectedWorld} difficulty={difficulty} gameState={gameState} equippedBg={progress.equippedBg} /> 
+                        {renderSettingsMenu()} {renderMissions()} {renderBattlePass()} {renderStore()}
                         {toastMsg && <div className="fixed top-16 z-[100] bg-game-900/90 text-game-100 px-6 py-3 rounded-full border-2 border-game-500 shadow-lg font-bold animate-pop-in">{toastMsg}</div>}
                         
                         <div className="absolute top-3 w-full px-3 flex justify-between items-start z-20 pointer-events-none">
@@ -930,6 +1209,12 @@
                                 </div>
                             </div>
                             <div className="flex gap-2 pointer-events-auto">
+                                <button onClick={() => { playSfx('click'); setShowStore(true); setStoreTab('personajes'); }} className="w-12 h-12 wood-control-btn flex items-center justify-center text-xl shadow-lg relative !bg-amber-600 !border-amber-900" title="Tienda">
+                                    <i className="fa-solid fa-store"></i>
+                                </button>
+                                <button onClick={() => { playSfx('click'); setShowBattlePass(true); }} className={`w-12 h-12 wood-control-btn flex items-center justify-center text-xl shadow-lg relative ${progress.premiumPass ? '!bg-amber-500 !border-amber-900' : '!bg-blue-800 border-blue-950'}`} title="Pase de Batalla">
+                                    <i className="fa-solid fa-ticket"></i>
+                                </button>
                                 <button onClick={() => { playSfx('click'); setShowMissions(true); }} className="w-12 h-12 wood-control-btn flex items-center justify-center text-xl shadow-lg relative" title="Misiones">
                                     <i className="fa-solid fa-crosshairs"></i>
                                     {unreadMissions > 0 && <span className="absolute -top-1 -right-1 w-4 h-4 bg-red-500 rounded-full border-2 border-game-900 animate-pulse"></span>}
@@ -943,7 +1228,7 @@
                                 <h1 className="text-3xl md:text-4xl font-black text-game-900 tracking-wide uppercase drop-shadow-md">La Historia</h1>
                             </div>
                             <div className="z-10 relative flex justify-center -mt-8 mb-2 animate-bounce-slow">
-                                <span className="rc-badge px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest shadow-md">v3.2 RC - Optimizado</span>
+                                <span className="rc-badge px-4 py-1 rounded-full text-xs font-black uppercase tracking-widest shadow-md">v3.2.4.1 RC - La Gran Tienda</span>
                             </div>
                             
                             {isEventActive && (
@@ -954,28 +1239,33 @@
                                 </div>
                             )}
 
-                            <div className="bg-game-900/40 p-3 rounded-xl border border-game-900 flex flex-col items-center gap-2">
-                                <p className="text-xs font-bold text-game-100 uppercase">Selecciona Mundo:</p>
-                                <div className="flex gap-2 items-center justify-center w-full">
-                                    <button onClick={() => { playSfx('click'); setSelectedWorld(Math.max(1, selectedWorld - 1)); }} disabled={selectedWorld === 1} className="wood-control-btn w-10 h-10 flex items-center justify-center text-lg"><i className="fa-solid fa-chevron-left"></i></button>
-                                    <div className="flex-1 text-center font-bold text-game-300 text-sm truncate flex flex-col items-center justify-center h-16 bg-black/20 rounded-xl border border-game-900/50">
-                                        <span className="text-2xl leading-none">{WORLDS.find(w => w.id === selectedWorld)?.icon}</span>
-                                        <span className="truncate w-full px-1">{WORLDS.find(w => w.id === selectedWorld)?.name}</span>
-                                    </div>
-                                    <button onClick={() => { playSfx('click'); setSelectedWorld(Math.min(WORLDS.length, selectedWorld + 1)); }} disabled={selectedWorld === WORLDS.length} className="wood-control-btn w-10 h-10 flex items-center justify-center text-lg"><i className="fa-solid fa-chevron-right"></i></button>
-                                </div>
+                            <div className="bg-game-900/40 p-2 rounded-xl border border-game-900 flex justify-center gap-2">
+                                <button onClick={() => { playSfx('click'); setPlayMode('historia'); }} className={`flex-1 py-2 text-xs font-black uppercase rounded-lg border-2 transition-all ${playMode === 'historia' ? 'bg-game-300 text-game-900 border-game-100 shadow-md scale-105' : 'bg-game-900/50 text-game-300 border-game-700'}`}>Modo Historia</button>
+                                <button onClick={() => { playSfx('click'); setPlayMode('aventura'); }} className={`flex-1 py-2 text-xs font-black uppercase rounded-lg border-2 transition-all ${playMode === 'aventura' ? 'bg-purple-400 text-purple-900 border-purple-200 shadow-md scale-105' : 'bg-game-900/50 text-purple-300 border-game-700'}`}>Aventura Libre</button>
                             </div>
 
+                            {playMode === 'historia' && (
+                                <div className="bg-game-900/40 p-3 rounded-xl border border-game-900 flex flex-col items-center gap-2">
+                                    <p className="text-xs font-bold text-game-100 uppercase">Selecciona Mundo:</p>
+                                    <div className="flex gap-2 items-center justify-center w-full">
+                                        <button onClick={() => { playSfx('click'); setSelectedWorld(Math.max(1, selectedWorld - 1)); }} disabled={selectedWorld === 1} className="wood-control-btn w-10 h-10 flex items-center justify-center text-lg"><i className="fa-solid fa-chevron-left"></i></button>
+                                        <div className="flex-1 text-center font-bold text-game-300 text-sm truncate flex flex-col items-center justify-center h-16 bg-black/20 rounded-xl border border-game-900/50">
+                                            <span className="text-2xl leading-none">{WORLDS.find(w => w.id === selectedWorld)?.icon}</span>
+                                            <span className="truncate w-full px-1">{WORLDS.find(w => w.id === selectedWorld)?.name}</span>
+                                        </div>
+                                        <button onClick={() => { playSfx('click'); setSelectedWorld(Math.min(WORLDS.length, selectedWorld + 1)); }} disabled={selectedWorld === WORLDS.length} className="wood-control-btn w-10 h-10 flex items-center justify-center text-lg"><i className="fa-solid fa-chevron-right"></i></button>
+                                    </div>
+                                </div>
+                            )}
+
                             <div className="flex flex-col gap-3 mt-1 text-left pointer-events-auto min-h-[160px]">
-                                {!isUnlocked ? (
+                                {!isUnlocked && playMode === 'historia' ? (
                                     <div className="bg-game-900/30 p-4 rounded-xl border border-game-900 border-dashed text-center flex flex-col justify-center h-full">
                                         <i className="fa-solid fa-lock text-4xl text-game-900 mb-2"></i>
                                         <p className="text-game-300 font-bold text-sm mb-3">Mundo Bloqueado</p>
-                                        {selectedWorld === currentUnlocked + 1 ? (
-                                            <button onClick={handleUnlock} disabled={(progress.derals || 0) < unlockCost} className="w-full py-3 cartoon-btn text-xs !bg-yellow-100 !text-yellow-900 flex justify-center items-center gap-2 shadow-lg">
-                                                <i className="fa-solid fa-unlock"></i> Desbloquear x {unlockCost} <i className="fa-solid fa-coins"></i>
-                                            </button>
-                                        ) : ( <p className="text-[10px] text-game-500 font-bold">Desbloquea el mundo {selectedWorld - 1} primero.</p> )}
+                                        <button onClick={() => { playSfx('click'); setShowStore(true); setStoreTab('niveles'); }} className="w-full py-3 cartoon-btn text-xs !bg-yellow-100 !text-yellow-900 flex justify-center items-center gap-2 shadow-lg">
+                                            <i className="fa-solid fa-store"></i> Ir a la Tienda a Desbloquear
+                                        </button>
                                     </div>
                                 ) : (
                                     <>
@@ -984,7 +1274,7 @@
                                             <div className="flex items-center gap-3">
                                                 <button onClick={() => { playSfx('tick'); setLocalPlayerCount(Math.max(1, localPlayerCount - 1)); }} className="wood-control-btn w-10 h-10 text-lg">-</button>
                                                 <div className="flex-1 text-center font-black text-game-100">{localPlayerCount} <span className="text-[10px] font-normal block -mt-1">Jugadores</span></div>
-                                                <button onClick={() => { playSfx('tick'); setLocalPlayerCount(Math.min(16, localPlayerCount + 1)); }} className="wood-control-btn w-10 h-10 text-lg">+</button>
+                                                <button onClick={() => { playSfx('tick'); setLocalPlayerCount(Math.min(20, localPlayerCount + 1)); }} className="wood-control-btn w-10 h-10 text-lg">+</button>
                                             </div>
                                             <button onClick={() => initSetup('local', localPlayerCount)} className="w-full mt-3 py-3 cartoon-btn text-xs">Jugar Local</button>
                                         </div>
@@ -993,7 +1283,7 @@
                                             <div className="flex items-center gap-3">
                                                 <button onClick={() => { playSfx('tick'); setOnlinePlayerCount(Math.max(2, onlinePlayerCount - 1)); }} className="wood-control-btn w-10 h-10 text-lg !bg-blue-800">-</button>
                                                 <div className="flex-1 text-center font-black text-blue-100">1 vs {onlinePlayerCount - 1} <span className="text-[10px] font-normal block -mt-1">Bots</span></div>
-                                                <button onClick={() => { playSfx('tick'); setOnlinePlayerCount(Math.min(16, onlinePlayerCount + 1)); }} className="wood-control-btn w-10 h-10 text-lg !bg-blue-800">+</button>
+                                                <button onClick={() => { playSfx('tick'); setOnlinePlayerCount(Math.min(20, onlinePlayerCount + 1)); }} className="wood-control-btn w-10 h-10 text-lg !bg-blue-800">+</button>
                                             </div>
                                             <button onClick={() => initSetup('online', onlinePlayerCount)} className="w-full mt-3 py-3 cartoon-btn text-xs !bg-blue-100 !text-blue-900 hover:!bg-blue-200">Jugar Solo</button>
                                         </div>
@@ -1008,15 +1298,15 @@
             if (gameState === 'setup') {
                 return (
                     <div className="min-h-screen flex items-center justify-center p-4">
-                        <AnimatedBackground worldId={selectedWorld} difficulty={difficulty} gameState={gameState} />
+                        <AnimatedBackground worldId={selectedWorld} difficulty={difficulty} gameState={gameState} equippedBg={progress.equippedBg} />
                         <div className="wood-panel max-w-md w-full p-6 text-center flex flex-col gap-5 animate-pop-in z-10 shadow-2xl">
                             <span className="absolute -top-6 left-1/2 -translate-x-1/2 wood-banner text-game-900 px-8 py-1.5 rounded-xl text-lg font-black uppercase border-4 border-game-900 shadow-md">CLASES</span>
                             <div className="mt-4 flex flex-col gap-3 text-left">
                                 <label className="text-sm font-bold text-game-300 uppercase block">Dificultad:</label>
-                                {selectedWorld === 30 && <p className="text-[10px] text-red-400 font-bold animate-pulse text-center bg-red-950/50 rounded-xl p-1 border border-red-900">EL VACÍO EXIGE HARDCORE OBLIGATORIO</p>}
+                                {selectedWorld === 30 && playMode === 'historia' && <p className="text-[10px] text-red-400 font-bold animate-pulse text-center bg-red-950/50 rounded-xl p-1 border border-red-900">EL VACÍO EXIGE HARDCORE OBLIGATORIO</p>}
                                 <div className="grid grid-cols-2 md:grid-cols-3 gap-2">
                                     {['facil', 'normal', 'dificil', 'extremo', 'hardcore'].map(diff => (
-                                        <button key={diff} onClick={() => { playSfx('click'); setDifficulty(diff); }} disabled={selectedWorld === 30 && diff !== 'hardcore'}
+                                        <button key={diff} onClick={() => { playSfx('click'); setDifficulty(diff); }} disabled={selectedWorld === 30 && playMode === 'historia' && diff !== 'hardcore'}
                                             className={`py-2 rounded-xl font-bold border-2 transition-all text-[10px] sm:text-xs uppercase disabled:opacity-30 disabled:cursor-not-allowed ${difficulty === diff ? 'bg-game-100 text-game-900 border-game-900 shadow-lg ring-2 ring-game-300 scale-105' : 'bg-game-900/60 text-game-300 border-game-900'} ${diff === 'hardcore' ? '!bg-red-900 !text-white !border-red-950' : ''}`}>
                                             {diff === 'facil' ? '👶 Fácil' : diff === 'normal' ? '😀 Normal' : diff === 'dificil' ? '👹 Difícil' : diff === 'extremo' ? '💀 EXTREMO' : '🔥 HARDCORE'}
                                         </button>
@@ -1024,17 +1314,23 @@
                                 </div>
                             </div>
                             <div className="flex flex-col gap-2 text-left overflow-y-auto max-h-48 p-2 bg-game-900/30 rounded-xl border border-game-900 shadow-inner">
-                                <label className="text-sm font-bold text-game-300 uppercase block sticky top-0 bg-transparent backdrop-blur-md pb-1 z-10">Jugadores:</label>
+                                <label className="text-sm font-bold text-game-300 uppercase block sticky top-0 bg-transparent backdrop-blur-md pb-1 z-10 flex justify-between">Jugadores:</label>
                                 {tempPlayers.map((tp, idx) => {
-                                    const hc = HERO_CLASSES[Math.floor(Math.random() * HERO_CLASSES.length)];
-                                    if (!tp.heroClass) { const n = [...tempPlayers]; n[idx].heroClass = hc; setTempPlayers(n); }
+                                    if (!tp.heroClass) { 
+                                        const hc = HERO_CLASSES[Math.floor(Math.random() * HERO_CLASSES.length)];
+                                        const n = [...tempPlayers]; n[idx].heroClass = hc; setTempPlayers(n); 
+                                    }
                                     return (
                                         <div key={tp.id} className="flex flex-col gap-1 bg-game-900/50 p-2 rounded-xl border border-game-900">
                                             <div className="flex items-center gap-2">
                                                 <span className="w-4 h-4 rounded-full border border-game-900 flex-none shadow-sm" style={{backgroundColor: tp.colorHex}}></span>
                                                 <input type="text" value={tp.name} disabled={tp.isBot} onChange={(e) => { const u = [...tempPlayers]; u[idx].name = e.target.value.substring(0, 12); setTempPlayers(u); }} className={`flex-1 px-3 py-1.5 text-xs md:text-sm rounded-xl font-bold border border-game-900 focus:outline-none shadow-inner ${tp.isBot ? 'bg-stone-400 text-stone-700' : 'bg-amber-50 text-stone-950'}`} placeholder={`Héroe ${idx + 1}`} />
                                             </div>
-                                            {tp.heroClass && <div className="text-[10px] text-game-300 font-bold ml-6 flex gap-2"><span>Clase: <span className="text-game-100">{tp.heroClass.icon} {tp.heroClass.name}</span></span></div>}
+                                            {tp.heroClass && (
+                                                <div className="text-[10px] text-game-300 font-bold ml-6 flex justify-between items-center pr-1">
+                                                    <span>Clase: <span className="text-game-100">{tp.heroClass.icon} {tp.heroClass.name}</span></span>
+                                                </div>
+                                            )}
                                         </div>
                                     );
                                 })}
@@ -1051,10 +1347,10 @@
             if (gameState === 'drawing') {
                 return (
                     <div className="min-h-screen flex items-center justify-center p-4">
-                        <AnimatedBackground worldId={selectedWorld} difficulty={difficulty} gameState={gameState} />
+                        <AnimatedBackground worldId={selectedWorld} difficulty={difficulty} gameState={gameState} equippedBg={progress.equippedBg} />
                         <div className="wood-panel max-w-sm w-full p-6 text-center animate-pop-in z-10 shadow-2xl">
                             <span className="absolute -top-6 left-1/2 -translate-x-1/2 wood-banner text-game-900 px-6 py-1.5 rounded-xl text-md font-black uppercase border-4 border-game-900 shadow-md">PIZARRÓN</span>
-                            <div className="mt-4">{tempPlayers[drawingIndex] && !tempPlayers[drawingIndex].isBot && ( <DrawingBoard colorHex={tempPlayers[drawingIndex].colorHex} playerName={tempPlayers[drawingIndex].name} pClass={tempPlayers[drawingIndex].heroClass} onSave={handleSaveAvatar} /> )}</div>
+                            <div className="mt-4">{tempPlayers[drawingIndex] && !tempPlayers[drawingIndex].isBot && ( <DrawingBoard colorHex={tempPlayers[drawingIndex].colorHex} playerName={tempPlayers[drawingIndex].name} pClass={tempPlayers[drawingIndex].heroClass} onCycleClass={() => cycleClassInSetup(drawingIndex)} onSave={handleSaveAvatar} /> )}</div>
                         </div>
                     </div>
                 );
@@ -1064,7 +1360,7 @@
                 const isVic = gameState === 'boss_defeated';
                 return (
                     <div className="min-h-screen flex flex-col items-center justify-center p-4">
-                        <AnimatedBackground worldId={selectedWorld} difficulty={difficulty} gameState={gameState} /> {isVic && <Confetti />}
+                        <AnimatedBackground worldId={selectedWorld} difficulty={difficulty} gameState={gameState} equippedBg={progress.equippedBg} /> {isVic && <Confetti />}
                         <div className={`wood-panel max-w-md w-full p-8 text-center flex flex-col items-center gap-4 border-4 animate-pop-in z-10 shadow-2xl ${isVic ? 'border-yellow-500 shadow-[0_0_50px_rgba(234,179,8,0.5)]' : 'border-red-900 shadow-red-900/30'}`}>
                             <div className={`text-8xl drop-shadow-lg ${isVic ? 'animate-bounce' : 'animate-pulse'}`}>{isVic ? '👑' : '💀'}</div>
                             <h1 className={`text-3xl md:text-5xl font-black tracking-tight uppercase drop-shadow-md ${isVic ? 'text-yellow-400' : 'text-red-500'}`}>{isVic ? (winReason === 'survival' ? '¡ÚLTIMO EN PIE!' : '¡JEFE CAÍDO!') : 'GAME OVER'}</h1>
@@ -1082,10 +1378,15 @@
             }
 
             const currPlayer = players[currPlayerIdx];
+            const playersByPos = React.useMemo(() => {
+                const map = {}; players.forEach(p => { if(!p.isDead) { if(!map[p.pos]) map[p.pos] = []; map[p.pos].push(p); } }); return map;
+            }, [players]);
+
+            const renderedBoardMap = playMode === 'aventura' ? VISUAL_ORDER_30 : (selectedWorld === 30 ? VISUAL_ORDER_42 : VISUAL_ORDER_30);
 
             return (
                 <div className={`min-h-screen transition-colors duration-300 ${flashRed ? 'flash-red' : ''}`}>
-                    <AnimatedBackground worldId={selectedWorld} difficulty={difficulty} gameState={gameState} />
+                    <AnimatedBackground worldId={selectedWorld} difficulty={difficulty} gameState={gameState} equippedBg={progress.equippedBg} />
                     
                     <div className={`p-3 md:p-6 flex flex-col xl:flex-row gap-6 max-w-[1600px] mx-auto relative z-10 ${screenShake ? 'screen-shake' : ''}`}>
                         <div className="fixed top-3 right-3 md:top-6 md:right-6 flex gap-2 z-30">
@@ -1137,10 +1438,10 @@
 
                         {/* TABLERO */}
                         <div className="flex-1 flex items-center justify-center p-1 md:p-2">
-                            <div className={`grid ${selectedWorld === 30 ? 'grid-cols-6 lg:grid-cols-7' : 'grid-cols-6'} gap-1 md:gap-2 max-w-5xl w-full`}>
-                                {(selectedWorld === 30 ? VISUAL_ORDER_42 : VISUAL_ORDER_30).map(num => {
-                                    const cell = board[num] || { type: 'empty', label: 'Camino', icon: '🌲' };
-                                    const playersHere = players.filter(p => p.pos === num && !p.isDead);
+                            <div className={`grid ${selectedWorld === 30 && playMode === 'historia' ? 'grid-cols-6 lg:grid-cols-7' : 'grid-cols-6'} gap-1 md:gap-2 max-w-5xl w-full`}>
+                                {renderedBoardMap.map(num => {
+                                    const cell = board[num] || { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura.' };
+                                    const playersHere = playersByPos[num] || [];
                                     let bgClass = "bg-game-900/40 border-game-900/60";
                                     if (num === 1) bgClass = "bg-emerald-950/60 border-emerald-700/50";
                                     else if (num === Object.keys(board).length) bgClass = "bg-red-950/60 border-red-700/50 shadow-[0_0_15px_rgba(239,68,68,0.5)]";
@@ -1172,7 +1473,7 @@
                             </div>
                         </div>
 
-                        {renderModals()} {renderSettingsMenu()} {renderMissions()}
+                        {renderModals()} {renderSettingsMenu()}
                     </div>
                 </div>
             );
