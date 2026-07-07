@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Historia v3.2.4.18 RC - Máxima Optimización</title>
+    <title>La Historia Chapter 4 Patch 6</title>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
     
@@ -111,7 +111,13 @@
         @keyframes fall { 0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 1; } 100% { transform: translate3d(0, 110vh, 0) rotate(720deg); opacity: 0; } }
         .confetti { position: absolute; top: -10%; z-index: 50; will-change: transform; }
 
+        /* Estilo brillante EXTREMO para versiones RC */
         .rc-badge { background: linear-gradient(90deg, #ef4444, #f59e0b, #3b82f6); background-size: 200% 200%; animation: gradient-shift 3s ease infinite; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); border: 2px solid white; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
+        
+        /* Estilo bonito pero NORMAL para versiones regulares */
+        .normal-badge { background: var(--game-300); color: var(--game-900); border: 2px solid var(--game-900); box-shadow: 0 4px 0 var(--game-900); transition: all 0.3s; }
+        .normal-badge:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--game-900); }
+
         @keyframes gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
         ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: var(--game-900); } ::-webkit-scrollbar-thumb { background: var(--game-500); border-radius: 4px; border: 2px solid var(--game-900); }
@@ -124,6 +130,13 @@
     <div id="root"></div>
 
     <script type="text/babel">
+        
+        // --- CONTROL DE VERSIONES ---
+        // Cambiar VERSION_MENU agregando "RC" activará automáticamente los efectos visuales extremos.
+        const VERSION_MENU = "Chapter 4"; 
+        const VERSION_SETTINGS = "Chapter 4 Patch 6";
+        const IS_RC = VERSION_MENU.toUpperCase().includes("RC");
+
         // 35 MUNDOS AHORA
         const WORLDS = [
             { id: 1, name: 'Bosque de Roble', icon: '🌲', bossId: 1, theme: { g900: '#451a03', g700: '#78350f', g500: '#d97706', g300: '#fcd34d', g100: '#fef3c7', bg: '#2c1a04', dot: 'rgba(217, 119, 6, 0.15)' } },
@@ -627,7 +640,8 @@
                         if (parsed && parsed.progress) {
                             localStorage.setItem('laHistoriaProgress', JSON.stringify(parsed.progress));
                             if (parsed.saveData) localStorage.setItem('laHistoriaSaveData', JSON.stringify(parsed.saveData));
-                            alert("¡Partida cargada exitosamente! Se reiniciará el juego."); window.location.reload();
+                            showToast("¡Cargado con éxito! Reiniciando...");
+                            setTimeout(() => { window.location.reload(); }, 1500);
                         } else { showToast("Archivo inválido."); }
                     } catch (err) { showToast("Error leyendo archivo."); }
                 };
@@ -1151,7 +1165,7 @@
                                 </div>
 
                                 <div className="mt-4 pt-4 border-t-2 border-game-900/30">
-                                    <label className="text-[10px] font-black text-game-300 uppercase block mb-3 flex items-center justify-center gap-2 bg-black/20 py-2 rounded-lg border border-game-900/50"><i className="fa-solid fa-cloud-arrow-down"></i> Traspasar Partida (v3.2.4.2)</label>
+                                    <label className="text-[10px] font-black text-game-300 uppercase block mb-3 flex items-center justify-center gap-2 bg-black/20 py-2 rounded-lg border border-game-900/50"><i className="fa-solid fa-cloud-arrow-down"></i> Traspasar Partida ({VERSION_SETTINGS})</label>
                                     <div className="flex gap-2 mb-4">
                                         <button onClick={handleExportSave} className="flex-1 py-3 bg-blue-900 text-blue-100 hover:bg-blue-800 rounded-xl text-xs font-bold border border-blue-700 shadow-md flex justify-center items-center gap-2 transition-colors"><i className="fa-solid fa-download"></i> .save</button>
                                         <button onClick={handleImportClick} className="flex-1 py-3 bg-green-900 text-green-100 hover:bg-green-800 rounded-xl text-xs font-bold border border-green-700 shadow-md flex justify-center items-center gap-2 transition-colors"><i className="fa-solid fa-upload"></i> Cargar</button>
@@ -1257,15 +1271,17 @@
                         <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 animation-pulse"></div>
                         <div className="wood-panel max-w-lg w-full p-8 text-center flex flex-col gap-5 z-10 shadow-2xl border-4 border-fuchsia-500 shadow-[0_0_50px_rgba(217,70,239,0.5)] animate-pop-in">
                             <div className="text-5xl animate-bounce">🎉🚀</div>
-                            <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-widest drop-shadow-[0_0_10px_rgba(217,70,239,1)]">¡NUEVOS MUNDOS!</h1>
-                            <h2 className="text-xl font-bold text-fuchsia-300 bg-black/40 p-2 rounded-xl border border-fuchsia-900/50">🌟 VERSIÓN 3.2.4.2 RC 🌟</h2>
+                            <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-widest drop-shadow-[0_0_10px_rgba(217,70,239,1)]">¡ACTUALIZACIÓN!</h1>
+                            <h2 className="text-xl font-bold text-fuchsia-300 bg-black/40 p-2 rounded-xl border border-fuchsia-900/50">🌟 {VERSION_SETTINGS} 🌟</h2>
                             <div className="text-sm font-bold text-game-100 text-left bg-black/40 p-5 rounded-xl border border-fuchsia-500/50 shadow-inner space-y-3">
-                                <p>🔥 Máxima Optimización y Expansión Final.</p>
+                                <p>🔥 Nuevos cambios y contenido disponibles.</p>
                                 <ul className="pl-4 space-y-1.5 list-disc marker:text-fuchsia-400">
-                                    <li>🌍 5 Mundos Nuevos (Total: 35 Niveles).</li>
-                                    <li>🕳️ El Vacío ahora está estrictamente bloqueado en dificultad Hardcore.</li>
-                                    <li>💾 Nuevo indicador de autoguardado + botón manual.</li>
-                                    <li>🛠️ Mejoras extremas de interfaz para móviles.</li>
+                                    <li>🐛 Arreglos de bugs importantes.</li>
+                                    <li>🌍 Más mundos por explorar.</li>
+                                    <li>🦸‍♂️ Más personajes desbloqueables.</li>
+                                    <li>🛒 Más artículos en la tienda.</li>
+                                    <li>🎟️ Más niveles en el Pase de Batalla.</li>
+                                    <li>✨ ¡Y mucho más!</li>
                                 </ul>
                             </div>
                             <button onClick={() => { playSfx('victory'); setGameState('menu'); }} className="w-full py-4 mt-2 cartoon-btn text-xl !bg-fuchsia-600 !text-white !border-fuchsia-900 shadow-[0_0_20px_rgba(217,70,239,0.8)] hover:!bg-fuchsia-500 animate-pulse">¡JUGAR AHORA! 🚀</button>
@@ -1318,8 +1334,12 @@
                             <div className="wood-banner py-4 px-4 rounded-xl border-4 border-game-900 my-2 shadow-lg mt-4">
                                 <h1 className="text-4xl md:text-5xl font-black text-game-900 tracking-wide uppercase drop-shadow-md">La Historia</h1>
                             </div>
+                            
+                            {/* AQUÍ ESTÁ LA LÓGICA DE LA ETIQUETA RC vs NORMAL */}
                             <div className="z-10 relative flex justify-center -mt-8 mb-2 animate-bounce-slow">
-                                <span className="rc-badge px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest shadow-md">v3.2.4.2 RC - Máxima Optimización</span>
+                                <span className={`px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest shadow-md ${IS_RC ? 'rc-badge' : 'normal-badge'}`}>
+                                    {VERSION_MENU}
+                                </span>
                             </div>
                             
                             {isEventActive && (
