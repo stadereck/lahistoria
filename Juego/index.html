@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>La Historia Chapter 4 Patch 6</title>
+    <title>La Historia Chapter 4 Patch 7</title>
     <!-- Favicon -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🎲</text></svg>">
     
@@ -15,6 +15,9 @@
                 extend: {
                     colors: {
                         game: { 900: 'var(--game-900)', 700: 'var(--game-700)', 500: 'var(--game-500)', 300: 'var(--game-300)', 100: 'var(--game-100)' }
+                    },
+                    animation: {
+                        'spin-slow': 'spin 3s linear infinite',
                     }
                 }
             }
@@ -41,10 +44,11 @@
             background-color: var(--game-bg);
             background-image: radial-gradient(var(--game-dot) 20%, transparent 20%), radial-gradient(var(--game-dot) 20%, transparent 20%);
             background-size: 8px 8px; background-position: 0 0, 4px 4px;
-            color: var(--game-100); overflow-x: hidden; user-select: none; transition: background-color 1s ease, background-image 1s ease;
+            color: var(--game-100); overflow-x: hidden; user-select: none; transition: background-color 0.5s ease, background-image 0.5s ease;
             touch-action: manipulation;
         }
 
+        /* Optimización de animaciones usando transformaciones HW aceleradas */
         @keyframes float-up {
             0% { transform: translate3d(0, 110vh, 0) rotate(0deg) scale(0.5); opacity: 0; }
             20% { opacity: 0.8; }
@@ -59,7 +63,7 @@
             10%, 30%, 50%, 70%, 90% { transform: translate3d(-8px, 5px, 0) rotate(-1deg); }
             20%, 40%, 60%, 80% { transform: translate3d(8px, -5px, 0) rotate(1deg); }
         }
-        .screen-shake { animation: shake-screen 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; }
+        .screen-shake { animation: shake-screen 0.4s cubic-bezier(0.36, 0.07, 0.19, 0.97) both; will-change: transform; }
 
         @keyframes flash-damage { 0%, 100% { box-shadow: inset 0 0 0px transparent; } 50% { box-shadow: inset 0 0 150px rgba(239, 68, 68, 0.8); } }
         .flash-red { animation: flash-damage 0.5s ease-out; }
@@ -68,10 +72,10 @@
         .animate-pop-in { animation: pop-in 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; will-change: transform, opacity; }
 
         @keyframes fade-out { 0% { opacity: 1; } 100% { opacity: 0; pointer-events: none; visibility: hidden; } }
-        .animate-fade-out { animation: fade-out 1s ease forwards; }
+        .animate-fade-out { animation: fade-out 0.8s ease forwards; will-change: opacity, visibility; }
 
         @keyframes fade-in { 0% { opacity: 0; } 100% { opacity: 1; } }
-        .animate-fade-in { animation: fade-in 0.5s ease forwards; }
+        .animate-fade-in { animation: fade-in 0.5s ease forwards; will-change: opacity; }
 
         @keyframes dice-spin { 0% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(-20deg) scale(1.2); } 50% { transform: rotate(20deg) scale(0.9); } 75% { transform: rotate(-10deg) scale(1.1); } 100% { transform: rotate(0deg) scale(1); } }
         .rolling-dice { animation: dice-spin 0.2s infinite; color: var(--game-300); text-shadow: 0 0 10px var(--game-500); will-change: transform; }
@@ -79,7 +83,7 @@
         .wood-panel {
             background: linear-gradient(135deg, var(--game-500) 0%, var(--game-700) 100%); border: 6px solid var(--game-900);
             box-shadow: inset 0 4px 0 var(--game-500), 0 10px 0 #111, 0 15px 20px rgba(0,0,0,0.6), inset 0 0 30px rgba(0,0,0,0.3);
-            border-radius: 1.5rem; position: relative; transition: all 0.5s;
+            border-radius: 1.5rem; position: relative; transition: all 0.3s;
         }
 
         .cartoon-btn {
@@ -91,7 +95,7 @@
         .cartoon-btn:active:not(:disabled), .btn-pressed { transform: translateY(6px) scale(0.98) !important; box-shadow: 0 0px 0 var(--game-900) !important; background: #fde68a !important; }
         .cartoon-btn:disabled { background: #d1d5db; color: #9ca3af; border-color: #6b7280; box-shadow: 0 4px 0 #6b7280; transform: translateY(2px); cursor: not-allowed; opacity: 0.8; }
 
-        .wood-control-btn { background: var(--game-700); color: var(--game-100); border: 4px solid var(--game-900); box-shadow: 0 4px 0 var(--game-900); border-radius: 0.75rem; transition: all 0.15s ease; }
+        .wood-control-btn { background: var(--game-700); color: var(--game-100); border: 4px solid var(--game-900); box-shadow: 0 4px 0 var(--game-900); border-radius: 0.75rem; transition: all 0.15s ease; transform: translate3d(0,0,0); }
         .wood-control-btn:hover:not(:disabled) { background: var(--game-500); transform: translateY(2px); box-shadow: 0 2px 0 var(--game-900); }
         .wood-control-btn:active:not(:disabled) { transform: translateY(4px) scale(0.95); box-shadow: 0 0px 0 var(--game-900); }
         .wood-control-btn:disabled { opacity: 0.5; cursor: not-allowed; filter: grayscale(100%); }
@@ -100,30 +104,30 @@
 
         .grid-paper { background-color: #fafaf9; background-image: linear-gradient(#e7e5e4 1px, transparent 1px), linear-gradient(90deg, #e7e5e4 1px, transparent 1px); background-size: 16px 16px; color: #1c1917; font-family: 'Fredoka', cursive; border: 4px solid var(--game-900); box-shadow: inset 0 2px 10px rgba(0,0,0,0.1), 0 4px 6px rgba(0,0,0,0.1); }
         .marker-text { font-family: 'Permanent Marker', cursive; }
-        .token { transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform; }
+        .token { transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); will-change: transform; }
         
         @keyframes bounce-slow { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
-        .animate-bounce-slow { animation: bounce-slow 2s infinite ease-in-out; }
+        .animate-bounce-slow { animation: bounce-slow 2s infinite ease-in-out; will-change: transform; }
 
         @keyframes cell-zoom { 0% { transform: scale(1); z-index: 10; box-shadow: 0 0 0 transparent; } 30% { transform: scale(1.6); z-index: 50; box-shadow: 0 0 30px var(--game-300); border-color: var(--game-300); } 70% { transform: scale(1.6); z-index: 50; box-shadow: 0 0 30px var(--game-300); border-color: var(--game-300); } 100% { transform: scale(1); z-index: 10; box-shadow: 0 0 0 transparent; } }
-        .animate-cell-zoom { animation: cell-zoom 2s ease-in-out forwards; will-change: transform; }
+        .animate-cell-zoom { animation: cell-zoom 1.5s ease-in-out forwards; will-change: transform, box-shadow; }
 
         @keyframes fall { 0% { transform: translate3d(0, -10vh, 0) rotate(0deg); opacity: 1; } 100% { transform: translate3d(0, 110vh, 0) rotate(720deg); opacity: 0; } }
-        .confetti { position: absolute; top: -10%; z-index: 50; will-change: transform; }
+        .confetti { position: absolute; top: -10%; z-index: 50; will-change: transform, opacity; }
 
-        /* Estilo brillante EXTREMO para versiones RC */
         .rc-badge { background: linear-gradient(90deg, #ef4444, #f59e0b, #3b82f6); background-size: 200% 200%; animation: gradient-shift 3s ease infinite; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.5); border: 2px solid white; box-shadow: 0 0 10px rgba(255,255,255,0.5); }
-        
-        /* Estilo bonito pero NORMAL para versiones regulares */
         .normal-badge { background: var(--game-300); color: var(--game-900); border: 2px solid var(--game-900); box-shadow: 0 4px 0 var(--game-900); transition: all 0.3s; }
         .normal-badge:hover { transform: translateY(-2px); box-shadow: 0 6px 0 var(--game-900); }
 
         @keyframes gradient-shift { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
 
-        ::-webkit-scrollbar { width: 8px; } ::-webkit-scrollbar-track { background: var(--game-900); } ::-webkit-scrollbar-thumb { background: var(--game-500); border-radius: 4px; border: 2px solid var(--game-900); }
-        
+        ::-webkit-scrollbar { width: 8px; height: 8px; } ::-webkit-scrollbar-track { background: var(--game-900); border-radius: 4px; } ::-webkit-scrollbar-thumb { background: var(--game-500); border-radius: 4px; border: 2px solid var(--game-900); }
         .hide-scrollbar::-webkit-scrollbar { display: none; }
         .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Rendimiento: Optimizar repintados */
+        .game-board-container { will-change: contents; }
+        
     </style>
 </head>
 <body>
@@ -132,12 +136,11 @@
     <script type="text/babel">
         
         // --- CONTROL DE VERSIONES ---
-        // Cambiar VERSION_MENU agregando "RC" activará automáticamente los efectos visuales extremos.
         const VERSION_MENU = "Chapter 4"; 
-        const VERSION_SETTINGS = "Chapter 4 Patch 6";
+        const VERSION_SETTINGS = "Chapter 4 Patch 7";
         const IS_RC = VERSION_MENU.toUpperCase().includes("RC");
 
-        // 35 MUNDOS AHORA
+        // 45 MUNDOS AHORA (+10 Mundos)
         const WORLDS = [
             { id: 1, name: 'Bosque de Roble', icon: '🌲', bossId: 1, theme: { g900: '#451a03', g700: '#78350f', g500: '#d97706', g300: '#fcd34d', g100: '#fef3c7', bg: '#2c1a04', dot: 'rgba(217, 119, 6, 0.15)' } },
             { id: 2, name: 'Caverna Oscura', icon: '🦇', bossId: 2, theme: { g900: '#171717', g700: '#262626', g500: '#525252', g300: '#a3a3a3', g100: '#f5f5f5', bg: '#0a0a0a', dot: 'rgba(163, 163, 163, 0.15)' } },
@@ -173,9 +176,21 @@
             { id: 32, name: 'Océano de Lava', icon: '🌋', bossId: 32, theme: { g900: '#7c2d12', g700: '#9a3412', g500: '#f97316', g300: '#fdba74', g100: '#fff7ed', bg: '#431407', dot: 'rgba(249, 115, 22, 0.15)' } },
             { id: 33, name: 'Ciudad Perdida', icon: '🏚️', bossId: 33, theme: { g900: '#3f3f46', g700: '#52525b', g500: '#71717a', g300: '#a1a1aa', g100: '#f4f4f5', bg: '#27272a', dot: 'rgba(113, 113, 122, 0.15)' } },
             { id: 34, name: 'El Umbral', icon: '🚪', bossId: 34, theme: { g900: '#4c1d95', g700: '#5b21b6', g500: '#8b5cf6', g300: '#c4b5fd', g100: '#f5f3ff', bg: '#2e1065', dot: 'rgba(139, 92, 246, 0.15)' } },
-            { id: 35, name: 'El Vacío Absoluto', icon: '🕳️', bossId: 35, theme: { g900: '#000000', g700: '#111111', g500: '#333333', g300: '#888888', g100: '#ffffff', bg: '#050505', dot: 'rgba(255, 255, 255, 0.1)' } }
+            // Nuevos mundos
+            { id: 35, name: 'Prisión Astral', icon: '⛓️', bossId: 35, theme: { g900: '#1e1b4b', g700: '#312e81', g500: '#4338ca', g300: '#818cf8', g100: '#e0e7ff', bg: '#0f172a', dot: 'rgba(99, 102, 241, 0.15)' } },
+            { id: 36, name: 'Jardín de Huesos', icon: '🦴', bossId: 36, theme: { g900: '#27272a', g700: '#3f3f46', g500: '#52525b', g300: '#a1a1aa', g100: '#f4f4f5', bg: '#18181b', dot: 'rgba(161, 161, 170, 0.15)' } },
+            { id: 37, name: 'Tormenta de Arena', icon: '🌪️', bossId: 37, theme: { g900: '#713f12', g700: '#854d0e', g500: '#a16207', g300: '#fde047', g100: '#fefce8', bg: '#422006', dot: 'rgba(202, 138, 4, 0.15)' } },
+            { id: 38, name: 'Castillo de Sangre', icon: '🧛', bossId: 38, theme: { g900: '#450a0a', g700: '#7f1d1d', g500: '#991b1b', g300: '#fca5a5', g100: '#fef2f2', bg: '#2a0404', dot: 'rgba(220, 38, 38, 0.15)' } },
+            { id: 39, name: 'Ruinas Submarinas', icon: '🔱', bossId: 39, theme: { g900: '#082f49', g700: '#0c4a6e', g500: '#0369a1', g300: '#7dd3fc', g100: '#f0f9ff', bg: '#042f2e', dot: 'rgba(2, 132, 199, 0.15)' } },
+            { id: 40, name: 'Cielo Estrellado', icon: '✨', bossId: 40, theme: { g900: '#172554', g700: '#1e3a8a', g500: '#1d4ed8', g300: '#93c5fd', g100: '#eff6ff', bg: '#0f172a', dot: 'rgba(59, 130, 246, 0.15)' } },
+            { id: 41, name: 'Dimensión Pixelada', icon: '👾', bossId: 41, theme: { g900: '#064e3b', g700: '#047857', g500: '#059669', g300: '#6ee7b7', g100: '#ecfdf5', bg: '#022c22', dot: 'rgba(16, 185, 129, 0.15)' } },
+            { id: 42, name: 'Bosque de Cristal', icon: '🔮', bossId: 42, theme: { g900: '#4c1d95', g700: '#5b21b6', g500: '#6d28d9', g300: '#c4b5fd', g100: '#f5f3ff', bg: '#2e1065', dot: 'rgba(139, 92, 246, 0.15)' } },
+            { id: 43, name: 'Montaña del Trueno', icon: '🌩️', bossId: 43, theme: { g900: '#1e3a8a', g700: '#312e81', g500: '#4338ca', g300: '#818cf8', g100: '#e0e7ff', bg: '#0f172a', dot: 'rgba(99, 102, 241, 0.15)' } },
+            { id: 44, name: 'El Nexo', icon: '🌐', bossId: 44, theme: { g900: '#3f3f46', g700: '#52525b', g500: '#71717a', g300: '#a1a1aa', g100: '#f4f4f5', bg: '#27272a', dot: 'rgba(113, 113, 122, 0.15)' } },
+            { id: 45, name: 'El Vacío Absoluto', icon: '🕳️', bossId: 45, theme: { g900: '#000000', g700: '#111111', g500: '#333333', g300: '#888888', g100: '#ffffff', bg: '#050505', dot: 'rgba(255, 255, 255, 0.1)' } }
         ];
 
+        // 45 JEFES AHORA
         const BOSS_POOL = [
             { id: 1, maxHp: 120, atk: 15, label: 'LA CALAVERA', icon: '💀', desc: '¡El soberano clásico del calabozo!' },
             { id: 2, maxHp: 150, atk: 12, label: 'MURCIÉLAGO REY', icon: '🦇', desc: '¡Gobernante de la oscuridad!' },
@@ -211,7 +226,18 @@
             { id: 32, maxHp: 960, atk: 50, label: 'LEVIATÁN ÍGNEO', icon: '🌋', desc: '¡Emerge del océano de fuego!' },
             { id: 33, maxHp: 980, atk: 52, label: 'REY OLVIDADO', icon: '🏚️', desc: '¡Gobernante de las ruinas!' },
             { id: 34, maxHp: 990, atk: 53, label: 'GUARDIÁN DEL UMBRAL', icon: '🚪', desc: '¡No te dejará pasar!' },
-            { id: 35, maxHp: 999, atk: 55, label: 'EL CREADOR DEL VACÍO', icon: '🕳️', desc: '¡El principio y el fin de todas las cosas!' }
+            // Nuevos Jefes
+            { id: 35, maxHp: 1000, atk: 55, label: 'CARCELERO ASTRAL', icon: '⛓️', desc: '¡Custodio de las estrellas prisioneras!' },
+            { id: 36, maxHp: 1050, atk: 58, label: 'AMALGAMA ÓSEA', icon: '🦴', desc: '¡Formado por incontables víctimas!' },
+            { id: 37, maxHp: 1100, atk: 60, label: 'DJINN DE ARENA', icon: '🌪️', desc: '¡Concede deseos fatales!' },
+            { id: 38, maxHp: 1150, atk: 62, label: 'DRÁCULA PRIMIGENIO', icon: '🧛', desc: '¡El sediento inmortal!' },
+            { id: 39, maxHp: 1200, atk: 65, label: 'DIOS DE LAS PROFUNDIDADES', icon: '🔱', desc: '¡Ahoga toda esperanza!' },
+            { id: 40, maxHp: 1250, atk: 68, label: 'DEVORADOR DE ESTRELLAS', icon: '✨', desc: '¡Se alimenta de constelaciones!' },
+            { id: 41, maxHp: 1300, atk: 70, label: 'GLITCH FINAL', icon: '👾', desc: '¡Corrompe el código del universo!' },
+            { id: 42, maxHp: 1350, atk: 72, label: 'GOLEM PRISMÁTICO', icon: '🔮', desc: '¡Refleja todo daño!' },
+            { id: 43, maxHp: 1400, atk: 75, label: 'TORMENTA VIVIENTE', icon: '🌩️', desc: '¡Furia elemental pura!' },
+            { id: 44, maxHp: 1450, atk: 78, label: 'EL ARQUITECTO', icon: '🌐', desc: '¡Quien diseñó este mundo!' },
+            { id: 45, maxHp: 1999, atk: 99, label: 'EL CREADOR DEL VACÍO', icon: '🕳️', desc: '¡El principio y el fin de todas las cosas!' }
         ];
 
         const HERO_CLASSES = [
@@ -231,14 +257,25 @@
             { id: 'p_samurai', name: 'Samurái', hp: 55, atk: 18, icon: '👺', desc: 'Cortes precisos y letales.', cost: 3500 },
             { id: 'p_vampire', name: 'Vampiro', hp: 40, atk: 24, icon: '🧛', desc: 'Poder nocturno agresivo.', cost: 4500 },
             { id: 'p_cyborg', name: 'Cyborg', hp: 60, atk: 20, icon: '🤖', desc: 'Mitad máquina, mitad dios.', cost: 7000 },
-            { id: 'p_demigod', name: 'Semi-Dios', hp: 80, atk: 25, icon: '⚡', desc: 'Estadísticas absurdas.', cost: 15000 }
+            { id: 'p_demigod', name: 'Semi-Dios', hp: 80, atk: 25, icon: '⚡', desc: 'Estadísticas absurdas.', cost: 15000 },
+            // Nuevas Clases Premium
+            { id: 'p_dragon', name: 'Dracónico', hp: 75, atk: 22, icon: '🐉', desc: 'Aliento de fuego y escamas duras.', cost: 12000 },
+            { id: 'p_time', name: 'Crononauta', hp: 45, atk: 28, icon: '⏳', desc: 'Manipula el tiempo a su favor.', cost: 18000 }
+        ];
+
+        const STORE_ITEMS = [
+            { id: 'i_potion_max', name: 'Poción Máxima', icon: '🧪', type: 'consumable', effect: 'hp_max', desc: 'Restaura toda la vida.', cost: 500 },
+            { id: 'i_sword_up', name: 'Espada Afilada', icon: '🗡️', type: 'upgrade', effect: 'atk_up', amount: 5, desc: '+5 Daño permanente.', cost: 1000 },
+            { id: 'i_shield_up', name: 'Escudo Pesado', icon: '🛡️', type: 'upgrade', effect: 'hp_up', amount: 20, desc: '+20 Vida máxima.', cost: 1000 },
+            { id: 'i_revive', name: 'Piedra de Resurrección', icon: '💎', type: 'consumable', effect: 'revive', desc: 'Revive 1 vez con 50% HP.', cost: 2500 }
         ];
 
         const PREMIUM_BGS = [
             { id: 'bg_matrix', name: 'Matriz Digital', icon: '💻', cost: 5000, elements: ['0', '1', '🟩', '💻'] },
             { id: 'bg_blood', name: 'Luna de Sangre', icon: '🩸', cost: 5000, elements: ['🦇', '🩸', '🌑', '🥀'] },
             { id: 'bg_gold', name: 'Lluvia de Oro', icon: '💰', cost: 10000, elements: ['🪙', '✨', '💰', '💸'] },
-            { id: 'bg_void', name: 'Ojos del Vacío', icon: '👁️', cost: 15000, elements: ['👁️', '🌑', '🕳️', '🌀'] }
+            { id: 'bg_void', name: 'Ojos del Vacío', icon: '👁️', cost: 15000, elements: ['👁️', '🌑', '🕳️', '🌀'] },
+            { id: 'bg_space', name: 'Viaje Espacial', icon: '🚀', cost: 12000, elements: ['⭐', '☄️', '🪐', '🚀'] }
         ];
 
         const DAILY_MISSIONS = [
@@ -256,14 +293,16 @@
             { level: 3, xpReq: 600, reward: 2000, premiumReward: 8000, title: 'Veterano' },
             { level: 4, xpReq: 1000, reward: 5000, premiumReward: 15000, title: 'Héroe' },
             { level: 5, xpReq: 1500, reward: 10000, premiumReward: 30000, title: 'Leyenda' },
+            { level: 6, xpReq: 2500, reward: 15000, premiumReward: 50000, title: 'Mítico' }, // Nuevo Nivel
         ];
 
-        const BOT_NAMES = ['Shadow', 'ProGamer', 'Noob', 'Dark_Knight', 'Faker', 'IALord', 'Ninja', 'Cyber', 'Ghost', 'Viper', 'Titan', 'Reaper', 'Specter', 'Wraith', 'Phantom'];
+        const BOT_NAMES = ['Shadow', 'ProGamer', 'Noob', 'Dark_Knight', 'Faker', 'IALord', 'Ninja', 'Cyber', 'Ghost', 'Viper', 'Titan', 'Reaper', 'Specter', 'Wraith', 'Phantom', 'Glitch', 'Neo'];
         const PLAYER_PALETTES = [
             { hex: '#ef4444', name: 'Rojo' }, { hex: '#3b82f6', name: 'Azul' }, { hex: '#22c55e', name: 'Verde' }, { hex: '#eab308', name: 'Amarillo' },
             { hex: '#a855f7', name: 'Morado' }, { hex: '#f97316', name: 'Naranja' }, { hex: '#ec4899', name: 'Rosa' }, { hex: '#14b8a6', name: 'Mar' },
             { hex: '#06b6d4', name: 'Cian' }, { hex: '#84cc16', name: 'Lima' }, { hex: '#6366f1', name: 'Índigo' }, { hex: '#8b5cf6', name: 'Violeta' },
-            { hex: '#d946ef', name: 'Fucsia' }, { hex: '#f43f5e', name: 'Carmesí' }, { hex: '#f59e0b', name: 'Ámbar' }, { hex: '#10b981', name: 'Esmeralda' }
+            { hex: '#d946ef', name: 'Fucsia' }, { hex: '#f43f5e', name: 'Carmesí' }, { hex: '#f59e0b', name: 'Ámbar' }, { hex: '#10b981', name: 'Esmeralda' },
+            { hex: '#94a3b8', name: 'Plata' }, { hex: '#fbbf24', name: 'Oro' }, { hex: '#000000', name: 'Negro' }, { hex: '#ffffff', name: 'Blanco' }
         ];
 
         const DEFAULT_BOARD = {
@@ -313,7 +352,7 @@
             39: { type: 'dice', label: 'Dado Divino', icon: '🎲', desc: 'Vida o Muerte.' },
             40: { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura.' },
             41: { type: 'merchant', label: 'Mercader', icon: '🧙‍♂️', desc: 'Intercambio equivalente.' },
-            42: { type: 'boss', maxHp: 999, atk: 55, label: 'EL CREADOR DEL VACÍO', icon: '🕳️', desc: '¡El principio y el fin!' }
+            42: { type: 'boss', maxHp: 1999, atk: 99, label: 'EL CREADOR DEL VACÍO', icon: '🕳️', desc: '¡El principio y el fin!' }
         };
 
         const generateRandomBoard = () => {
@@ -342,10 +381,28 @@
 
         window.isSoundEnabled = true;
 
+        // Memoize audio context para mejor rendimiento
+        let audioCtx = null;
+        const getAudioContext = () => {
+            if (!audioCtx) {
+                try {
+                    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                } catch (e) {
+                    console.warn("AudioContext not supported");
+                }
+            }
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+            return audioCtx;
+        };
+
         const playSfx = (type) => {
             if (!window.isSoundEnabled) return;
+            const ctx = getAudioContext();
+            if (!ctx) return;
+
             try {
-                const ctx = new (window.AudioContext || window.webkitAudioContext)();
                 const osc = ctx.createOscillator(); const gain = ctx.createGain();
                 osc.connect(gain); gain.connect(ctx.destination);
                 const now = ctx.currentTime;
@@ -379,7 +436,9 @@
                         o.start(now + idx * 0.1); o.stop(now + 0.8);
                     });
                 }
-            } catch (e) {}
+            } catch (e) {
+                console.warn("Error playing sound", e);
+            }
         };
 
         const generateBotAvatar = (colorHex, name) => {
@@ -405,19 +464,42 @@
 
         function DrawingBoard({ colorHex, playerName, pClass, onCycleClass, onSave }) {
             const canvasRef = React.useRef(null); const [isDrawing, setIsDrawing] = React.useState(false); const [brushColor, setBrushColor] = React.useState('#1c1917'); const [brushSize, setBrushSize] = React.useState(5);
+            
+            // Pre-render grid to improve drawing performance
             React.useEffect(() => {
-                const canvas = canvasRef.current; if (!canvas) return; const ctx = canvas.getContext('2d');
+                const canvas = canvasRef.current; if (!canvas) return; const ctx = canvas.getContext('2d', { alpha: false }); // Optimizacion
                 ctx.fillStyle = '#fcf8f2'; ctx.fillRect(0, 0, canvas.width, canvas.height); ctx.strokeStyle = '#e5e7eb'; ctx.lineWidth = 1;
-                for (let x = 15; x < canvas.width; x += 15) { ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); ctx.stroke(); }
-                for (let y = 15; y < canvas.height; y += 15) { ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); ctx.stroke(); }
+                ctx.beginPath();
+                for (let x = 15; x < canvas.width; x += 15) { ctx.moveTo(x, 0); ctx.lineTo(x, canvas.height); }
+                for (let y = 15; y < canvas.height; y += 15) { ctx.moveTo(0, y); ctx.lineTo(canvas.width, y); }
+                ctx.stroke();
             }, []);
+            
             const getCoordinates = (e) => {
                 const canvas = canvasRef.current; const rect = canvas.getBoundingClientRect();
                 const clientX = e.touches ? e.touches[0].clientX : e.clientX; const clientY = e.touches ? e.touches[0].clientY : e.clientY;
                 return { x: ((clientX - rect.left) / rect.width) * canvas.width, y: ((clientY - rect.top) / rect.height) * canvas.height };
             };
-            const startDrawing = (e) => { e.preventDefault(); const { x, y } = getCoordinates(e); const ctx = canvasRef.current.getContext('2d'); ctx.beginPath(); ctx.moveTo(x, y); ctx.strokeStyle = brushColor; ctx.lineWidth = brushSize; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; setIsDrawing(true); };
-            const draw = (e) => { if (!isDrawing) return; e.preventDefault(); const { x, y } = getCoordinates(e); const ctx = canvasRef.current.getContext('2d'); ctx.lineTo(x, y); ctx.stroke(); };
+            
+            const startDrawing = (e) => { 
+                e.preventDefault(); 
+                const { x, y } = getCoordinates(e); 
+                const ctx = canvasRef.current.getContext('2d', { alpha: false }); 
+                ctx.beginPath(); ctx.moveTo(x, y); 
+                ctx.strokeStyle = brushColor; ctx.lineWidth = brushSize; ctx.lineCap = 'round'; ctx.lineJoin = 'round'; 
+                setIsDrawing(true); 
+            };
+            
+            const draw = (e) => { 
+                if (!isDrawing) return; 
+                e.preventDefault(); 
+                // Throttle drawing slightly for performance on mobile
+                requestAnimationFrame(() => {
+                    const { x, y } = getCoordinates(e); 
+                    const ctx = canvasRef.current.getContext('2d', { alpha: false }); 
+                    ctx.lineTo(x, y); ctx.stroke(); 
+                });
+            };
 
             return (
                 <div className="flex flex-col items-center animate-pop-in">
@@ -447,7 +529,8 @@
         const applyTheme = (worldId, currentDiff, currentState) => {
             let w = WORLDS.find(x => x.id === worldId) || WORLDS[0];
             let themeToApply = { ...w.theme };
-            if (currentDiff === 'hardcore' && worldId !== 35 && ['playing', 'combat', 'drawing', 'boss_defeated', 'gameover'].includes(currentState)) {
+            const MAX_WORLD_ID = 45;
+            if (currentDiff === 'hardcore' && worldId !== MAX_WORLD_ID && ['playing', 'combat', 'drawing', 'boss_defeated', 'gameover'].includes(currentState)) {
                 themeToApply = { g900: '#450a0a', g700: '#7f1d1d', g500: '#b91c1c', g300: '#fca5a5', g100: '#fef2f2', bg: '#1f0303', dot: 'rgba(239, 68, 68, 0.25)' };
             }
             const root = document.documentElement;
@@ -473,14 +556,19 @@
                         21: ['🥀', '🩸', '💨'], 22: ['⚡', '☁️', '🌧️'], 23: ['☢️', '🦠', '💨'], 24: ['🥚', '🔥', '✨'], 25: ['🌌', '✨', '🌀'], 
                         26: ['🧊', '❄️', '🌬️'], 27: ['🎒', '✨', '🔮'], 28: ['👁️', '🦑', '💨'], 29: ['⏳', '🕰️', '✨'], 
                         30: ['🪞', '✨', '👤'], 31: ['☄️', '🔥', '💨'], 32: ['🌋', '🔥', '🌊'], 33: ['🏚️', '🗿', '🍃'], 34: ['🚪', '✨', '🌌'],
-                        35: ['🕳️', '👁️', '🌑'] 
+                        35: ['⛓️', '✨', '🌌'], 36: ['🦴', '💀', '💨'], 37: ['🌪️', '🏜️', '💨'], 38: ['🦇', '🩸', '🍷'], 39: ['🔱', '🫧', '🐟'],
+                        40: ['✨', '⭐', '☄️'], 41: ['👾', '0', '1'], 42: ['🔮', '💎', '✨'], 43: ['🌩️', '⚡', '☁️'], 44: ['🌐', '✨', '💻'],
+                        45: ['🕳️', '👁️', '🌑'] 
                     };
                     elements = map[worldId] || map[1];
-                    if (difficulty === 'hardcore' && worldId !== 35 && ['playing', 'combat', 'drawing', 'boss_defeated', 'gameover'].includes(gameState)) { elements = ['🔥', '💥', '☄️', '🌋']; }
+                    const MAX_WORLD_ID = 45;
+                    if (difficulty === 'hardcore' && worldId !== MAX_WORLD_ID && ['playing', 'combat', 'drawing', 'boss_defeated', 'gameover'].includes(gameState)) { elements = ['🔥', '💥', '☄️', '🌋']; }
                 }
-                return Array.from({ length: 25 }).map((_, i) => ({ id: i, left: `${Math.random() * 100}vw`, size: `${Math.random() * 20 + 10}px`, animDur: `${Math.random() * 15 + 10}s`, animDel: `-${Math.random() * 15}s`, content: elements[Math.floor(Math.random() * elements.length)] }));
+                // Reducido el número de partículas para mejor rendimiento móvil
+                return Array.from({ length: 15 }).map((_, i) => ({ id: i, left: `${Math.random() * 100}vw`, size: `${Math.random() * 20 + 10}px`, animDur: `${Math.random() * 15 + 10}s`, animDel: `-${Math.random() * 15}s`, content: elements[Math.floor(Math.random() * elements.length)] }));
             }, [worldId, difficulty, gameState, equippedBg]);
-            return ( <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">{particles.map(p => ( <div key={p.id} className="particle text-opacity-50" style={{ left: p.left, fontSize: p.size, animation: `float-up ${p.animDur} linear ${p.animDel} infinite` }}>{p.content}</div> ))}</div> );
+            
+            return ( <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden" style={{contain: 'strict'}}>{particles.map(p => ( <div key={p.id} className="particle text-opacity-50" style={{ left: p.left, fontSize: p.size, animation: `float-up ${p.animDur} linear ${p.animDel} infinite` }}>{p.content}</div> ))}</div> );
         });
 
         const loadInitialData = () => {
@@ -496,7 +584,7 @@
             const defProgress = { 
                 unlockedWorlds: 1, wins: 0, derals: 0, stats: { rolls: 0, kills: 0, games: 0 }, 
                 claimedMissions: [], bpXp: 0, bpClaimed: [], bpPremiumClaimed: [], 
-                unlockedClasses: [], unlockedBgs: [], premiumPass: false, equippedBg: null
+                unlockedClasses: [], unlockedBgs: [], unlockedItems: [], premiumPass: false, equippedBg: null
             };
             const loadedP = JSON.parse(localStorage.getItem('laHistoriaProgress')) || {};
             return { progress: { ...defProgress, ...loadedP }, gameState: 'warning', gameMode: 'local', playMode: 'historia', ...config };
@@ -514,6 +602,7 @@
             
             const [localPlayerCount, setLocalPlayerCount] = React.useState(1);
             const [onlinePlayerCount, setOnlinePlayerCount] = React.useState(2);
+            const MAX_PLAYERS = 30; // Aumentado el límite de jugadores
 
             const [board, setBoard] = React.useState(initData.board || DEFAULT_BOARD);
             const [players, setPlayers] = React.useState(initData.players || []);
@@ -531,6 +620,7 @@
             const [showBattlePass, setShowBattlePass] = React.useState(false);
             const [showStore, setShowStore] = React.useState(false);
             const [storeTab, setStoreTab] = React.useState('niveles'); 
+            const [showInventory, setShowInventory] = React.useState(false); // Nuevo UI Inventario
 
             const [soundEnabled, setSoundEnabled] = React.useState(initData.soundEnabled);
             const [vibrationEnabled, setVibrationEnabled] = React.useState(initData.vibrationEnabled);
@@ -556,7 +646,7 @@
             const holdIntervalRef = React.useRef(null);
             const isHolding = React.useRef(false);
 
-            const MAX_WORLD_ID = 35; // El Vacío Absoluto
+            const MAX_WORLD_ID = 45; // El Vacío Absoluto
 
             React.useEffect(() => { 
                 if (selectedWorld === MAX_WORLD_ID && playMode === 'historia') setDifficulty('hardcore'); 
@@ -572,14 +662,25 @@
 
             React.useEffect(() => { if (logsEndRef.current) { logsEndRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' }); } }, [logs]);
 
+            // Evento dinámico (ejemplo: fines de semana x2)
             React.useEffect(() => {
-                const targetDate = new Date('July 2, 2026 01:00:00').getTime();
                 const updateCountdown = () => {
-                    const now = new Date().getTime(); const difference = targetDate - now;
-                    if (difference <= 0) { setIsEventActive(false); setTimeLeft('00:00:00'); return; }
-                    setIsEventActive(true);
-                    const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)); const s = Math.floor((difference % (1000 * 60)) / 1000);
-                    setTimeLeft(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+                    const now = new Date();
+                    // Evento activo si es fin de semana (Sábado o Domingo)
+                    if (now.getDay() === 0 || now.getDay() === 6) {
+                        setIsEventActive(true);
+                        const nextMonday = new Date(now);
+                        nextMonday.setDate(now.getDate() + ((1 + 7 - now.getDay()) % 7 || 7));
+                        nextMonday.setHours(0, 0, 0, 0);
+                        const difference = nextMonday.getTime() - now.getTime();
+                        
+                        const h = Math.floor((difference % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)); 
+                        const m = Math.floor((difference % (1000 * 60 * 60)) / (1000 * 60)); 
+                        const s = Math.floor((difference % (1000 * 60)) / 1000);
+                        setTimeLeft(`${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+                    } else {
+                        setIsEventActive(false);
+                    }
                 };
                 updateCountdown(); const interval = setInterval(updateCountdown, 1000); return () => clearInterval(interval);
             }, []);
@@ -591,24 +692,24 @@
                 window.addEventListener('beforeunload', handleBeforeUnload); return () => window.removeEventListener('beforeunload', handleBeforeUnload);
             }, [gameState]);
 
+            // AUTOGUARDADO OPTIMIZADO: Debounce en lugar de intervalo
             React.useEffect(() => {
-                if (gameState === 'warning') {
-                    const t = setTimeout(() => { const wBox = document.getElementById('warning-box'); if (wBox) wBox.classList.add('animate-fade-out'); setTimeout(() => setGameState('promo'), 800); }, 8000);
-                    return () => clearTimeout(t);
-                }
-            }, [gameState]);
-
-            // AUTOGUARDADO CADA 5 SEGUNDOS + Notificación
-            React.useEffect(() => {
-                const interval = setInterval(() => {
-                    if (['menu', 'playing', 'combat'].includes(gameState)) {
-                        setIsSavingAlert(true);
-                        const sd = { progress, gameState: gameState === 'playing' || gameState === 'combat' ? gameState : 'menu', gameMode, playMode, difficulty, selectedWorld, board, players, currPlayerIdx, logs, pendingEvent, winner, winReason, drawingIndex };
+                if (!['menu', 'playing', 'combat'].includes(gameState)) return;
+                
+                const saveTimeout = setTimeout(() => {
+                    setIsSavingAlert(true);
+                    // No guardar avatarData (Base64) en el autoguardado para reducir tamaño, usar un placeholder o reconstruirlo
+                    // Para simplificar, guardamos todo, pero en un entorno real habría que limpiar Base64 grande
+                    const sd = { progress, gameState: gameState === 'playing' || gameState === 'combat' ? gameState : 'menu', gameMode, playMode, difficulty, selectedWorld, board, players, currPlayerIdx, logs, pendingEvent, winner, winReason, drawingIndex };
+                    try {
                         localStorage.setItem('laHistoriaSaveData', JSON.stringify(sd));
-                        setTimeout(() => setIsSavingAlert(false), 1500);
+                    } catch (e) {
+                        console.warn("Storage quota exceeded or error saving.");
                     }
-                }, 5000);
-                return () => clearInterval(interval);
+                    setTimeout(() => setIsSavingAlert(false), 1500);
+                }, 3000); // Guardar 3 seg después del último cambio
+
+                return () => clearTimeout(saveTimeout);
             }, [progress, gameState, gameMode, playMode, difficulty, selectedWorld, board, players, currPlayerIdx, logs, pendingEvent, winner, winReason, drawingIndex]);
 
             const showToast = (msg) => { setToastMsg(msg); setTimeout(() => setToastMsg(''), 3000); };
@@ -617,14 +718,23 @@
                 playSfx('powerup');
                 setIsSavingAlert(true);
                 const sd = { progress, gameState: gameState === 'playing' || gameState === 'combat' ? gameState : 'menu', gameMode, playMode, difficulty, selectedWorld, board, players, currPlayerIdx, logs, pendingEvent, winner, winReason, drawingIndex };
-                localStorage.setItem('laHistoriaSaveData', JSON.stringify(sd));
-                showToast("¡Partida Guardada Manualmente!");
+                try {
+                    localStorage.setItem('laHistoriaSaveData', JSON.stringify(sd));
+                    showToast("¡Partida Guardada Manualmente!");
+                } catch (e) {
+                    showToast("Error al guardar (Espacio lleno)");
+                }
                 setTimeout(() => setIsSavingAlert(false), 1500);
             };
 
             const handleExportSave = () => {
                 try {
-                    const saveObj = { progress: JSON.parse(localStorage.getItem('laHistoriaProgress') || '{}'), saveData: JSON.parse(localStorage.getItem('laHistoriaSaveData') || '{}') };
+                    // Limpiar logs y avatares grandes para exportación
+                    const exportPlayers = players.map(p => ({...p, avatarData: null})); 
+                    const saveObj = { 
+                        progress: JSON.parse(localStorage.getItem('laHistoriaProgress') || '{}'), 
+                        saveData: { ...JSON.parse(localStorage.getItem('laHistoriaSaveData') || '{}'), players: exportPlayers, logs: [] } 
+                    };
                     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(saveObj));
                     const dlNode = document.createElement('a'); dlNode.setAttribute("href", dataStr); dlNode.setAttribute("download", "LaHistoria_Partida.save"); document.body.appendChild(dlNode); dlNode.click(); dlNode.remove();
                     showToast("¡Partida descargada exitosamente!"); playSfx('powerup');
@@ -639,7 +749,13 @@
                         const parsed = JSON.parse(e.target.result);
                         if (parsed && parsed.progress) {
                             localStorage.setItem('laHistoriaProgress', JSON.stringify(parsed.progress));
-                            if (parsed.saveData) localStorage.setItem('laHistoriaSaveData', JSON.stringify(parsed.saveData));
+                            if (parsed.saveData) {
+                                // Restaurar avatares básicos si fueron removidos
+                                if(parsed.saveData.players) {
+                                    parsed.saveData.players = parsed.saveData.players.map(p => p.avatarData ? p : {...p, avatarData: generateBotAvatar(p.colorHex, p.name)});
+                                }
+                                localStorage.setItem('laHistoriaSaveData', JSON.stringify(parsed.saveData));
+                            }
                             showToast("¡Cargado con éxito! Reiniciando...");
                             setTimeout(() => { window.location.reload(); }, 1500);
                         } else { showToast("Archivo inválido."); }
@@ -648,12 +764,18 @@
                 reader.readAsText(file);
             };
 
-            const log = (msg) => setLogs(prev => [...prev, msg]);
+            const log = (msg) => {
+                setLogs(prev => {
+                    const newLogs = [...prev, msg];
+                    // Optimización: Mantener solo los últimos 50 logs para no saturar memoria/DOM
+                    if (newLogs.length > 50) return newLogs.slice(newLogs.length - 50);
+                    return newLogs;
+                });
+            };
             const addStat = (type, amount = 1) => { setProgress(prev => { const ns = { ...prev.stats, [type]: (prev.stats?.[type] || 0) + amount }; const np = { ...prev, stats: ns }; localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np; }); };
 
             const rewardDerals = (amount, reason) => {
-                const checkActive = new Date().getTime() < new Date('July 2, 2026 01:00:00').getTime();
-                const finalAmount = checkActive ? amount * 2 : amount; const finalReason = checkActive ? `${reason} - ¡x2 Evento!` : reason;
+                const finalAmount = isEventActive ? amount * 2 : amount; const finalReason = isEventActive ? `${reason} - ¡x2 Evento!` : reason;
                 setProgress(prev => { const np = { ...prev, derals: (prev.derals || 0) + finalAmount }; localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np; });
                 log(`💰 +${finalAmount} Derals (${finalReason})`);
             };
@@ -686,7 +808,7 @@
                     const t = setTimeout(() => {
                         if (pendingEvent) { const b = document.getElementById(pendingEvent.type === 'combat' ? 'btn-roll-combat' : 'btn-roll-event'); if (b) { b.classList.add('btn-pressed'); setTimeout(()=>b.classList.remove('btn-pressed'), 150); b.click(); } } 
                         else if (displayDice === null) { const b = document.getElementById('btn-roll-move'); if (b) { b.classList.add('btn-pressed'); setTimeout(()=>b.classList.remove('btn-pressed'), 150); b.click(); } }
-                    }, fastAnimations ? 750 : 1500); return () => clearTimeout(t);
+                    }, fastAnimations ? 500 : 1000); return () => clearTimeout(t);
                 }
                 if (currP.autoRolls !== 0) {
                     const t = setTimeout(() => {
@@ -697,7 +819,7 @@
                             setPlayers(prev => { const l = [...prev]; if (l[currPlayerIdx] && l[currPlayerIdx].autoRolls > 0) l[currPlayerIdx] = { ...l[currPlayerIdx], autoRolls: l[currPlayerIdx].autoRolls - 1 }; return l; });
                             const b = document.getElementById('btn-roll-move'); if (b) { b.classList.add('btn-pressed'); setTimeout(()=>b.classList.remove('btn-pressed'), 150); b.click(); }
                         }
-                    }, fastAnimations ? 600 : 1200); return () => clearTimeout(t);
+                    }, fastAnimations ? 400 : 800); return () => clearTimeout(t);
                 }
             }, [currPlayerIdx, pendingEvent, displayDice, gameState, players, isRolling, fastAnimations]);
 
@@ -705,11 +827,11 @@
                 if (isRolling) return; setIsRolling(true); playSfx('dice'); let ticks = 0; addStat('rolls');
                 const rollInterval = setInterval(() => {
                     setDisplayDice(Math.floor(Math.random() * 6) + 1); playSfx('tick'); ticks++;
-                    if (ticks > (fastAnimations ? 6 : 12)) { clearInterval(rollInterval); const finalRoll = Math.floor(Math.random() * 6) + 1; setDisplayDice(finalRoll); setIsRolling(false); callback(finalRoll); }
-                }, fastAnimations ? 40 : 60);
+                    if (ticks > (fastAnimations ? 4 : 10)) { clearInterval(rollInterval); const finalRoll = Math.floor(Math.random() * 6) + 1; setDisplayDice(finalRoll); setIsRolling(false); callback(finalRoll); }
+                }, fastAnimations ? 30 : 50);
             };
 
-            const rollDiceForMove = () => { rollDiceWithAnimation((roll) => { const p = players[currPlayerIdx]; log(`🎲 ${p.name} tiró un ${roll}.`); setTimeout(() => movePlayer(p, p.pos + roll), fastAnimations ? 300 : 600); }); };
+            const rollDiceForMove = () => { rollDiceWithAnimation((roll) => { const p = players[currPlayerIdx]; log(`🎲 ${p.name} tiró un ${roll}.`); setTimeout(() => movePlayer(p, p.pos + roll), fastAnimations ? 200 : 500); }); };
 
             const movePlayer = (player, targetPos) => {
                 let finalPos = targetPos; const maxB = Object.keys(board).length;
@@ -721,21 +843,34 @@
                 finalPos = Math.min(finalPos, maxB);
                 const n = [...players]; const pIdx = n.findIndex(p => p.id === player.id);
                 n[pIdx].pos = finalPos; setPlayers(n); playSfx('click'); log(`🚶 ${player.name} avanza a casilla ${finalPos}.`); triggerFocus(finalPos);
-                setTimeout(() => applyCellEffect(n[pIdx], finalPos, n), fastAnimations ? 750 : 1500);
+                setTimeout(() => applyCellEffect(n[pIdx], finalPos, n), fastAnimations ? 500 : 1000);
             };
 
             const checkDeath = (player, list) => {
                 if (player.hp <= 0) {
-                    const idx = list.findIndex(p => p.id === player.id); list[idx].isDead = true; list[idx].hp = 0; list[idx].ledger.push({ action: '💀 Derrota', val: 'Muerto' });
+                    const idx = list.findIndex(p => p.id === player.id); 
+                    
+                    // Comprobar inventario (Piedra de Resurrección)
+                    const reviveItemIdx = list[idx].inventory?.findIndex(item => item.id === 'i_revive');
+                    if (reviveItemIdx !== undefined && reviveItemIdx >= 0) {
+                        list[idx].inventory.splice(reviveItemIdx, 1);
+                        list[idx].hp = Math.floor(list[idx].heroClass.hp / 2);
+                        log(`💎 ¡${player.name} usó Piedra de Resurrección! Vuelve con ${list[idx].hp} HP.`);
+                        playSfx('powerup');
+                        return false;
+                    }
+
+                    list[idx].isDead = true; list[idx].hp = 0; list[idx].ledger.push({ action: '💀 Derrota', val: 'Muerto' });
                     log(`💀 ¡${player.name} HA CAÍDO!`); triggerDamageEffects(); 
-                    if (list.length === 2) {
-                        const alive = list.filter(x => !x.isDead);
-                        if (alive.length === 1) {
-                            setTimeout(() => {
-                                if (alive[0].isBot && gameMode === 'online') { addStat('games'); setGameState('gameover'); } 
-                                else { addStat('games'); setWinReason('survival'); setWinner(alive[0]); setGameState('boss_defeated'); log(`🏆 ¡${alive[0].name} ES EL ÚLTIMO EN PIE!`); playSfx('victory'); }
-                            }, 1000);
-                        }
+                    
+                    const alive = list.filter(x => !x.isDead);
+                    if (alive.length === 1 && list.length > 1) { // Solo si hay más de 1 jugador originalmente
+                        setTimeout(() => {
+                            if (alive[0].isBot && gameMode === 'online') { addStat('games'); setGameState('gameover'); } 
+                            else { addStat('games'); setWinReason('survival'); setWinner(alive[0]); setGameState('boss_defeated'); log(`🏆 ¡${alive[0].name} ES EL ÚLTIMO EN PIE!`); playSfx('victory'); }
+                        }, 1000);
+                    } else if (alive.length === 0) {
+                         addStat('games'); setGameState('gameover');
                     }
                     return true;
                 }
@@ -744,21 +879,34 @@
 
             const nextTurn = (currentList = players) => {
                 let list = [...currentList]; let nextIdx = (currPlayerIdx + 1) % list.length;
-                for (let i = 0; i < list.length * 4; i++) {
+                let foundNext = false;
+                
+                // Buscar siguiente jugador vivo
+                for (let i = 0; i < list.length * 2; i++) { // Evitar loop infinito
                     let nextP = list[nextIdx];
                     if (!nextP.isDead) {
                         if (nextP.skipTurns > 0) { log(`💤 ${nextP.name} pierde turno.`); nextP.skipTurns -= 1; list[nextIdx] = nextP; } 
-                        else { setPlayers(list); setCurrPlayerIdx(nextIdx); setDisplayDice(null); return; }
+                        else { 
+                            setPlayers(list); setCurrPlayerIdx(nextIdx); setDisplayDice(null); 
+                            foundNext = true; break; 
+                        }
                     }
                     nextIdx = (nextIdx + 1) % list.length;
                 }
-                addStat('games'); setPlayers(list); setGameState('gameover');
+                
+                if (!foundNext) { addStat('games'); setPlayers(list); setGameState('gameover'); }
             };
 
             const applyCellEffect = (p, pos, list) => {
                 const cell = board[pos]; let u = [...list]; const pIdx = u.findIndex(x => x.id === p.id);
                 const getMod = (t) => t === 'p' ? (difficulty === 'facil' ? 1.5 : (difficulty === 'extremo' ? 0.5 : (difficulty === 'hardcore' ? 0.2 : 1))) : (difficulty === 'facil' ? 0.5 : (difficulty === 'extremo' ? 1.5 : (difficulty === 'hardcore' ? 2.5 : 1)));
-                const sAndC = () => { u[pIdx] = p; setPlayers(u); if (!checkDeath(p, u)) { if (u.length !== 2 || u.some(x=>!x.isDead)) nextTurn(u); } else if (u.length !== 2 && u.some(x=>!x.isDead)) nextTurn(u); else if (u.length !== 2) setGameState('gameover'); };
+                const sAndC = () => { 
+                    u[pIdx] = p; setPlayers(u); 
+                    if (!checkDeath(p, u)) { 
+                        if (u.length <= 1 || u.filter(x=>!x.isDead).length > 1) nextTurn(u); 
+                    } else if (u.filter(x=>!x.isDead).length > 1) nextTurn(u); 
+                    // Si checkDeath no manejó el gameover, sAndC no lo hará directamente a menos que length sea 1. checkDeath maneja win de 2+.
+                };
 
                 if (!cell || cell.type === 'empty' || cell.type === 'start') return sAndC();
 
@@ -767,7 +915,7 @@
                     case 'trap': p.hp += cell.hp; if (cell.atk) p.atk = Math.max(0, p.atk + cell.atk); p.ledger.push({ action: `🪤 Trampa`, val: `${cell.hp} ❤️` }); log(`🪤 ${p.name} pisó trampa: ${cell.hp} Vida.`); triggerDamageEffects(); sAndC(); break;
                     case 'cliff': p.hp += cell.hp; p.ledger.push({ action: `🕳️ Hueco`, val: `${cell.hp} ❤️` }); log(`🕳️ ${p.name} cae: ${cell.hp} Vida.`); triggerDamageEffects(); sAndC(); break;
                     case 'enemy': case 'boss': if (p.defeatedEnemies.includes(pos)) { log(`🛡️ Enemigo ya derrotado.`); sAndC(); } else { playSfx('click'); setPendingEvent({ type: 'combat', player: p, cell, pos, enemyHp: cell.maxHp, enemyMaxHp: cell.maxHp, enemyAtk: Math.floor(cell.atk * getMod('e')), enemyName: cell.label, isBoss: cell.type === 'boss', rollResult: null }); } break;
-                    case 'jump': log(`🦘 ¡Salto a ${cell.target}!`); p.ledger.push({ action: `🦘 Salto`, val: `A ${cell.target}` }); u[pIdx] = p; setPlayers(u); playSfx('powerup'); setTimeout(() => movePlayer(p, cell.target), fastAnimations ? 400 : 800); break;
+                    case 'jump': log(`🦘 ¡Salto a ${cell.target}!`); p.ledger.push({ action: `🦘 Salto`, val: `A ${cell.target}` }); u[pIdx] = p; setPlayers(u); playSfx('powerup'); setTimeout(() => movePlayer(p, cell.target), fastAnimations ? 300 : 600); break;
                     case 'maze': p.skipTurns += cell.turns; p.ledger.push({ action: `🌀 Laberinto`, val: `-${cell.turns}T` }); log(`🌀 Pierdes ${cell.turns} turnos.`); sAndC(); break;
                     default: playSfx('click'); setPendingEvent({ player: p, cell, type: cell.type, rollResult: null }); break;
                 }
@@ -790,8 +938,8 @@
                             case 'mystery': if (roll === 1) { p.hp = Math.max(1, p.hp - 30); log("❓ Desastre! -30 Vida."); triggerDamageEffects(); } else if (roll === 6) { p.hp += 30; p.atk += 30; log("❓ ¡Milagro! +30 Vida/Fuerza."); playSfx('powerup'); rewardXp(50); } else { p.skipTurns += 1; log("❓ Parálisis 1T."); triggerDamageEffects(); } break;
                         }
                         list[pIdx] = p; setPlayers(list);
-                        if (checkDeath(p, list)) { setPendingEvent(null); if (list.length === 2) { } else if (list.some(x => !x.isDead)) nextTurn(list); else setGameState('gameover'); } else { setPendingEvent(null); nextTurn(list); }
-                    }, fastAnimations ? 600 : 1200);
+                        if (checkDeath(p, list)) { setPendingEvent(null); if (list.filter(x => !x.isDead).length > 1) nextTurn(list); } else { setPendingEvent(null); nextTurn(list); }
+                    }, fastAnimations ? 400 : 800);
                 });
             };
 
@@ -836,8 +984,8 @@
                         
                         if (roll !== 1) { p.hp -= evt.enemyAtk; p.ledger.push({ action: `💥 Combate`, val: `-${evt.enemyAtk} ❤️` }); log(`👹 ${evt.enemyName} ataca: ${evt.enemyAtk} daño.`); triggerDamageEffects(); } 
                         list[pIdx] = p; setPlayers(list); evt.player = p;
-                        if (checkDeath(p, list)) { setPendingEvent(null); if (list.length === 2) { } else if (list.some(x => !x.isDead)) nextTurn(list); else setGameState('gameover'); } else { evt.rollResult = null; setPendingEvent(evt); }
-                    }, fastAnimations ? 600 : 1200);
+                        if (checkDeath(p, list)) { setPendingEvent(null); if (list.filter(x => !x.isDead).length > 1) nextTurn(list); } else { evt.rollResult = null; setPendingEvent(evt); }
+                    }, fastAnimations ? 400 : 800);
                 });
             };
 
@@ -865,6 +1013,9 @@
                         const np = { ...prev };
                         if (type === 'class') np.unlockedClasses = [...(prev.unlockedClasses || []), item.id];
                         if (type === 'bg') np.unlockedBgs = [...(prev.unlockedBgs || []), item.id];
+                        if (type === 'item') {
+                            np.unlockedItems = [...(prev.unlockedItems || []), item.id];
+                        }
                         if (type === 'pass') np.premiumPass = true;
                         localStorage.setItem('laHistoriaProgress', JSON.stringify(np)); return np;
                     });
@@ -877,8 +1028,15 @@
                 playSfx('click'); setGameMode(mode); let usedBotNames = [...BOT_NAMES].sort(() => 0.5 - Math.random());
                 const initialTemp = Array.from({ length: count }).map((_, i) => {
                     const isBot = mode === 'online' && i > 0;
-                    return { id: i, name: isBot ? usedBotNames.pop() : `J${i+1} ${PLAYER_PALETTES[i%PLAYER_PALETTES.length].name}`, colorHex: PLAYER_PALETTES[i%PLAYER_PALETTES.length].hex, isBot: isBot };
+                    return { id: i, name: isBot ? usedBotNames.pop() : `J${i+1} ${PLAYER_PALETTES[i%PLAYER_PALETTES.length].name}`, colorHex: PLAYER_PALETTES[i%PLAYER_PALETTES.length].hex, isBot: isBot, inventory: [] };
                 });
+                
+                // Si el jugador local ha comprado items, añadirlos al jugador 1 (solo para local o líder)
+                if ((progress.unlockedItems || []).length > 0) {
+                     const p1Items = (progress.unlockedItems || []).map(itemId => STORE_ITEMS.find(i => i.id === itemId)).filter(Boolean);
+                     if (initialTemp[0]) initialTemp[0].inventory = p1Items;
+                }
+
                 setTempPlayers(initialTemp); setGameState('setup');
             };
 
@@ -933,13 +1091,25 @@
                 if (nextIdx < tempPlayers.length) {
                     setDrawingIndex(nextIdx);
                 } else {
-                    setPlayers(updatedTemp);
+                    // Aplicar items de inventario antes de empezar
+                    const finalPlayers = updatedTemp.map(p => {
+                        let finalHp = p.hp;
+                        let finalAtk = p.atk;
+                        p.inventory?.forEach(item => {
+                            if (item.effect === 'hp_up') finalHp += item.amount;
+                            if (item.effect === 'atk_up') finalAtk += item.amount;
+                            if (item.effect === 'hp_max') finalHp = p.heroClass.hp * 2; // Buff inicial si tiene pocion
+                        });
+                        return {...p, hp: finalHp, atk: finalAtk};
+                    });
+
+                    setPlayers(finalPlayers);
                     setGameState('playing');
                     setCurrPlayerIdx(0);
                     setDisplayDice(null);
                     setPendingEvent(null);
                     log(`🌍 MODO: ${gameMode.toUpperCase()} | DIFICULTAD: ${difficulty.toUpperCase()}`);
-                    log(`🚀 Partida iniciada.`);
+                    log(`🚀 Partida iniciada con ${finalPlayers.length} jugadores.`);
                     if (playMode === 'historia') {
                         const bossCell = selectedWorld === MAX_WORLD_ID ? 42 : 30;
                         log(`📜 El Jefe es: ${board[bossCell]?.label || 'Desconocido'}. ¡Suerte!`);
@@ -969,9 +1139,9 @@
                             </div>
 
                             <div className="flex gap-2 overflow-x-auto pb-2 flex-none mb-2 snap-x snap-mandatory hide-scrollbar">
-                                {['niveles', 'pase', 'personajes', 'fondos'].map(tab => (
+                                {['niveles', 'pase', 'personajes', 'fondos', 'items'].map(tab => (
                                     <button key={tab} onClick={() => { playSfx('tick'); setStoreTab(tab); }} className={`snap-center flex-1 min-w-[100px] py-2 px-3 rounded-xl font-black text-xs md:text-sm border-2 transition-all uppercase flex items-center justify-center gap-2 ${storeTab === tab ? 'bg-amber-400 text-amber-950 border-white shadow-[0_0_15px_rgba(251,191,36,0.6)] scale-105' : 'bg-game-900/60 text-amber-500 border-game-900 hover:bg-game-900/80'}`}>
-                                        {tab === 'niveles' ? '🌍 Mundos' : tab === 'pase' ? '🎟️ Pase' : tab === 'personajes' ? '🦸‍♂️ Clases' : '🌌 Fondos'}
+                                        {tab === 'niveles' ? '🌍 Mundos' : tab === 'pase' ? '🎟️ Pase' : tab === 'personajes' ? '🦸‍♂️ Clases' : tab === 'fondos' ? '🌌 Fondos' : '🎒 Objetos'}
                                     </button>
                                 ))}
                             </div>
@@ -1051,6 +1221,27 @@
                                         })}
                                     </div>
                                 )}
+                                
+                                {storeTab === 'items' && (
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                        <div className="col-span-full mb-2 p-2 bg-blue-900/30 border border-blue-900 rounded-lg text-xs text-blue-200">Estos objetos te darán ventajas al iniciar tu próxima partida.</div>
+                                        {STORE_ITEMS.map(item => {
+                                            const count = (progress.unlockedItems || []).filter(id => id === item.id).length;
+                                            return (
+                                                <div key={item.id} className="p-4 rounded-xl border-2 flex flex-col gap-3 bg-game-900/80 border-game-700">
+                                                    <div className="flex gap-3 items-center">
+                                                        <div className="text-4xl filter drop-shadow-md flex-none">{item.icon}</div>
+                                                        <div className="text-left flex-1 min-w-0">
+                                                            <h4 className="font-black text-game-100 text-lg truncate">{item.name} <span className="text-xs text-game-300 font-normal ml-1">x{count}</span></h4>
+                                                            <p className="text-xs text-game-300/80 italic">{item.desc}</p>
+                                                        </div>
+                                                    </div>
+                                                    <button onClick={() => buyStoreItem('item', item)} className="w-full py-2.5 cartoon-btn text-xs !bg-amber-300 !text-amber-900">{item.cost} <i className="fa-solid fa-coins"></i> Comprar</button>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -1080,7 +1271,7 @@
                                     return (
                                         <div key={bp.level} className={`p-4 rounded-xl border-2 flex flex-col gap-3 transition-all ${isUnlocked ? 'bg-blue-900/40 border-blue-500' : 'bg-game-900/80 border-game-700'}`}>
                                             <div className="flex justify-between items-center text-left">
-                                                <div className="flex items-center gap-3"><span className="text-2xl">🏆</span><div><p className={`text-base font-black ${isUnlocked ? 'text-blue-300' : 'text-game-100'}`}>Nivel {bp.level}</p></div></div>
+                                                <div className="flex items-center gap-3"><span className="text-2xl">🏆</span><div><p className={`text-base font-black ${isUnlocked ? 'text-blue-300' : 'text-game-100'}`}>Nivel {bp.level}</p><p className="text-xs text-game-400">{bp.title}</p></div></div>
                                                 <div className="text-sm font-mono font-black text-game-300 bg-black/40 px-3 py-1 rounded-md">{Math.min(currentXp, bp.xpReq)} / {bp.xpReq}</div>
                                             </div>
                                             <div className="w-full bg-black/50 h-3 rounded-full overflow-hidden mb-1 border border-game-900"><div className="bg-blue-500 h-full transition-all duration-500 shadow-inner" style={{width: `${Math.min(100, (currentXp/bp.xpReq)*100)}%`}}></div></div>
@@ -1267,24 +1458,23 @@
 
             if (gameState === 'promo') {
                 return (
-                    <div className="min-h-screen flex items-center justify-center p-4 bg-purple-950 z-[90] animate-fade-in relative overflow-hidden">
-                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 animation-pulse"></div>
-                        <div className="wood-panel max-w-lg w-full p-8 text-center flex flex-col gap-5 z-10 shadow-2xl border-4 border-fuchsia-500 shadow-[0_0_50px_rgba(217,70,239,0.5)] animate-pop-in">
-                            <div className="text-5xl animate-bounce">🎉🚀</div>
-                            <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-widest drop-shadow-[0_0_10px_rgba(217,70,239,1)]">¡ACTUALIZACIÓN!</h1>
-                            <h2 className="text-xl font-bold text-fuchsia-300 bg-black/40 p-2 rounded-xl border border-fuchsia-900/50">🌟 {VERSION_SETTINGS} 🌟</h2>
-                            <div className="text-sm font-bold text-game-100 text-left bg-black/40 p-5 rounded-xl border border-fuchsia-500/50 shadow-inner space-y-3">
-                                <p>🔥 Nuevos cambios y contenido disponibles.</p>
-                                <ul className="pl-4 space-y-1.5 list-disc marker:text-fuchsia-400">
-                                    <li>🐛 Arreglos de bugs importantes.</li>
-                                    <li>🌍 Más mundos por explorar.</li>
-                                    <li>🦸‍♂️ Más personajes desbloqueables.</li>
-                                    <li>🛒 Más artículos en la tienda.</li>
-                                    <li>🎟️ Más niveles en el Pase de Batalla.</li>
-                                    <li>✨ ¡Y mucho más!</li>
+                    <div className="min-h-screen flex items-center justify-center p-4 bg-blue-950 z-[90] animate-fade-in relative overflow-hidden">
+                        <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/stardust.png')] opacity-30 animate-spin-slow"></div>
+                        <div className="wood-panel max-w-lg w-full p-8 text-center flex flex-col gap-5 z-10 shadow-2xl border-4 border-blue-500 shadow-[0_0_50px_rgba(59,130,246,0.5)] animate-pop-in">
+                            <div className="text-5xl animate-bounce">⚡🚀</div>
+                            <h1 className="text-3xl md:text-4xl font-black text-white uppercase tracking-widest drop-shadow-[0_0_10px_rgba(59,130,246,1)]">¡MEGAACTUALIZACIÓN!</h1>
+                            <h2 className="text-xl font-bold text-blue-300 bg-black/40 p-2 rounded-xl border border-blue-900/50">🌟 {VERSION_SETTINGS} 🌟</h2>
+                            <div className="text-sm font-bold text-game-100 text-left bg-black/40 p-5 rounded-xl border border-blue-500/50 shadow-inner space-y-3">
+                                <p>🔥 ¡El rendimiento ha sido desatado!</p>
+                                <ul className="pl-4 space-y-1.5 list-disc marker:text-blue-400">
+                                    <li>🚀 <span className="text-yellow-300">Super Optimización</span>: Corre más suave que nunca.</li>
+                                    <li>🌌 <span className="text-purple-300">+10 Nuevos Mundos</span> (45 en total).</li>
+                                    <li>👥 <span className="text-green-300">Más Jugadores</span>: ¡Soporte hasta 30 jugadores locales/bots!</li>
+                                    <li>🎒 <span className="text-amber-300">Nuevos Objetos</span> en la Tienda.</li>
+                                    <li>🦸‍♂️ Nuevas clases desbloqueables.</li>
                                 </ul>
                             </div>
-                            <button onClick={() => { playSfx('victory'); setGameState('menu'); }} className="w-full py-4 mt-2 cartoon-btn text-xl !bg-fuchsia-600 !text-white !border-fuchsia-900 shadow-[0_0_20px_rgba(217,70,239,0.8)] hover:!bg-fuchsia-500 animate-pulse">¡JUGAR AHORA! 🚀</button>
+                            <button onClick={() => { playSfx('victory'); setGameState('menu'); }} className="w-full py-4 mt-2 cartoon-btn text-xl !bg-blue-600 !text-white !border-blue-900 shadow-[0_0_20px_rgba(59,130,246,0.8)] hover:!bg-blue-500 animate-pulse">¡ENTRAR AL CAOS! ⚔️</button>
                         </div>
                     </div>
                 );
@@ -1296,7 +1486,7 @@
                 const currentUnlocked = progress.unlockedWorlds || 1; const isUnlocked = selectedWorld <= currentUnlocked;
 
                 return (
-                    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative">
+                    <div className="min-h-screen flex flex-col items-center justify-center p-4 relative overflow-hidden">
                         <AnimatedBackground worldId={selectedWorld} difficulty={difficulty} gameState={gameState} equippedBg={progress.equippedBg} /> 
                         {renderSettingsMenu()} {renderMissions()} {renderBattlePass()} {renderStore()}
                         
@@ -1335,7 +1525,6 @@
                                 <h1 className="text-4xl md:text-5xl font-black text-game-900 tracking-wide uppercase drop-shadow-md">La Historia</h1>
                             </div>
                             
-                            {/* AQUÍ ESTÁ LA LÓGICA DE LA ETIQUETA RC vs NORMAL */}
                             <div className="z-10 relative flex justify-center -mt-8 mb-2 animate-bounce-slow">
                                 <span className={`px-4 py-1.5 rounded-full text-[10px] md:text-xs font-black uppercase tracking-widest shadow-md ${IS_RC ? 'rc-badge' : 'normal-badge'}`}>
                                     {VERSION_MENU}
@@ -1344,7 +1533,7 @@
                             
                             {isEventActive && (
                                 <div className="bg-purple-900/80 p-4 rounded-xl border-2 border-purple-500 flex flex-col items-center gap-1.5 shadow-[0_0_15px_rgba(168,85,247,0.5)] animate-pop-in -mt-2 mb-2">
-                                    <span className="text-purple-200 text-xs font-black uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-satellite-dish animate-pulse"></i> EVENTO EN VIVO <i className="fa-solid fa-bolt text-yellow-400"></i></span>
+                                    <span className="text-purple-200 text-xs font-black uppercase tracking-widest flex items-center gap-2"><i className="fa-solid fa-satellite-dish animate-pulse"></i> EVENTO DE FIN DE SEMANA <i className="fa-solid fa-bolt text-yellow-400"></i></span>
                                     <span className="text-3xl md:text-4xl font-mono font-black text-white drop-shadow-md">{timeLeft}</span>
                                     <span className="text-[10px] md:text-xs text-purple-300 font-bold uppercase tracking-wider mt-1">¡Recompensas x2 (Derals) activas!</span>
                                 </div>
@@ -1376,7 +1565,7 @@
                                         <i className="fa-solid fa-lock text-5xl text-game-900/80 mb-3"></i>
                                         <p className="text-game-300 font-bold text-sm md:text-base mb-4">Mundo Bloqueado</p>
                                         <button onClick={() => { playSfx('click'); setShowStore(true); setStoreTab('niveles'); }} className="w-full py-4 cartoon-btn text-xs md:text-sm !bg-yellow-100 !text-yellow-900 flex justify-center items-center gap-2 shadow-lg">
-                                            <i className="fa-solid fa-store"></i> Ir a la Tienda a Desbloquear
+                                            <i className="fa-solid fa-store"></i> Ir a la Tienda
                                         </button>
                                     </div>
                                 ) : (
@@ -1386,16 +1575,16 @@
                                             <div className="flex items-center gap-4">
                                                 <button onClick={() => { playSfx('tick'); setLocalPlayerCount(Math.max(1, localPlayerCount - 1)); }} className="wood-control-btn w-12 h-12 text-xl">-</button>
                                                 <div className="flex-1 text-center font-black text-game-100 text-lg">{localPlayerCount} <span className="text-[10px] md:text-xs font-normal block -mt-1 text-game-300">Jugadores</span></div>
-                                                <button onClick={() => { playSfx('tick'); setLocalPlayerCount(Math.min(20, localPlayerCount + 1)); }} className="wood-control-btn w-12 h-12 text-xl">+</button>
+                                                <button onClick={() => { playSfx('tick'); setLocalPlayerCount(Math.min(MAX_PLAYERS, localPlayerCount + 1)); }} className="wood-control-btn w-12 h-12 text-xl">+</button>
                                             </div>
                                             <button onClick={() => initSetup('local', localPlayerCount)} className="w-full mt-4 py-3.5 cartoon-btn text-xs md:text-sm">Jugar Local</button>
                                         </div>
                                         <div className="bg-game-900/30 p-4 rounded-xl border border-game-900 border-dashed">
-                                            <label className="text-blue-300 font-bold text-xs md:text-sm uppercase mb-3 block tracking-wide"><i className="fa-solid fa-globe mr-1"></i> Vs Bots (IA):</label>
+                                            <label className="text-blue-300 font-bold text-xs md:text-sm uppercase mb-3 block tracking-wide"><i className="fa-solid fa-robot mr-1"></i> Vs Bots (IA):</label>
                                             <div className="flex items-center gap-4">
                                                 <button onClick={() => { playSfx('tick'); setOnlinePlayerCount(Math.max(2, onlinePlayerCount - 1)); }} className="wood-control-btn w-12 h-12 text-xl !bg-blue-800">-</button>
                                                 <div className="flex-1 text-center font-black text-blue-100 text-lg">1 vs {onlinePlayerCount - 1} <span className="text-[10px] md:text-xs font-normal block -mt-1 text-blue-300">Bots</span></div>
-                                                <button onClick={() => { playSfx('tick'); setOnlinePlayerCount(Math.min(20, onlinePlayerCount + 1)); }} className="wood-control-btn w-12 h-12 text-xl !bg-blue-800">+</button>
+                                                <button onClick={() => { playSfx('tick'); setOnlinePlayerCount(Math.min(MAX_PLAYERS, onlinePlayerCount + 1)); }} className="wood-control-btn w-12 h-12 text-xl !bg-blue-800">+</button>
                                             </div>
                                             <button onClick={() => initSetup('online', onlinePlayerCount)} className="w-full mt-4 py-3.5 cartoon-btn text-xs md:text-sm !bg-blue-100 !text-blue-900 hover:!bg-blue-200">Jugar Solo</button>
                                         </div>
@@ -1413,29 +1602,29 @@
                 return (
                     <div className="min-h-screen flex items-center justify-center p-4">
                         <AnimatedBackground worldId={selectedWorld} difficulty={difficulty} gameState={gameState} equippedBg={progress.equippedBg} />
-                        <div className="wood-panel max-w-md w-full p-6 md:p-8 text-center flex flex-col gap-6 animate-pop-in z-10 shadow-2xl">
-                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 wood-banner text-game-900 px-8 py-1.5 rounded-xl text-lg font-black uppercase border-4 border-game-900 shadow-md whitespace-nowrap">CLASES</span>
-                            <div className="mt-6 flex flex-col gap-3 text-left">
+                        <div className="wood-panel max-w-md w-full p-6 md:p-8 text-center flex flex-col gap-6 animate-pop-in z-10 shadow-2xl h-[90vh]">
+                            <span className="absolute -top-6 left-1/2 -translate-x-1/2 wood-banner text-game-900 px-8 py-1.5 rounded-xl text-lg font-black uppercase border-4 border-game-900 shadow-md whitespace-nowrap">PREPARACIÓN</span>
+                            <div className="mt-4 flex flex-col gap-3 text-left">
                                 <label className="text-sm font-bold text-game-300 uppercase block tracking-wide">Dificultad:</label>
                                 {isVoidLocked && <p className="text-[10px] md:text-xs text-red-400 font-black animate-pulse text-center bg-red-950/50 rounded-xl p-2 border border-red-900 tracking-wider">EL VACÍO EXIGE HARDCORE OBLIGATORIO</p>}
-                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                                <div className="grid grid-cols-3 gap-2">
                                     {['facil', 'normal', 'dificil', 'extremo', 'hardcore'].map(diff => (
                                         <button key={diff} onClick={() => { playSfx('click'); setDifficulty(diff); }} disabled={isVoidLocked && diff !== 'hardcore'}
-                                            className={`py-3 rounded-xl font-bold border-2 transition-all text-[10px] md:text-xs uppercase tracking-wide disabled:opacity-20 disabled:cursor-not-allowed ${difficulty === diff ? 'bg-game-100 text-game-900 border-game-900 shadow-lg ring-2 ring-game-300 scale-105' : 'bg-game-900/60 text-game-300 border-game-900'} ${diff === 'hardcore' && difficulty === diff ? '!bg-red-900 !text-white !border-red-950 shadow-[0_0_15px_rgba(220,38,38,0.5)]' : ''}`}>
+                                            className={`py-2 rounded-xl font-bold border-2 transition-all text-[9px] md:text-[10px] uppercase tracking-wide disabled:opacity-20 disabled:cursor-not-allowed ${difficulty === diff ? 'bg-game-100 text-game-900 border-game-900 shadow-lg ring-2 ring-game-300 scale-105' : 'bg-game-900/60 text-game-300 border-game-900'} ${diff === 'hardcore' && difficulty === diff ? '!bg-red-900 !text-white !border-red-950 shadow-[0_0_15px_rgba(220,38,38,0.5)]' : ''}`}>
                                             {diff === 'facil' ? '👶 Fácil' : diff === 'normal' ? '😀 Normal' : diff === 'dificil' ? '👹 Difícil' : diff === 'extremo' ? '💀 EXTREMO' : '🔥 HARDCORE'}
                                         </button>
                                     ))}
                                 </div>
                             </div>
-                            <div className="flex flex-col gap-3 text-left overflow-y-auto max-h-56 p-3 bg-game-900/30 rounded-xl border border-game-900 shadow-inner hide-scrollbar">
-                                <label className="text-sm font-bold text-game-300 uppercase block sticky top-0 bg-transparent backdrop-blur-md pb-2 z-10">Jugadores:</label>
+                            <div className="flex-1 flex flex-col gap-3 text-left overflow-y-auto p-3 bg-game-900/30 rounded-xl border border-game-900 shadow-inner hide-scrollbar">
+                                <label className="text-sm font-bold text-game-300 uppercase block sticky top-0 bg-transparent backdrop-blur-md pb-2 z-10">Jugadores ({tempPlayers.length}):</label>
                                 {tempPlayers.map((tp, idx) => {
                                     if (!tp.heroClass) { 
                                         const hc = HERO_CLASSES[Math.floor(Math.random() * HERO_CLASSES.length)];
                                         const n = [...tempPlayers]; n[idx].heroClass = hc; setTempPlayers(n); 
                                     }
                                     return (
-                                        <div key={tp.id} className="flex flex-col gap-2 bg-game-900/50 p-3 rounded-xl border border-game-900">
+                                        <div key={tp.id} className="flex flex-col gap-2 bg-game-900/50 p-3 rounded-xl border border-game-900 shrink-0">
                                             <div className="flex items-center gap-3">
                                                 <span className="w-5 h-5 rounded-full border border-game-900 flex-none shadow-sm" style={{backgroundColor: tp.colorHex}}></span>
                                                 <input type="text" value={tp.name} disabled={tp.isBot} onChange={(e) => { const u = [...tempPlayers]; u[idx].name = e.target.value.substring(0, 12); setTempPlayers(u); }} className={`flex-1 px-3 py-2 text-xs md:text-sm rounded-xl font-bold border border-game-900 focus:outline-none shadow-inner ${tp.isBot ? 'bg-stone-400 text-stone-700' : 'bg-amber-50 text-stone-950'}`} placeholder={`Héroe ${idx + 1}`} />
@@ -1443,13 +1632,14 @@
                                             {tp.heroClass && (
                                                 <div className="text-[10px] md:text-xs text-game-300 font-bold ml-8 flex justify-between items-center pr-1">
                                                     <span>Clase: <span className="text-game-100">{tp.heroClass.icon} {tp.heroClass.name}</span></span>
+                                                    {(tp.inventory || []).length > 0 && <span className="text-amber-400" title="Objetos equipados"><i className="fa-solid fa-backpack"></i> {(tp.inventory||[]).length}</span>}
                                                 </div>
                                             )}
                                         </div>
                                     );
                                 })}
                             </div>
-                            <div className="flex gap-3 mt-2">
+                            <div className="flex gap-3 mt-2 shrink-0">
                                 <button onClick={() => { playSfx('click'); setGameState('menu'); }} className="flex-1 py-4 text-xs md:text-sm cartoon-btn !bg-red-100 !text-red-900">Atrás</button>
                                 <button onClick={startDrawingPhase} className="flex-[2] py-4 cartoon-btn text-xs md:text-sm">Pizarrón 🖌️</button>
                             </div>
@@ -1538,19 +1728,20 @@
                                     </div>
                                 )}
                             </div>
-                            <div className="flex-1 flex flex-col gap-3 md:gap-4 overflow-y-auto max-h-[40vh] xl:max-h-none pr-1 hide-scrollbar">
+                            <div className="flex-1 flex flex-col gap-3 md:gap-4 overflow-y-auto max-h-[40vh] xl:max-h-[50vh] pr-1 hide-scrollbar">
                                 {players.map(p => (
                                     <div key={p.id} className={`relative rounded-2xl border-4 transition-all overflow-hidden bg-game-900 shadow-md ${p.isDead ? 'opacity-40 grayscale' : ''} ${currPlayerIdx === p.id && !p.isDead ? 'border-game-300 shadow-lg shadow-game-300/30 scale-[1.02]' : 'border-game-900'}`}>
                                         <div className="bg-game-900 p-2 md:p-3 flex items-center gap-3 border-b-2 border-game-900">
-                                            <img src={p.avatarData} className="w-10 h-10 md:w-12 md:h-12 rounded-xl border border-game-900 bg-stone-50 flex-none shadow-sm" />
+                                            {/* Uso de img src base64 puede afectar rendimiento, lo dejamos por el dibujo */}
+                                            <img src={p.avatarData} className="w-10 h-10 md:w-12 md:h-12 rounded-xl border border-game-900 bg-stone-50 flex-none shadow-sm" loading="lazy" />
                                             <div className="min-w-0 flex-1">
                                                 <p className="font-bold text-xs md:text-sm truncate drop-shadow-sm flex items-center justify-between" style={{ color: p.colorHex }}><span>{p.name} {p.isBot && '🤖'}</span><span className="text-[10px] text-stone-400">{p.heroClass.icon}</span></p>
                                                 <div className="flex gap-2 md:gap-4 text-[10px] md:text-xs font-mono mt-0.5"><span className="text-green-400 bg-green-900/30 px-1.5 rounded-md border border-green-900/50">❤️ {p.hp}</span><span className="text-blue-400 bg-blue-900/30 px-1.5 rounded-md border border-blue-900/50">⚔️ {p.atk}</span></div>
                                             </div>
                                         </div>
-                                        <div className="grid-paper p-2 h-20 md:h-24 overflow-y-auto text-[10px] md:text-[11px] flex flex-col gap-1 hide-scrollbar">
+                                        <div className="grid-paper p-2 h-20 md:h-24 overflow-y-auto text-[10px] md:text-[11px] flex flex-col gap-1 hide-scrollbar" style={{contain: 'content'}}>
                                             <p className="text-[9px] md:text-[10px] font-bold text-stone-500 uppercase border-b border-stone-300 pb-1 mb-1 tracking-wider">Historial:</p>
-                                            {p.ledger.map((item, i) => ( <div key={i} className="flex justify-between items-center border-b border-stone-200/50 py-0.5 font-mono"><span className="text-stone-600 font-bold truncate pr-1 max-w-[60%]">{item.action}:</span><span className="marker-text text-game-900 font-extrabold whitespace-nowrap">{item.val}</span></div> ))}
+                                            {p.ledger.slice(-10).map((item, i) => ( <div key={i} className="flex justify-between items-center border-b border-stone-200/50 py-0.5 font-mono"><span className="text-stone-600 font-bold truncate pr-1 max-w-[60%]">{item.action}:</span><span className="marker-text text-game-900 font-extrabold whitespace-nowrap">{item.val}</span></div> ))}
                                         </div>
                                     </div>
                                 ))}
@@ -1558,7 +1749,7 @@
                         </div>
 
                         {/* TABLERO */}
-                        <div className="flex-1 flex items-center justify-center p-1 md:p-2">
+                        <div className="flex-1 flex items-center justify-center p-1 md:p-2 game-board-container">
                             <div className={`grid ${selectedWorld === MAX_WORLD_ID && playMode === 'historia' ? 'grid-cols-6 lg:grid-cols-7' : 'grid-cols-6'} gap-1 md:gap-2 max-w-5xl w-full`}>
                                 {renderedBoardMap.map(num => {
                                     const cell = board[num] || { type: 'empty', label: 'Camino', icon: '🌲', desc: 'Zona segura.' };
@@ -1572,12 +1763,12 @@
                                     else if (cell.type === 'maze') bgClass = "bg-violet-950/40 border-violet-900/50";
 
                                     return (
-                                        <div id={`cell-${num}`} key={num} className={`relative aspect-square border-2 rounded-xl md:rounded-2xl flex flex-col items-center justify-center p-0.5 md:p-1 transition-all duration-300 ${bgClass} hover:bg-game-900/70 ${focusedCell === num ? 'animate-cell-zoom' : ''}`} title={cell.desc}>
+                                        <div id={`cell-${num}`} key={num} className={`relative aspect-square border-2 rounded-xl md:rounded-2xl flex flex-col items-center justify-center p-0.5 md:p-1 transition-all duration-300 ${bgClass} hover:bg-game-900/70 ${focusedCell === num ? 'animate-cell-zoom' : ''}`} title={cell.desc} style={{contain: 'layout paint'}}>
                                             <span className="absolute top-0.5 left-1 text-[8px] md:text-sm text-game-300/50 font-mono font-black">{num}</span>
                                             <span className="text-xl md:text-4xl filter drop-shadow-md mt-1 md:mt-0">{cell.icon}</span>
                                             <span className="text-[6px] md:text-[9px] leading-tight text-center font-bold text-game-100 px-0.5 hidden sm:block truncate w-full mt-1 uppercase tracking-tighter">{cell.label}</span>
                                             <div className="absolute bottom-0.5 right-0.5 sm:top-1 sm:bottom-auto flex gap-0.5 flex-wrap-reverse sm:flex-wrap justify-end max-w-[80%]">
-                                                {playersHere.map(p => ( <div key={p.id} className={`w-2.5 h-2.5 md:w-4 md:h-4 rounded-full border border-game-900 shadow-lg z-10 token transition-transform hover:scale-150 ${currPlayerIdx === p.id && !isRolling ? 'animate-bounce' : ''}`} style={{ backgroundColor: p.colorHex }} title={p.name}></div> ))}
+                                                {playersHere.map(p => ( <div key={p.id} className={`w-2.5 h-2.5 md:w-3 md:h-3 rounded-full border border-game-900 shadow-lg z-10 token transition-transform hover:scale-150 ${currPlayerIdx === p.id && !isRolling ? 'animate-bounce' : ''}`} style={{ backgroundColor: p.colorHex }} title={p.name}></div> ))}
                                             </div>
                                         </div>
                                     );
